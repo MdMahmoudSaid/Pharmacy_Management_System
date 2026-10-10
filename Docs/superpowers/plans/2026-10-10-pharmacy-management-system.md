@@ -303,7 +303,7 @@ git commit -m "chore: scaffold bilingual pharmacy application"
 - Produces: all tables and constraints in **Database Contract**.
 - Produces: `resetDatabase()` for integration tests.
 
-- [ ] **Step 1: Start an isolated PostgreSQL 18 test service**
+- [x] **Step 1: Start an isolated PostgreSQL 18 test service**
 
 Use database `pharmacy_test`, a health check with `pg_isready`, a named test-only
 volume, and port `55432`. Set `DATABASE_URL` in `.env.test` to that service.
@@ -312,7 +312,7 @@ Run: `docker compose -f compose.test.yml up -d --wait`
 
 Expected: PostgreSQL reports healthy.
 
-- [ ] **Step 2: Write failing schema constraint tests**
+- [x] **Step 2: Write failing schema constraint tests**
 
 ```ts
 it('enforces one open shift per user and non-negative stock', async () => {
@@ -326,13 +326,13 @@ it('enforces one open shift per user and non-negative stock', async () => {
 Add assertions for unique normalized phone, unique sale idempotency per operator,
 positive sale-item quantity, positive expense amount, and indexed foreign keys.
 
-- [ ] **Step 3: Run the schema test and verify failure**
+- [x] **Step 3: Run the schema test and verify failure**
 
 Run: `pnpm vitest run --config vitest.integration.config.ts tests/integration/db/schema.test.ts`
 
 Expected: FAIL because schema and migration do not exist.
 
-- [ ] **Step 4: Implement the schema and migration**
+- [x] **Step 4: Implement the schema and migration**
 
 Create every table and constraint from **Database Contract**. Use
 `bigint('id', {mode: 'number'}).primaryKey().generatedAlwaysAsIdentity()`, `timestamp` with
@@ -349,13 +349,13 @@ Generate and inspect SQL with `pnpm drizzle-kit generate --name=initial`, which
 creates `drizzle/0000_initial.sql`; keep Drizzle’s generated metadata files with
 the migration.
 
-- [ ] **Step 5: Apply and verify migrations**
+- [x] **Step 5: Apply and verify migrations**
 
 Run: `pnpm tsx src/db/migrate.ts && pnpm vitest run --config vitest.integration.config.ts tests/integration/db/schema.test.ts`
 
 Expected: migration applies once, reapplies as a no-op, and all constraints PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add drizzle.config.ts compose.test.yml src/db drizzle tests/factories/database.ts tests/integration/db
