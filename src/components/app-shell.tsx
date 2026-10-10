@@ -4,6 +4,7 @@ import {
   Home,
   Menu,
   ReceiptText,
+  WalletCards,
   UsersRound
 } from 'lucide-react';
 import {getTranslations} from 'next-intl/server';
@@ -14,7 +15,7 @@ import type {PermissionActor} from '@/modules/permissions/service';
 import {LanguageSwitcher} from './language-switcher';
 
 type NavItem = {
-  key: 'home' | 'sales' | 'stock' | 'shift' | 'medicines' | 'employees' | 'more';
+  key: 'home' | 'sales' | 'expenses' | 'stock' | 'shift' | 'medicines' | 'employees' | 'more';
   href: string;
   icon: typeof Home;
   domain?: string;
@@ -38,6 +39,12 @@ export async function AppShell({
       href: `${base}/sales`,
       icon: ReceiptText,
       domain: 'sales'
+    },
+    {
+      key: 'expenses',
+      href: `${base}/expenses`,
+      icon: WalletCards,
+      domain: 'expenses'
     },
     {
       key: 'stock',

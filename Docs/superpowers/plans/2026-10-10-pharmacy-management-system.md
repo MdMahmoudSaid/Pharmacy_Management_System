@@ -813,32 +813,32 @@ git commit -m "feat: add auditable sale corrections and receipts"
 - Produces: `createExpense`, `correctExpense`, `cancelExpense`, `listExpenses`.
 - Consumes: active shift, scoped authorization, decimal validation, audit.
 
-- [ ] **Step 1: Write failing expense lifecycle tests**
+- [x] **Step 1: Write failing expense lifecycle tests**
 
 Create `500.00`, assert employee and shift links and derived totals; correct to
 `300.00`, assert active totals and `500.00 -> 300.00` audit; cancel, assert history
 remains and active totals exclude it. Test zero, negative, three decimals, blank
 description, missing shift, blank correction reason, and own/all scope denial.
 
-- [ ] **Step 2: Run and verify failure**
+- [x] **Step 2: Run and verify failure**
 
 Run: `pnpm vitest run --config vitest.integration.config.ts tests/integration/expenses`
 
 Expected: FAIL on missing expense services.
 
-- [ ] **Step 3: Implement service, actions, and page**
+- [x] **Step 3: Implement service, actions, and page**
 
 Store money as two-decimal strings through Drizzle numeric columns. Use status
 changes rather than deletion. Build period, employee, and shift filters, with
 translated states and confirmation-reason dialogs for sensitive changes.
 
-- [ ] **Step 4: Verify acceptance scenarios 8, 9, and 10**
+- [x] **Step 4: Verify acceptance scenarios 8, 9, and 10**
 
 Run: `pnpm vitest run --config vitest.integration.config.ts tests/integration/expenses && pnpm playwright test tests/e2e/expenses.spec.ts`
 
 Expected: PASS with active totals exactly matching source transactions.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/modules/expenses src/app tests/integration/expenses tests/e2e/expenses.spec.ts

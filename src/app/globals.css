@@ -1379,6 +1379,121 @@ textarea {
   cursor: pointer;
 }
 
+.expenses-layout {
+  display: grid;
+  grid-template-columns: minmax(18rem, 0.7fr) minmax(0, 1.4fr);
+  gap: 1.25rem;
+  align-items: start;
+  margin-block-start: 2rem;
+}
+
+.expense-form h2 {
+  margin: 0;
+}
+
+.expense-form button {
+  border: 0;
+}
+
+.expense-filters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(7rem, 1fr)) auto;
+  gap: 0.65rem;
+  align-items: end;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.8rem;
+  background: white;
+}
+
+.expense-filters label {
+  display: grid;
+  gap: 0.3rem;
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.expense-filters input,
+.expense-actions input {
+  min-width: 0;
+  min-height: 2.7rem;
+  padding-inline: 0.65rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.6rem;
+}
+
+.expense-filters button {
+  min-height: 2.7rem;
+  padding-inline: 0.8rem;
+}
+
+.expense-list {
+  display: grid;
+  gap: 0.65rem;
+  margin-block-start: 1rem;
+}
+
+.expense-list h2,
+.expense-list > p {
+  margin: 0;
+}
+
+.expense-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.8rem;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.8rem;
+  background: white;
+}
+
+.expense-row > div:first-child {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.expense-row small {
+  color: var(--color-muted);
+}
+
+.expense-actions {
+  display: flex;
+  grid-column: 1 / -1;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-block-start: 0.75rem;
+  border-block-start: 1px solid var(--color-border);
+}
+
+.expense-actions details {
+  flex: 1 1 20rem;
+}
+
+.expense-actions summary {
+  color: var(--color-primary);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.expense-actions form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-block-start: 0.6rem;
+}
+
+.expense-actions input {
+  flex: 1 1 9rem;
+}
+
+.expense-actions button {
+  min-height: 2.7rem;
+  padding-inline: 0.8rem;
+}
+
 @media (max-width: 600px) {
   .compact-grid-form {
     grid-template-columns: 1fr;
@@ -1386,7 +1501,9 @@ textarea {
 
   .sale-history > a,
   .sale-detail-grid,
-  .correction-row {
+  .correction-row,
+  .expenses-layout,
+  .expense-filters {
     grid-template-columns: 1fr;
   }
 
