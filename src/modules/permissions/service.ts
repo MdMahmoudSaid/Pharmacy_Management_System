@@ -34,6 +34,19 @@ export function authorize(
   }
 }
 
+export function can(
+  actor: PermissionActor,
+  permission: PermissionKey,
+  ownerId?: number
+): boolean {
+  try {
+    authorize(actor, permission, ownerId);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function loadPermissionActor(
   userId: number
 ): Promise<PermissionActor> {

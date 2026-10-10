@@ -521,7 +521,7 @@ git commit -m "feat: add secure PIN authentication and scoped permissions"
 - Produces: create/edit/archive/restore/reset-PIN/grant/revoke user operations.
 - Produces: permission-filtered mobile bottom navigation and desktop sidebar.
 
-- [ ] **Step 1: Write failing employee lifecycle tests**
+- [x] **Step 1: Write failing employee lifecycle tests**
 
 Test unique phone, Arabic default, permission grant/revoke audit, mandatory reason
 for archive/restore/PIN reset/permission changes, archived login denial, session
@@ -531,19 +531,19 @@ Run: `pnpm vitest run --config vitest.integration.config.ts tests/integration/us
 
 Expected: FAIL on missing user operations.
 
-- [ ] **Step 2: Implement services and actions**
+- [x] **Step 2: Implement services and actions**
 
 Every action validates input, calls `authorize`, executes mutation plus
 `appendAudit` in one transaction, and returns `ActionResult`. Never return
 `pin_hash`, session hashes, or the full permission list to an unauthorized user.
 
-- [ ] **Step 3: Implement responsive shell and employee page**
+- [x] **Step 3: Implement responsive shell and employee page**
 
 Mobile navigation contains Home, Sale, Stock, Shift, More. Desktop uses a sidebar.
 Filter every item by permission. Mirror ordering and directional icons in RTL.
 Employee forms expose all fixed catalog permissions grouped by domain and scope.
 
-- [ ] **Step 4: Verify UI and backend denial**
+- [x] **Step 4: Verify UI and backend denial**
 
 The E2E test creates an employee, grants one sensitive permission, signs in as
 that employee, verifies unrelated navigation is absent, directly submits an
@@ -553,7 +553,7 @@ Run: `pnpm vitest run --config vitest.integration.config.ts tests/integration/us
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/components src/app src/modules/users tests/integration/users tests/e2e/employees.spec.ts
