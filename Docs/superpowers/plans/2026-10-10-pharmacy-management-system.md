@@ -970,28 +970,28 @@ git commit -m "feat: add settings PWA shell and bilingual UI hardening"
 - Produces: reproducible build/migrate/create-admin/start instructions for VPS
   operator without performing the deployment.
 
-- [ ] **Step 1: Encode the 19 acceptance scenarios as named E2E tests**
+- [x] **Step 1: Encode the 19 acceptance scenarios as named E2E tests**
 
 Use test names `AT-01` through `AT-19`, matching the source document in order.
 Use shared factories and preserve the numeric examples: receive 20, sell 3 to
 reach 17, correct to 2 to reach 18, cancel to restore 20; expense 500.00,
 correct to 300.00, then cancel.
 
-- [ ] **Step 2: Run the acceptance suite and fix only proven gaps**
+- [x] **Step 2: Run the acceptance suite and fix only proven gaps**
 
 Run: `pnpm playwright test tests/e2e/acceptance.spec.ts`
 
 Expected: 19 named scenarios PASS. If one fails, change the owning module and its
 targeted test first, rerun that scenario, then rerun the acceptance file.
 
-- [ ] **Step 3: Add CI gates**
+- [x] **Step 3: Add CI gates**
 
 GitHub Actions must use Node 24, a PostgreSQL 18 service, `pnpm install
 --frozen-lockfile`, migrations, `pnpm lint`, `pnpm typecheck`, unit tests,
 integration tests, production build, and Playwright acceptance tests. Cache only
 the pnpm store and Playwright browsers keyed by lockfile.
 
-- [ ] **Step 4: Add production packaging and handoff docs**
+- [x] **Step 4: Add production packaging and handoff docs**
 
 Use a multi-stage Node 24 image copying Next.js standalone output plus
 `public/` and `.next/static/`. The production compose example contains the app,
@@ -999,7 +999,7 @@ PostgreSQL 18, persistent volume, health checks, restart policy, and environment
 variable names with no values. Document reverse proxy/TLS, backups, restore drill,
 migrations, first-admin command, log inspection, health check, update, and rollback.
 
-- [ ] **Step 5: Run the final gate**
+- [x] **Step 5: Run the final gate**
 
 Run:
 
@@ -1016,14 +1016,14 @@ docker build -t pharmacy-management-system:test .
 Expected: every command exits 0; acceptance output lists `AT-01` through `AT-19`
 as passed; the image starts and responds to its health endpoint.
 
-- [ ] **Step 6: Perform the final security and completeness review**
+- [x] **Step 6: Perform the final security and completeness review**
 
 Confirm no secret is tracked, no PIN/token appears in logs or snapshots, no
 employee API returns admin-only fields, all sensitive actions require reasons,
 all database mutation paths call authorization, and all stock/financial
 corrections run inside transactions with audit.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add .github Dockerfile compose.production.example.yml .dockerignore docs README.md .env.example package.json tests/e2e/acceptance.spec.ts
