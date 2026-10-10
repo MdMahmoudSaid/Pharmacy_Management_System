@@ -4,7 +4,7 @@ import {eq} from 'drizzle-orm';
 let seededSaleId: number;
 
 test.beforeEach(async () => {
-  process.loadEnvFile('.env.test');
+  if (!process.env.DATABASE_URL) process.loadEnvFile('.env.test');
   const [argon, factories, saleService, client, schema] = await Promise.all([
     import('@node-rs/argon2'),
     import('../factories/database'),

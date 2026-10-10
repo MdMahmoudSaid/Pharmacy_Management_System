@@ -2,7 +2,9 @@ import {loadEnvFile} from 'node:process';
 
 import {defineConfig, devices} from '@playwright/test';
 
-loadEnvFile('.env.test');
+if (!process.env.DATABASE_URL || !process.env.AUTH_FINGERPRINT_SECRET) {
+  loadEnvFile('.env.test');
+}
 
 export default defineConfig({
   testDir: './tests/e2e',

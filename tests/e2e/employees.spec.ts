@@ -2,7 +2,7 @@ import {expect, test} from '@playwright/test';
 import {eq} from 'drizzle-orm';
 
 test.beforeEach(async () => {
-  process.loadEnvFile('.env.test');
+  if (!process.env.DATABASE_URL) process.loadEnvFile('.env.test');
   const [{hash}, {createUser, resetDatabase}] = await Promise.all([
     import('@node-rs/argon2'),
     import('../factories/database')

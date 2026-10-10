@@ -1,7 +1,7 @@
 import {expect, test} from '@playwright/test';
 
 test.beforeEach(async () => {
-  process.loadEnvFile('.env.test');
+  if (!process.env.DATABASE_URL) process.loadEnvFile('.env.test');
   const [{hash}, factories] = await Promise.all([
     import('@node-rs/argon2'),
     import('../factories/database')
