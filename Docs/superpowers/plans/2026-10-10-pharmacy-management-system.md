@@ -378,7 +378,7 @@ git commit -m "feat: add transactional pharmacy database schema"
 - Produces: `nouakchottRange(preset, now): {from: Date; to: Date}`.
 - Produces: `appendAudit(tx, event): Promise<void>` with no update/delete method.
 
-- [ ] **Step 1: Write failing parameterized validation tests**
+- [x] **Step 1: Write failing parameterized validation tests**
 
 ```ts
 it.each(['21234567', '31234567', '41234567'])(
@@ -397,13 +397,13 @@ it.each(['0000', '1234', '9999'])('accepts four-digit PIN %s', pin => {
 Add tests proving `0`, negative money, three decimal places, zero quantity, and
 blank sensitive reasons fail; prove decimal `0.10 + 0.20` equals `0.30`.
 
-- [ ] **Step 2: Run targeted unit tests and verify failure**
+- [x] **Step 2: Run targeted unit tests and verify failure**
 
 Run: `pnpm vitest run tests/unit/lib`
 
 Expected: FAIL on missing exports.
 
-- [ ] **Step 3: Implement the primitives**
+- [x] **Step 3: Implement the primitives**
 
 Return discriminated action results:
 
@@ -417,7 +417,7 @@ Use `Decimal` for money, `Intl.NumberFormat` for display, and explicit
 `Africa/Nouakchott` boundaries for report presets. `appendAudit` accepts the
 current transaction object so audit and mutation commit together.
 
-- [ ] **Step 4: Prove audit immutability at the application role**
+- [x] **Step 4: Prove audit immutability at the application role**
 
 The integration test inserts through `appendAudit`, then attempts `UPDATE` and
 `DELETE` with the application database role and expects permission errors.
@@ -426,7 +426,7 @@ Run: `pnpm vitest run tests/unit/lib tests/integration/audit --config vitest.int
 
 Expected: all tests PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib src/modules/auth/schemas.ts src/modules/audit tests/unit/lib tests/integration/audit
