@@ -20,4 +20,6 @@ jobs:
       - run: pnpm exec playwright install --with-deps chromium
       - run: node --import tsx src/db/migrate.ts
       - run: pnpm check
+      - run: docker build -t pharmacy-system:ci .
+      - run: docker run --rm --entrypoint node pharmacy-system:ci --import tsx --input-type=module --eval "await import('@/lib/decimal')"
       - run: pnpm test:e2e
