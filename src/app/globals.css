@@ -717,6 +717,132 @@ textarea {
   }
 }
 
+.shift-panel {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 1rem;
+  align-items: center;
+  margin-block: 2rem 1.25rem;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-strong));
+  color: white;
+  box-shadow: var(--shadow-panel);
+}
+
+.shift-panel-icon {
+  display: grid;
+  width: 3.25rem;
+  height: 3.25rem;
+  place-items: center;
+  border-radius: 0.8rem;
+  background: rgb(255 255 255 / 0.14);
+}
+
+.shift-panel p,
+.shift-panel h2 {
+  margin: 0;
+}
+
+.shift-panel p {
+  color: rgb(255 255 255 / 0.72);
+  font-size: 0.82rem;
+}
+
+.shift-panel h2 {
+  margin-block-start: 0.25rem;
+  font-size: 1.15rem;
+}
+
+.shift-panel .primary-action {
+  gap: 0.5rem;
+  padding-inline: 1rem;
+  border: 1px solid rgb(255 255 255 / 0.25);
+  background: white;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.shift-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.shift-list > h2 {
+  margin-block: 0.5rem;
+}
+
+.shift-row {
+  display: grid;
+  grid-template-columns: minmax(12rem, 1fr) auto;
+  gap: 0.8rem;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.9rem;
+  background: white;
+}
+
+.shift-row p {
+  margin: 0.25rem 0 0;
+  color: var(--color-muted);
+  font-size: 0.85rem;
+}
+
+.shift-admin-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  border-block-start: 1px solid var(--color-border);
+  padding-block-start: 0.75rem;
+}
+
+.shift-admin-actions details {
+  flex: 1 1 20rem;
+}
+
+.shift-admin-actions summary {
+  color: var(--color-primary);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.shift-admin-actions form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-block-start: 0.6rem;
+}
+
+.shift-admin-actions input {
+  min-height: 2.7rem;
+  flex: 1 1 11rem;
+  padding-inline: 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.6rem;
+}
+
+.shift-admin-actions button {
+  min-height: 2.7rem;
+  padding-inline: 0.9rem;
+  cursor: pointer;
+}
+
+@media (max-width: 620px) {
+  .shift-panel {
+    grid-template-columns: auto 1fr;
+  }
+
+  .shift-panel form {
+    grid-column: 1 / -1;
+  }
+
+  .shift-panel form button {
+    width: 100%;
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .primary-action {
     transition: background-color 150ms ease;

@@ -574,7 +574,7 @@ git commit -m "feat: add permission-aware shell and employee management"
   `correctShift(actor, input)`, `reopenShift(actor, input)`, `getShiftSummary(id)`.
 - Produces: `requireActiveShift(actorId, tx?)` for operational services.
 
-- [ ] **Step 1: Write failing shift lifecycle tests**
+- [x] **Step 1: Write failing shift lifecycle tests**
 
 ```ts
 it('prevents a second active shift', async () => {
@@ -587,27 +587,27 @@ Add close confirmation behavior, corrected timestamps, reopen with mandatory
 reason, permission denial, audit values, and summaries derived from linked active
 transactions.
 
-- [ ] **Step 2: Run and verify failure**
+- [x] **Step 2: Run and verify failure**
 
 Run: `pnpm vitest run --config vitest.integration.config.ts tests/integration/shifts`
 
 Expected: FAIL on missing shift services.
 
-- [ ] **Step 3: Implement shift services and UI**
+- [x] **Step 3: Implement shift services and UI**
 
 Rely on the partial unique index as the race-condition backstop. Translate unique
 violations into `SHIFT_ALREADY_OPEN`. Close and reopen in transactions with audit.
 Show current-shift actions to operators and filtered all-shift views to authorized
 users.
 
-- [ ] **Step 4: Verify acceptance scenarios 1, 11, and 12**
+- [x] **Step 4: Verify acceptance scenarios 1, 11, and 12**
 
 Run: `pnpm vitest run --config vitest.integration.config.ts tests/integration/shifts && pnpm playwright test tests/e2e/shifts.spec.ts`
 
 Expected: employee opens one shift, admin sees it, close summary works, and an
 authorized correction/reopen is confirmed and audited.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/modules/shifts src/app tests/integration/shifts tests/e2e/shifts.spec.ts

@@ -47,7 +47,7 @@ export async function AppShell({
     },
     {
       key: 'shift',
-      href: `${base}/shift`,
+      href: `${base}/shifts`,
       icon: Clock3,
       domain: 'shifts'
     },

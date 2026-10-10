@@ -89,6 +89,38 @@
       "INTERNAL_ERROR": "Impossible de terminer l’opération."
     }
   },
+  "Shifts": {
+    "kicker": "Temps de travail",
+    "title": "Shifts",
+    "subtitle": "Ouvrez votre shift et suivez un historique corrigible et audité.",
+    "active": "Shift actuel ouvert depuis",
+    "noActive": "Aucun shift ouvert",
+    "ready": "Prêt à commencer",
+    "open": "Ouvrir le shift",
+    "close": "Fermer le shift",
+    "closeConfirm": "Voulez-vous fermer ce shift ?",
+    "history": "Historique des shifts",
+    "ongoing": "En cours",
+    "openStatus": "Ouvert",
+    "closedStatus": "Fermé",
+    "correct": "Corriger les horaires",
+    "reopen": "Rouvrir",
+    "reason": "Motif du changement (obligatoire)",
+    "save": "Enregistrer la correction",
+    "errors": {
+      "SHIFT_ALREADY_OPEN": "Vous avez déjà un shift ouvert.",
+      "SHIFT_REQUIRED": "Ouvrez d’abord un shift.",
+      "FORBIDDEN": "Vous n’avez pas la permission pour cette action.",
+      "VALIDATION_ERROR": "Vérifiez les horaires saisis.",
+      "CONFLICT": "Le statut du shift a changé. Actualisez la page.",
+      "NOT_FOUND": "Le shift est introuvable.",
+      "INTERNAL_ERROR": "Impossible de terminer l’opération.",
+      "AUTHENTICATION_FAILED": "La session a expiré.",
+      "RATE_LIMITED": "Trop de tentatives.",
+      "SESSION_REQUIRED": "Une connexion est requise.",
+      "INSUFFICIENT_STOCK": "Le stock est insuffisant."
+    }
+  },
   "Errors": {
     "generic": "Impossible de terminer l’opération. Réessayez.",
     "invalidPhone": "Saisissez un numéro mauritanien valide de huit chiffres.",
