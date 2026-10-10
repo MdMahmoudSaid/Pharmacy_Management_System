@@ -215,7 +215,7 @@ columns before date ranges. Timestamps use `timestamptz`.
 - Produces: scripts `dev`, `build`, `start`, `lint`, `typecheck`, `test:unit`,
   `test:integration`, `test:e2e`, and `check`.
 
-- [ ] **Step 1: Initialize the repository and install only named dependencies**
+- [x] **Step 1: Initialize the repository and install only named dependencies**
 
 Run:
 
@@ -238,7 +238,7 @@ Configure the default Vitest file to include only `tests/unit/**/*.test.ts` and
 `tests/unit/**/*.test.tsx`; configure the integration file to include only
 `tests/integration/**/*.test.ts`.
 
-- [ ] **Step 2: Write the failing locale contract test**
+- [x] **Step 2: Write the failing locale contract test**
 
 ```ts
 import {describe, expect, it} from 'vitest';
@@ -254,13 +254,13 @@ describe('locale routing', () => {
 });
 ```
 
-- [ ] **Step 3: Run the test and verify the missing module failure**
+- [x] **Step 3: Run the test and verify the missing module failure**
 
 Run: `pnpm vitest run tests/unit/i18n/routing.test.ts`
 
 Expected: FAIL because `@/i18n/routing` does not exist.
 
-- [ ] **Step 4: Implement routing, request configuration, translations, and shell**
+- [x] **Step 4: Implement routing, request configuration, translations, and shell**
 
 ```ts
 import {defineRouting} from 'next-intl/routing';
@@ -275,13 +275,13 @@ message files. Import the two local `@fontsource` packages, then use the approve
 colors and Noto Sans families in the root CSS. The initial page links to the
 localized login route.
 
-- [ ] **Step 5: Verify the foundation**
+- [x] **Step 5: Verify the foundation**
 
 Run: `pnpm vitest run tests/unit/i18n/routing.test.ts && pnpm lint && pnpm typecheck && pnpm build`
 
 Expected: all commands PASS and the build lists localized App Router routes.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add .

@@ -1,0 +1,24 @@
+{
+  "Common": {
+    "appName": "Gestion de la pharmacie",
+    "tagline": "Une gestion claire des ventes, du stock et des shifts quotidiens.",
+    "start": "Se connecter"
+  },
+  "Auth": {
+    "phone": "Numéro de téléphone",
+    "pin": "Code PIN",
+    "login": "Connexion",
+    "showPin": "Afficher le code PIN"
+  },
+  "Navigation": {
+    "home": "Accueil",
+    "sales": "Ventes",
+    "stock": "Stock",
+    "shift": "Shift",
+    "more": "Plus"
+  },
+  "Errors": {
+    "generic": "Impossible de terminer l’opération. Réessayez.",
+    "invalidPhone": "Saisissez un numéro mauritanien valide de huit chiffres."
+  }
+}

@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+:root {
+  --color-primary: #0f5d5e;
+  --color-primary-strong: #0a4647;
+  --color-surface: #f7faf9;
+  --color-panel: #ffffff;
+  --color-text: #172426;
+  --color-muted: #5e6f70;
+  --color-warning: #c47a12;
+  --color-danger: #b42318;
+  --color-border: #d9e4e1;
+  --shadow-panel: 0 18px 60px rgb(15 93 94 / 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  font-family: "Noto Sans Arabic", "Noto Sans", sans-serif;
+  background:
+    radial-gradient(circle at 15% 10%, rgb(15 93 94 / 0.1), transparent 32rem),
+    var(--color-surface);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-warning);
+  outline-offset: 3px;
+}
+
+.welcome-shell {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 1.5rem;
+}
+
+.welcome-card {
+  display: grid;
+  width: min(100%, 34rem);
+  gap: 2rem;
+  padding: clamp(1.5rem, 6vw, 3.5rem);
+  border: 1px solid var(--color-border);
+  border-radius: 1.5rem;
+  background: var(--color-panel);
+  box-shadow: var(--shadow-panel);
+}
+
+.brand-mark {
+  display: grid;
+  width: 4rem;
+  height: 4rem;
+  place-items: center;
+  border-radius: 1rem;
+  background: var(--color-primary);
+  color: white;
+  font-size: 2.5rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.welcome-card h1 {
+  margin: 0;
+  font-size: clamp(1.75rem, 6vw, 2.75rem);
+  line-height: 1.2;
+}
+
+.welcome-card p {
+  margin-block: 0.75rem 0;
+  color: var(--color-muted);
+  line-height: 1.8;
+}
+
+.primary-action {
+  display: inline-flex;
+  min-height: 3rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  background: var(--color-primary);
+  color: white;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.primary-action:hover {
+  background: var(--color-primary-strong);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .primary-action {
+    transition: background-color 150ms ease;
+  }
+}

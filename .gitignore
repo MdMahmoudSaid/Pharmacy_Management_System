@@ -3,6 +3,7 @@
 .superpowers/
 node_modules/
 .next/
+.cache/
 coverage/
 playwright-report/
 test-results/
@@ -10,3 +11,4 @@ test-results/
 .env.local
 .env.test
 *.log
+*.tsbuildinfo
