@@ -87,7 +87,7 @@ describe('source-of-truth reports', () => {
     const dashboard = await getDashboardSummary(employee, new Date('2026-10-10T12:00:00Z'));
     expect(report.stock).toEqual([]);
     expect(report.employees).toEqual([{id: employee.id, name: employeeUser.name, isActive: true}]);
-    expect(dashboard.openShifts.every(({userId}) => userId === employee.id)).toBe(true);
-    expect(dashboard.recentActivity.every(({actorId}) => actorId === employee.id)).toBe(true);
+    expect(dashboard.openShifts).toEqual([]);
+    expect(dashboard.recentActivity).toEqual([]);
   });
 });
