@@ -151,6 +151,37 @@
     "received": "Réception enregistrée.",
     "movements": "Registre des mouvements"
   },
+  "Sales": {
+    "kicker": "Caisse",
+    "title": "Nouvelle vente",
+    "subtitle": "Recherchez les médicaments, préparez le panier et confirmez une seule fois.",
+    "search": "Rechercher un médicament ou un code…",
+    "available": "en stock",
+    "cart": "Panier",
+    "empty": "Ajoutez un médicament pour commencer la vente.",
+    "unitPrice": "Prix unitaire",
+    "overrideReason": "Motif du changement de prix (obligatoire)",
+    "remove": "Retirer du panier",
+    "total": "Total MRU",
+    "confirm": "Confirmer la vente",
+    "processing": "Enregistrement…",
+    "success": "Vente enregistrée — total {total} MRU.",
+    "shiftRequired": "Ouvrez un shift avant de vendre",
+    "shiftRequiredText": "Les ventes opérationnelles doivent être rattachées au shift actif de l’employé.",
+    "errors": {
+      "AUTHENTICATION_FAILED": "La session a expiré. Reconnectez-vous.",
+      "RATE_LIMITED": "Trop de tentatives. Réessayez plus tard.",
+      "SESSION_REQUIRED": "Une connexion est requise.",
+      "FORBIDDEN": "Vous n’avez pas la permission de créer cette vente.",
+      "VALIDATION_ERROR": "Vérifiez le panier et les quantités.",
+      "NOT_FOUND": "Un médicament du panier est introuvable.",
+      "CONFLICT": "La vente n’a pas pu être enregistrée. Réessayez.",
+      "SHIFT_REQUIRED": "Un shift actif est obligatoire.",
+      "SHIFT_ALREADY_OPEN": "Un shift est déjà ouvert.",
+      "INSUFFICIENT_STOCK": "Le stock est insuffisant pour cette vente.",
+      "INTERNAL_ERROR": "Impossible de terminer la vente."
+    }
+  },
   "Errors": {
     "generic": "Impossible de terminer l’opération. Réessayez.",
     "invalidPhone": "Saisissez un numéro mauritanien valide de huit chiffres.",

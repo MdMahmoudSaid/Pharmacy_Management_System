@@ -685,7 +685,7 @@ git commit -m "feat: add medicine catalog and immutable stock ledger"
 - Consumes: `requireActiveShift`, `authorize`, stock transaction helpers,
   `appendAudit`, and decimal helpers.
 
-- [ ] **Step 1: Write failing normal and oversell tests**
+- [x] **Step 1: Write failing normal and oversell tests**
 
 ```ts
 it('creates one sale and decrements stock atomically', async () => {
@@ -700,20 +700,20 @@ Add tests for empty cart, inactive medicine, no active shift, non-integer quanti
 price override without permission, insufficient stock with zero partial writes,
 and multiple medicines locked in ascending order.
 
-- [ ] **Step 2: Write failing concurrency and idempotency tests**
+- [x] **Step 2: Write failing concurrency and idempotency tests**
 
 Start with stock 2. Submit two independent quantity-2 transactions concurrently;
 expect one completed sale, one `INSUFFICIENT_STOCK`, final stock 0, and one sale
 movement. Submit the same idempotency key twice; expect the same sale ID and one
 stock change.
 
-- [ ] **Step 3: Run targeted sale tests and verify failure**
+- [x] **Step 3: Run targeted sale tests and verify failure**
 
 Run: `pnpm vitest run --config vitest.integration.config.ts tests/integration/sales`
 
 Expected: FAIL because `createSale` is missing.
 
-- [ ] **Step 4: Implement transactional sale creation**
+- [x] **Step 4: Implement transactional sale creation**
 
 Validate outside the transaction when safe, then inside one short transaction:
 claim or find the idempotency key, lock medicine rows in ascending order, recheck
@@ -722,21 +722,21 @@ insert movements, append audit, and commit. Retry only PostgreSQL serialization
 or deadlock errors with a small bounded retry; return the prior record for a
 committed duplicate key.
 
-- [ ] **Step 5: Implement the sale screen**
+- [x] **Step 5: Implement the sale screen**
 
 Use search-first layout, deduplicated cart rows, integer controls, historical
 unit-price field gated by permission and mandatory override reason, sticky mobile
 total, one generated UUID idempotency key per draft, and no success state before
 the server response.
 
-- [ ] **Step 6: Run the second milestone gate and acceptance scenarios 4, 5, 17, 18**
+- [x] **Step 6: Run the second milestone gate and acceptance scenarios 4, 5, 17, 18**
 
 Run: `pnpm check && pnpm playwright test tests/e2e/sale-create.spec.ts`
 
 Expected: all checks PASS; oversell and unauthorized override make no changes;
 rapid double confirmation creates one sale.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/modules/sales src/app tests/integration/sales tests/e2e/sale-create.spec.ts

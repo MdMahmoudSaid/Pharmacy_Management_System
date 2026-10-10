@@ -657,6 +657,190 @@ textarea {
   margin: 0;
 }
 
+.sale-layout {
+  display: grid;
+  grid-template-columns: minmax(18rem, 0.8fr) minmax(24rem, 1.2fr);
+  gap: 1.25rem;
+  align-items: start;
+  margin-block-start: 2rem;
+}
+
+.sale-search,
+.sale-cart,
+.sale-total {
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  background: var(--color-panel);
+  box-shadow: 0 10px 35px rgb(15 93 94 / 0.06);
+}
+
+.sale-search {
+  position: sticky;
+  top: 1.25rem;
+  overflow: hidden;
+}
+
+.search-box {
+  display: flex;
+  min-height: 3.4rem;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 1rem;
+  padding-inline: 0.9rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  color: var(--color-muted);
+}
+
+.search-box:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgb(15 93 94 / 0.1);
+}
+
+.search-box input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+}
+
+.sale-medicine-results {
+  display: grid;
+  max-height: 31rem;
+  overflow-y: auto;
+  border-block-start: 1px solid var(--color-border);
+}
+
+.sale-medicine-results button {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.8rem;
+  align-items: center;
+  min-height: 4.4rem;
+  padding: 0.8rem 1rem;
+  border: 0;
+  border-block-end: 1px solid var(--color-border);
+  background: white;
+  color: var(--color-text);
+  cursor: pointer;
+  text-align: start;
+}
+
+.sale-medicine-results button:hover {
+  background: rgb(15 93 94 / 0.05);
+}
+
+.sale-medicine-results span,
+.sale-cart article > div:first-child {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.sale-medicine-results small,
+.sale-cart small {
+  color: var(--color-muted);
+}
+
+.sale-checkout {
+  display: grid;
+  gap: 1rem;
+}
+
+.sale-cart {
+  overflow: hidden;
+}
+
+.sale-cart h2,
+.empty-cart {
+  margin: 0;
+  padding: 1rem 1.2rem;
+}
+
+.empty-cart {
+  border-block-start: 1px solid var(--color-border);
+  color: var(--color-muted);
+}
+
+.sale-cart article {
+  display: grid;
+  grid-template-columns: minmax(8rem, 1fr) auto minmax(8rem, 0.7fr) auto;
+  gap: 0.7rem;
+  align-items: center;
+  padding: 0.9rem 1rem;
+  border-block-start: 1px solid var(--color-border);
+}
+
+.quantity-stepper {
+  display: flex;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 0.65rem;
+}
+
+.quantity-stepper button,
+.remove-item {
+  display: grid;
+  min-width: 2.35rem;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.quantity-stepper input {
+  width: 3rem;
+  min-height: 2.45rem;
+  border: 0;
+  border-inline: 1px solid var(--color-border);
+  outline: 0;
+  text-align: center;
+}
+
+.price-input,
+.sale-cart article > input:not(.price-input) {
+  min-width: 0;
+  min-height: 2.55rem;
+  padding-inline: 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.65rem;
+}
+
+.remove-item {
+  color: var(--color-danger);
+}
+
+.sale-total {
+  position: sticky;
+  bottom: 1rem;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem 1.2rem;
+}
+
+.sale-total span {
+  color: var(--color-muted);
+  font-weight: 600;
+}
+
+.sale-total strong {
+  font-size: 1.45rem;
+}
+
+.sale-total button {
+  min-width: 11rem;
+  padding-inline: 1rem;
+  border: 0;
+  cursor: pointer;
+}
+
+.sale-total button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 @media (max-width: 900px) {
   .desktop-sidebar {
     display: none;
@@ -714,6 +898,31 @@ textarea {
 
   .entity-form {
     position: static;
+  }
+
+  .sale-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sale-search {
+    position: static;
+  }
+
+  .sale-cart article {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+  }
+
+  .sale-cart article > input {
+    grid-column: 1 / -1;
+  }
+
+  .sale-total {
+    bottom: 5.4rem;
+    grid-template-columns: 1fr auto;
+  }
+
+  .sale-total button {
+    grid-column: 1 / -1;
   }
 }
 

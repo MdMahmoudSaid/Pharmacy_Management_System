@@ -8,6 +8,7 @@ export const PERMISSION_KEYS = [
   'sales.cancel.all',
   'sales.print.own',
   'sales.print.all',
+  'sales.price_override.all',
   'expenses.view.own',
   'expenses.view.all',
   'expenses.create.own',
