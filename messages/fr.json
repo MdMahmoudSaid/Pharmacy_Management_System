@@ -34,6 +34,7 @@
     "stock": "Stock",
     "shift": "Shift",
     "employees": "Employés",
+    "medicines": "Médicaments",
     "more": "Plus"
   },
   "Employees": {
@@ -120,6 +121,35 @@
       "SESSION_REQUIRED": "Une connexion est requise.",
       "INSUFFICIENT_STOCK": "Le stock est insuffisant."
     }
+  },
+  "Stock": {
+    "catalogKicker": "Catalogue",
+    "catalogTitle": "Médicaments",
+    "catalogSubtitle": "Gérez les produits, les prix et leur statut sans perdre l’historique.",
+    "stockKicker": "Stock et mouvements",
+    "stockTitle": "Gestion du stock",
+    "stockSubtitle": "Réceptionnez les quantités et consultez le registre immuable.",
+    "newMedicine": "Nouveau médicament",
+    "name": "Nom du médicament",
+    "code": "Code (facultatif)",
+    "price": "Prix de vente",
+    "create": "Ajouter le médicament",
+    "search": "Rechercher par nom ou code…",
+    "units": "unités",
+    "edit": "Modifier",
+    "save": "Enregistrer",
+    "priceReason": "Motif du changement de prix",
+    "reason": "Motif de l’action (obligatoire)",
+    "archive": "Archiver",
+    "restore": "Restaurer",
+    "receive": "Réception de stock",
+    "medicine": "Médicament",
+    "quantity": "Quantité",
+    "note": "Note",
+    "receiveConfirm": "Confirmez-vous l’ajout de cette quantité au stock ?",
+    "confirmReceive": "Confirmer la réception",
+    "received": "Réception enregistrée.",
+    "movements": "Registre des mouvements"
   },
   "Errors": {
     "generic": "Impossible de terminer l’opération. Réessayez.",

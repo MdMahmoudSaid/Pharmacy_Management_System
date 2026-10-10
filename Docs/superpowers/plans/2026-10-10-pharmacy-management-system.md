@@ -630,7 +630,7 @@ git commit -m "feat: add auditable shift lifecycle"
   `getMedicineMovements(filters)`.
 - Stock services accept an optional existing transaction for sale composition.
 
-- [ ] **Step 1: Write failing stock ledger tests**
+- [x] **Step 1: Write failing stock ledger tests**
 
 Test medicine creation, 20-unit receipt, before/change/after movement values,
 shift and actor links, positive integer validation, wrong-quantity correction by
@@ -642,7 +642,7 @@ Run: `pnpm vitest run --config vitest.integration.config.ts tests/integration/st
 
 Expected: FAIL because medicine and stock services are missing.
 
-- [ ] **Step 2: Implement medicine and stock services**
+- [x] **Step 2: Implement medicine and stock services**
 
 Lock affected medicines in ascending ID order with
 `SELECT id, current_stock FROM medicines WHERE id = ANY($1::bigint[]) ORDER BY id FOR UPDATE`
@@ -650,20 +650,20 @@ inside the Drizzle transaction. Update `current_stock` and insert a `stock_movem
 row together. Never update or delete an existing movement. Search only active
 medicines for new operations but allow archived records in history queries.
 
-- [ ] **Step 3: Implement mobile-first catalog and stock pages**
+- [x] **Step 3: Implement mobile-first catalog and stock pages**
 
 Provide debounced search by normalized name/code, large quantity input, explicit
 confirmation, useful empty/loading/error states, movement filters, and a reason
 dialog for corrections and archive/restore actions.
 
-- [ ] **Step 4: Verify acceptance scenarios 2, 3, and 13**
+- [x] **Step 4: Verify acceptance scenarios 2, 3, and 13**
 
 Run: `pnpm vitest run --config vitest.integration.config.ts tests/integration/stock && pnpm playwright test tests/e2e/stock.spec.ts`
 
 Expected: receipt changes stock once, movement links are correct, archive removes
 new-sale selection, and history stays readable.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/modules/medicines src/modules/stock src/app tests/integration/stock tests/e2e/stock.spec.ts

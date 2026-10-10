@@ -14,7 +14,7 @@ import type {PermissionActor} from '@/modules/permissions/service';
 import {LanguageSwitcher} from './language-switcher';
 
 type NavItem = {
-  key: 'home' | 'sales' | 'stock' | 'shift' | 'employees' | 'more';
+  key: 'home' | 'sales' | 'stock' | 'shift' | 'medicines' | 'employees' | 'more';
   href: string;
   icon: typeof Home;
   domain?: string;
@@ -56,6 +56,12 @@ export async function AppShell({
       href: `${base}/employees`,
       icon: UsersRound,
       domain: 'employees'
+    },
+    {
+      key: 'medicines',
+      href: `${base}/medicines`,
+      icon: Boxes,
+      domain: 'medicines'
     },
     {key: 'more', href: `${base}/more`, icon: Menu}
   ];

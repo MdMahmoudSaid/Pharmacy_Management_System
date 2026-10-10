@@ -843,6 +843,107 @@ textarea {
   }
 }
 
+.catalog-list,
+.movement-list {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.search-input {
+  min-height: 3rem;
+  padding-inline: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  background: white;
+}
+
+.medicine-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.85rem;
+  background: white;
+}
+
+.medicine-card p {
+  margin: 0.2rem 0 0;
+  color: var(--color-muted);
+  font-size: 0.84rem;
+}
+
+.medicine-card details,
+.medicine-card > form {
+  grid-column: 1 / -1;
+}
+
+.medicine-card summary {
+  color: var(--color-primary);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.compact-grid-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-block-start: 0.6rem;
+}
+
+.compact-grid-form input,
+.entity-form select {
+  min-width: 0;
+  min-height: 2.8rem;
+  padding-inline: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.65rem;
+  background: #fbfdfc;
+}
+
+.compact-grid-form button {
+  min-height: 2.8rem;
+  border: 0;
+  border-radius: 0.65rem;
+  background: var(--color-primary);
+  color: white;
+  cursor: pointer;
+}
+
+.quantity-input {
+  min-height: 4rem !important;
+  font-size: 1.6rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.movement-list h2 {
+  margin-block: 0 0.4rem;
+}
+
+.movement-list article {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  background: white;
+}
+
+.movement-list article span {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .compact-grid-form {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .primary-action {
     transition: background-color 150ms ease;
