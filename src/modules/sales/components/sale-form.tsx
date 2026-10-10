@@ -1,7 +1,7 @@
 'use client';
 import Decimal from 'decimal.js';
 import {useTranslations} from 'next-intl';
-import {useActionState, useState} from 'react';
+import {useActionState, useEffect, useState} from 'react';
 import {createSaleAction, type SaleActionState} from '../actions';
 import {MedicineSearch, type SaleMedicine} from './medicine-search';
 import {SaleCart, type CartItem} from './sale-cart';
@@ -18,6 +18,17 @@ export function SaleForm({
   const t = useTranslations('Sales');
   const [items, setItems] = useState<CartItem[]>([]);
   const [key, setKey] = useState('');
+  const [online, setOnline] = useState(true);
+  useEffect(() => {
+    const connected = () => setOnline(true);
+    const disconnected = () => setOnline(false);
+    window.addEventListener('online', connected);
+    window.addEventListener('offline', disconnected);
+    return () => {
+      window.removeEventListener('online', connected);
+      window.removeEventListener('offline', disconnected);
+    };
+  }, []);
   const [state, action, pending] = useActionState<SaleActionState, FormData>(
     async (_state, data) => {
       const result = await createSaleAction(undefined, data);
@@ -50,7 +61,7 @@ export function SaleForm({
   return (
     <form action={action} className="sale-layout">
       <input type="hidden" name="shiftId" value={shiftId} />
-      <input type="hidden" name="idempotencyKey" value={key} />
+      <input type="hidden" name="idempotencyKey" value={key} data-testid="sale-idempotency-key" />
       <input type="hidden" name="items" value={JSON.stringify(payload)} />
       <MedicineSearch medicines={medicines} onAdd={add} />
       <div className="sale-checkout">
@@ -65,10 +76,11 @@ export function SaleForm({
             {t('success', {total: state.data.total})}
           </p>
         ) : null}
+        {!online ? <p className="form-error" data-testid="offline-draft">{t('offlineDraft')}</p> : null}
         <div className="sale-total">
           <span>{t('total')}</span>
           <strong>{total}</strong>
-          <button className="primary-action" disabled={pending || items.length === 0}>
+          <button className="primary-action" disabled={pending || items.length === 0 || !online}>
             {pending ? t('processing') : t('confirm')}
           </button>
         </div>

@@ -6,6 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
+    "generate:icons": "node --import tsx scripts/generate-icons.ts",
+    "prebuild": "pnpm generate:icons",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",

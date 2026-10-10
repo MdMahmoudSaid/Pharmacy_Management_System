@@ -11,6 +11,7 @@ import {notFound} from 'next/navigation';
 import type {ReactNode} from 'react';
 
 import {directionFor, routing} from '@/i18n/routing';
+import {ServiceWorkerRegistration} from '@/components/service-worker-registration';
 
 export const metadata: Metadata = {
   title: 'Pharmacy Management System',
@@ -41,6 +42,7 @@ export default async function LocaleLayout({
     <html lang={locale} dir={directionFor(locale)}>
       <body>
         <NextIntlClientProvider messages={messages}>
+          <ServiceWorkerRegistration />
           {children}
         </NextIntlClientProvider>
       </body>

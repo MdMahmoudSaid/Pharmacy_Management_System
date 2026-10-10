@@ -10,3 +10,15 @@ export async function getPharmacyName() {
     .where(eq(settings.key, 'default'));
   return row?.pharmacyName ?? 'Pharmacy';
 }
+
+export async function getSettings() {
+  const [row] = await db.select().from(settings).where(eq(settings.key, 'default'));
+  return row ?? {
+    key: 'default',
+    pharmacyName: 'Pharmacy',
+    defaultLocale: 'ar' as const,
+    receiptPreferences: {},
+    updatedBy: null,
+    updatedAt: new Date(0)
+  };
+}

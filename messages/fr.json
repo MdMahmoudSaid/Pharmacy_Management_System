@@ -41,6 +41,7 @@
     "expenses": "Dépenses",
     "reports": "Rapports",
     "audit": "Audit",
+    "settings": "Paramètres",
     "stock": "Stock",
     "shift": "Shift",
     "employees": "Employés",
@@ -175,6 +176,7 @@
     "total": "Total MRU",
     "confirm": "Confirmer la vente",
     "processing": "Enregistrement…",
+    "offlineDraft": "Brouillon non envoyé. Reconnectez-vous pour réessayer sans créer de doublon.",
     "success": "Vente enregistrée — total {total} MRU.",
     "shiftRequired": "Ouvrez un shift avant de vendre",
     "shiftRequiredText": "Les ventes opérationnelles doivent être rattachées au shift actif de l’employé.",
@@ -306,6 +308,8 @@
     "reason": "Motif",
     "values": "Anciennes et nouvelles valeurs"
   },
+  "Settings": {"kicker": "Configuration", "title": "Paramètres", "subtitle": "Personnalisez l’identité et la langue par défaut de la pharmacie.", "pharmacyName": "Nom de la pharmacie", "defaultLocale": "Langue par défaut", "save": "Enregistrer", "saved": "Paramètres enregistrés."},
+  "Offline": {"title": "Vous êtes hors ligne", "text": "Les consultations enregistrées restent disponibles. Reconnectez-vous pour envoyer une opération."},
   "Errors": {
     "generic": "Impossible de terminer l’opération. Réessayez.",
     "invalidPhone": "Saisissez un numéro mauritanien valide de huit chiffres.",

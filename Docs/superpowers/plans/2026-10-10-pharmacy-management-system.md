@@ -917,14 +917,14 @@ git commit -m "feat: add reconciled dashboard reports and audit viewer"
 - Produces: installable manifest and safe GET-only static shell cache.
 - Produces: one shared accessible confirmation-and-reason dialog.
 
-- [ ] **Step 1: Write failing settings and PWA tests**
+- [x] **Step 1: Write failing settings and PWA tests**
 
 Test settings permission and audit, manifest name/start URL/display/icons, service
 worker registration, no caching/interception of mutation requests, offline page,
 retained unsent sale draft, no false success toast, and retry with unchanged
 idempotency key.
 
-- [ ] **Step 2: Implement settings and minimal safe service worker**
+- [x] **Step 2: Implement settings and minimal safe service worker**
 
 Cache only versioned static assets and the offline shell on GET. Use network-first
 for pages. Never queue or cache POST requests. On network failure, keep the draft
@@ -933,14 +933,14 @@ Create a deterministic teal rounded-square SVG mark with a white pharmacy cross;
 `scripts/generate-icons.ts` uses `sharp` to render exact 192×192 and 512×512 PNGs
 from that source before the production build.
 
-- [ ] **Step 3: Harden bilingual responsive UI**
+- [x] **Step 3: Harden bilingual responsive UI**
 
 Use approved design tokens, visible keyboard focus, descriptive labels, logical
 CSS properties for RTL/LTR, direction-aware icons, large touch targets, translated
 empty/loading/error states, and reduced-motion support. Run axe checks from
 Playwright on login, sale, stock, dashboard, and dialog screens.
 
-- [ ] **Step 4: Verify PWA and network behavior**
+- [x] **Step 4: Verify PWA and network behavior**
 
 Run: `pnpm playwright test tests/e2e/pwa-network.spec.ts tests/e2e/rtl-accessibility.spec.ts`
 
@@ -948,7 +948,7 @@ Expected: install metadata is valid, offline mutations are refused visibly,
 retries cannot duplicate sales, and sampled pages have no serious accessibility
 violations.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/modules/settings src/app src/components public tests/e2e
