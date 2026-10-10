@@ -14,6 +14,8 @@ COPY --from=build /app/.next/static ./.next/static
 COPY --from=build /app/public ./public
 COPY --from=build /app/drizzle ./drizzle
 COPY --from=build /app/src ./src
+COPY --from=build /app/scripts ./scripts
 COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/package.json ./package.json
 EXPOSE 3000
-CMD ["sh", "-c", "node --import tsx src/db/migrate.ts && node server.js"]
+CMD ["sh", "scripts/start-production.sh"]

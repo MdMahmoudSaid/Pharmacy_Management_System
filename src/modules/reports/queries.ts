@@ -39,7 +39,9 @@ export async function getReportData(
         .where(and(...expenseRange, eq(expenses.status, 'ACTIVE'))),
       db.select().from(sales).where(and(...saleRange)).orderBy(desc(sales.createdAt), desc(sales.id)).limit(200),
       db.select().from(expenses).where(and(...expenseRange)).orderBy(desc(expenses.occurredAt), desc(expenses.id)).limit(200),
-      db.select().from(medicines).where(eq(medicines.isActive, true)).orderBy(medicines.name),
+      all
+        ? db.select().from(medicines).where(eq(medicines.isActive, true)).orderBy(medicines.name)
+        : Promise.resolve([]),
       db
         .select()
         .from(stockMovements)
@@ -52,7 +54,11 @@ export async function getReportData(
         )
         .orderBy(desc(stockMovements.createdAt), desc(stockMovements.id))
         .limit(200),
-      db.select({id: users.id, name: users.name, isActive: users.isActive}).from(users).orderBy(users.name),
+      db
+        .select({id: users.id, name: users.name, isActive: users.isActive})
+        .from(users)
+        .where(!all ? eq(users.id, actor.id) : undefined)
+        .orderBy(users.name),
       db
         .select()
         .from(shifts)

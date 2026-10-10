@@ -7,6 +7,7 @@ import {expenses, sales} from '@/db/schema';
 import {createExpense} from '@/modules/expenses/service';
 import type {PermissionActor} from '@/modules/permissions/service';
 import {getReportData} from '@/modules/reports/queries';
+import {getDashboardSummary} from '@/modules/dashboard/queries';
 import {createSale} from '@/modules/sales/service';
 import {
   createMedicine,
@@ -67,5 +68,26 @@ describe('source-of-truth reports', () => {
       expect.arrayContaining([activeExpense.id, cancelledExpense.id])
     );
     expect(report.stockUnits).toBe(17);
+  });
+
+  it('does not expose global stock, employees, shifts, or audit to own scope', async () => {
+    const employeeUser = await createUser();
+    const otherUser = await createUser();
+    await createShift({userId: employeeUser.id});
+    await createShift({userId: otherUser.id});
+    await createMedicine({name: 'Global secret stock', currentStock: 99});
+    const employee: PermissionActor = {
+      id: employeeUser.id,
+      role: 'EMPLOYEE',
+      isActive: true,
+      permissions: ['reports.view.own']
+    };
+    const range = {from: new Date('2020-01-01'), to: new Date('2030-01-01')};
+    const report = await getReportData(employee, range);
+    const dashboard = await getDashboardSummary(employee, new Date('2026-10-10T12:00:00Z'));
+    expect(report.stock).toEqual([]);
+    expect(report.employees).toEqual([{id: employee.id, name: employeeUser.name, isActive: true}]);
+    expect(dashboard.openShifts.every(({userId}) => userId === employee.id)).toBe(true);
+    expect(dashboard.recentActivity.every(({actorId}) => actorId === employee.id)).toBe(true);
   });
 });

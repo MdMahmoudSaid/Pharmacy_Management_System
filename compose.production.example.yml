@@ -2,10 +2,10 @@ services:
   app:
     build: .
     restart: unless-stopped
-    environment: {DATABASE_URL: "${DATABASE_URL}", AUTH_FINGERPRINT_SECRET: "${AUTH_FINGERPRINT_SECRET}"}
+    environment: {DATABASE_URL: "${DATABASE_URL}", MIGRATION_DATABASE_URL: "${MIGRATION_DATABASE_URL}", APP_DATABASE_PASSWORD: "${APP_DATABASE_PASSWORD}", AUTH_FINGERPRINT_SECRET: "${AUTH_FINGERPRINT_SECRET}"}
     ports: ["127.0.0.1:3000:3000"]
     depends_on: {postgres: {condition: service_healthy}}
-    healthcheck: {test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"], interval: 30s, timeout: 5s, retries: 5}
+    healthcheck: {test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"], interval: 30s, timeout: 5s, retries: 5}
   postgres:
     image: postgres:18
     restart: unless-stopped
