@@ -14,7 +14,7 @@ import {
 
 export async function createMedicine(
   actor: PermissionActor,
-  input: {name: string; code?: string | null; sellingPrice: string}
+  input: {name: string; code?: string | null; sellingPrice: string; minStock?: number}
 ) {
   authorize(actor, 'medicines.create.all');
   const value = medicineInputSchema.parse(input);
@@ -25,6 +25,7 @@ export async function createMedicine(
         name: value.name,
         code: value.code || null,
         sellingPrice: value.sellingPrice,
+        ...(value.minStock !== undefined ? {minStock: value.minStock} : {}),
         createdBy: actor.id,
         updatedBy: actor.id
       })
@@ -37,7 +38,8 @@ export async function createMedicine(
       newValues: {
         name: medicine.name,
         code: medicine.code,
-        sellingPrice: medicine.sellingPrice
+        sellingPrice: medicine.sellingPrice,
+        minStock: medicine.minStock
       }
     });
     return medicine;
@@ -51,6 +53,7 @@ export async function updateMedicine(
     name: string;
     code?: string | null;
     sellingPrice: string;
+    minStock?: number;
     reason?: string;
   }
 ) {
@@ -72,6 +75,7 @@ export async function updateMedicine(
         name: value.name,
         code: value.code || null,
         sellingPrice: value.sellingPrice,
+        ...(value.minStock !== undefined ? {minStock: value.minStock} : {}),
         updatedBy: actor.id,
         updatedAt: new Date()
       })
@@ -85,12 +89,14 @@ export async function updateMedicine(
       oldValues: {
         name: current.name,
         code: current.code,
-        sellingPrice: current.sellingPrice
+        sellingPrice: current.sellingPrice,
+        minStock: current.minStock
       },
       newValues: {
         name: medicine.name,
         code: medicine.code,
-        sellingPrice: medicine.sellingPrice
+        sellingPrice: medicine.sellingPrice,
+        minStock: medicine.minStock
       },
       reason
     });

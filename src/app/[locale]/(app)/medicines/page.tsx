@@ -12,5 +12,5 @@ export default async function MedicinesPage({params}: {params: Promise<{locale: 
   const {locale} = await params;if (!hasLocale(routing.locales, locale)) notFound();setRequestLocale(locale);
   const actor = await requireSession();authorize(actor, 'medicines.view.all');
   const [t, rows] = await Promise.all([getTranslations('Stock'), listMedicines()]);
-  return <main className="page-content"><header className="page-heading"><p>{t('catalogKicker')}</p><h1>{t('catalogTitle')}</h1><span>{t('catalogSubtitle')}</span></header><div className="employees-layout">{can(actor, 'medicines.create.all') ? <MedicineForm locale={locale} /> : null}<MedicineList medicines={rows} locale={locale} canEdit={can(actor, 'medicines.update.all')} canArchive={can(actor, 'medicines.archive.all') || can(actor, 'medicines.restore.all')} /></div></main>;
+  return <main className="page-content catalog-page"><header className="page-heading"><p>{t('catalogKicker')}</p><h1>{t('catalogTitle')}</h1><span>{t('catalogSubtitle')}</span></header>{can(actor, 'medicines.create.all') ? <MedicineForm locale={locale} /> : null}<MedicineList medicines={rows} locale={locale} canEdit={can(actor, 'medicines.update.all')} canArchive={can(actor, 'medicines.archive.all') || can(actor, 'medicines.restore.all')} /></main>;
 }

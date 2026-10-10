@@ -29,10 +29,12 @@ test('reconciles report totals and prints without application chrome', async ({p
   await page.getByRole('button', {name: 'دخول', exact: true}).click();
   await expect(page).toHaveURL(/\/ar\/dashboard$/);
   await page.goto('/ar/reports');
-  await expect(page.getByText('20.00 MRU', {exact: true})).toBeVisible();
-  await expect(page.getByText('5.00 MRU', {exact: true})).toBeVisible();
-  await expect(page.getByText('15.00 MRU', {exact: true})).toBeVisible();
-  await page.getByRole('button', {name: 'المخزون', exact: true}).click();
+  const summary = page.locator('.report-summary');
+  await expect(summary.getByText('20.00 MRU', {exact: true})).toBeVisible();
+  await expect(summary.getByText('5.00 MRU', {exact: true})).toBeVisible();
+  await expect(summary.getByText('15.00 MRU', {exact: true})).toBeVisible();
+  await expect(page.getByRole('cell', {name: 'Stock Rapport × 2'})).toBeVisible();
+  await page.getByRole('tab', {name: 'المخزون', exact: true}).click();
   await expect(page.getByRole('cell', {name: 'Stock Rapport'})).toBeVisible();
   await page.emulateMedia({media: 'print'});
   await expect(page.locator('.desktop-sidebar')).toBeHidden();

@@ -31,6 +31,7 @@ test('filters navigation and rejects a forged employee-management action', async
 }) => {
   await login(page, '21234567', '1234');
   await page.goto('/ar/employees');
+  await page.locator('.form-collapse > summary').click();
 
   const createForm = page.getByTestId('create-employee-form');
   const actionFields = await createForm.locator('input[type="hidden"]').evaluateAll(
@@ -46,15 +47,20 @@ test('filters navigation and rejects a forged employee-management action', async
   await createForm.locator('[name="phone"]').fill('31234567');
   await createForm.locator('[name="pin"]').fill('5678');
   await createForm.getByRole('button', {name: 'إنشاء الحساب'}).click();
-  const employeeCard = page.locator('.employee-card').filter({hasText: 'Employé Limité'});
+  const employeeCard = page.locator('.employee-row').filter({hasText: 'Employé Limité'});
   await expect(employeeCard).toBeVisible();
 
-  await employeeCard.getByText('الصلاحيات', {exact: true}).click();
+  await expect(createForm.locator('[name="name"]')).toHaveValue('');
+  await expect(employeeCard.getByText('بدون صلاحيات')).toBeVisible();
+  await employeeCard.getByText('إدارة الحساب').click();
+  await employeeCard.getByRole('tab', {name: 'الصلاحيات'}).click();
   await employeeCard
     .locator('input[value="sales.correct.own"]')
     .check();
   await employeeCard.locator('.permission-editor [name="reason"]').fill('Correction autorisée');
   await employeeCard.getByRole('button', {name: 'حفظ الصلاحيات'}).click();
+  await expect(employeeCard.getByText('تم حفظ الصلاحيات.')).toBeVisible();
+  await expect(employeeCard.getByText('صلاحية واحدة')).toBeVisible();
 
   await page.goto('/ar/dashboard');
   await page.getByRole('button', {name: 'تسجيل الخروج'}).click();

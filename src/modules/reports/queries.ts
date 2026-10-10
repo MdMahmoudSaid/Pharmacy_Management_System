@@ -1,10 +1,12 @@
 import Decimal from 'decimal.js';
-import {and, desc, eq, gte, lt, sql} from 'drizzle-orm';
+import {and, desc, eq, getTableColumns, gte, inArray, lt, sql} from 'drizzle-orm';
 
 import {db} from '@/db/client';
 import {
+  expenseCategories,
   expenses,
   medicines,
+  saleItems,
   sales,
   shifts,
   stockMovements,
@@ -37,14 +39,27 @@ export async function getReportData(
         .select({total: sql<string>`coalesce(sum(${expenses.amount}), 0)`})
         .from(expenses)
         .where(and(...expenseRange, eq(expenses.status, 'ACTIVE'))),
-      db.select().from(sales).where(and(...saleRange)).orderBy(desc(sales.createdAt), desc(sales.id)).limit(200),
-      db.select().from(expenses).where(and(...expenseRange)).orderBy(desc(expenses.occurredAt), desc(expenses.id)).limit(200),
+      db
+        .select({...getTableColumns(sales), operatorName: users.name})
+        .from(sales)
+        .innerJoin(users, eq(sales.operatorId, users.id))
+        .where(and(...saleRange))
+        .orderBy(desc(sales.createdAt), desc(sales.id))
+        .limit(200),
+      db
+        .select({...getTableColumns(expenses), categoryName: expenseCategories.name})
+        .from(expenses)
+        .leftJoin(expenseCategories, eq(expenses.categoryId, expenseCategories.id))
+        .where(and(...expenseRange))
+        .orderBy(desc(expenses.occurredAt), desc(expenses.id))
+        .limit(200),
       all
         ? db.select().from(medicines).where(eq(medicines.isActive, true)).orderBy(medicines.name)
         : Promise.resolve([]),
       db
-        .select()
+        .select({...getTableColumns(stockMovements), medicineName: medicines.name})
         .from(stockMovements)
+        .innerJoin(medicines, eq(stockMovements.medicineId, medicines.id))
         .where(
           and(
             gte(stockMovements.createdAt, range.from),
@@ -60,8 +75,9 @@ export async function getReportData(
         .where(!all ? eq(users.id, actor.id) : undefined)
         .orderBy(users.name),
       db
-        .select()
+        .select({...getTableColumns(shifts), userName: users.name})
         .from(shifts)
+        .innerJoin(users, eq(shifts.userId, users.id))
         .where(
           and(
             gte(shifts.openedAt, range.from),
@@ -72,6 +88,14 @@ export async function getReportData(
         .orderBy(desc(shifts.openedAt), desc(shifts.id))
         .limit(200)
     ]);
+  const saleIds = saleRows.map(({id}) => id);
+  const items = saleIds.length
+    ? await db
+        .select({saleId: saleItems.saleId, name: medicines.name, quantity: saleItems.quantity})
+        .from(saleItems)
+        .innerJoin(medicines, eq(saleItems.medicineId, medicines.id))
+        .where(inArray(saleItems.saleId, saleIds))
+    : [];
   const salesTotal = new Decimal(saleTotalRow[0]?.total ?? 0).toFixed(2);
   const expensesTotal = new Decimal(expenseTotalRow[0]?.total ?? 0).toFixed(2);
   return {
@@ -81,7 +105,10 @@ export async function getReportData(
       expensesTotal,
       netTotal: new Decimal(salesTotal).minus(expensesTotal).toFixed(2)
     },
-    sales: saleRows,
+    sales: saleRows.map((sale) => ({
+      ...sale,
+      items: items.filter(({saleId}) => saleId === sale.id).map(({name, quantity}) => ({name, quantity}))
+    })),
     expenses: expenseRows,
     stock,
     stockUnits: stock.reduce((sum, medicine) => sum + medicine.currentStock, 0),

@@ -17,23 +17,17 @@ import type {ReactNode} from 'react';
 import type {PermissionActor} from '@/modules/permissions/service';
 import {LanguageSwitcher} from './language-switcher';
 
-type NavItem = {
+export type NavItem = {
   key: 'home' | 'sales' | 'expenses' | 'stock' | 'shift' | 'medicines' | 'employees' | 'reports' | 'audit' | 'settings' | 'more';
   href: string;
   icon: typeof Home;
   domain?: string;
 };
 
-export async function AppShell({
-  actor,
-  locale,
-  children
-}: {
-  actor: PermissionActor;
-  locale: 'ar' | 'fr';
-  children: ReactNode;
-}) {
-  const t = await getTranslations('Navigation');
+// Pages reachable from the mobile bottom bar; everything else lives on the "more" page.
+export const MOBILE_BAR_KEYS: readonly NavItem['key'][] = ['home', 'sales', 'stock', 'shift', 'more'];
+
+export function navItems(actor: PermissionActor, locale: 'ar' | 'fr'): NavItem[] {
   const base = `/${locale}`;
   const items: NavItem[] = [
     {key: 'home', href: `${base}/dashboard`, icon: Home},
@@ -78,12 +72,26 @@ export async function AppShell({
     {key: 'settings', href: `${base}/settings`, icon: Settings, domain: 'settings'},
     {key: 'more', href: `${base}/more`, icon: Menu}
   ];
-  const visible = items.filter(
+  return items.filter(
     (item) =>
       !item.domain ||
       actor.role === 'ADMIN' ||
       actor.permissions.some((permission) => permission.startsWith(`${item.domain}.`))
   );
+}
+
+export async function AppShell({
+  actor,
+  locale,
+  children
+}: {
+  actor: PermissionActor;
+  locale: 'ar' | 'fr';
+  children: ReactNode;
+}) {
+  const t = await getTranslations('Navigation');
+  const base = `/${locale}`;
+  const visible = navItems(actor, locale);
 
   return (
     <div className="app-frame">
@@ -93,7 +101,7 @@ export async function AppShell({
           <strong>{t('brand')}</strong>
         </Link>
         <nav aria-label={t('main')}>
-          {visible.map(({key, href, icon: Icon}) => (
+          {visible.filter(({key}) => key !== 'more').map(({key, href, icon: Icon}) => (
             <Link href={href} key={key}>
               <Icon size={20} />
               <span>{t(key)}</span>
@@ -113,9 +121,7 @@ export async function AppShell({
       </div>
       <nav className="mobile-bottom-nav" aria-label={t('mobile')}>
         {visible
-          .filter(({key}) =>
-            ['home', 'sales', 'stock', 'shift', 'more'].includes(key)
-          )
+          .filter(({key}) => MOBILE_BAR_KEYS.includes(key))
           .map(({key, href, icon: Icon}) => (
             <Link href={href} key={key}>
               <Icon size={20} />

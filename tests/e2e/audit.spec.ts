@@ -39,7 +39,8 @@ test('employee can inspect audit but has no mutation controls', async ({page}) =
   await page.getByRole('button', {name: 'دخول', exact: true}).click();
   await expect(page).toHaveURL(/\/ar\/dashboard$/);
   await page.goto('/ar/audit');
-  await expect(page.getByText(/CREATE · shifts/)).toBeVisible();
+  await expect(page.getByText(/إنشاء · مناوبة/)).toBeVisible();
+  await expect(page.locator('.audit-changes')).toContainText('مفتوحة');
   await expect(page.getByRole('button', {name: /تعديل|حذف/})).toHaveCount(0);
   await expect(page.locator('.audit-table form')).toHaveCount(0);
 });

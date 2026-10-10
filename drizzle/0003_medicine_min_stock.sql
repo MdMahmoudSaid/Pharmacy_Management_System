@@ -1,0 +1,2 @@
+ALTER TABLE "medicines" ADD COLUMN "min_stock" integer DEFAULT 5 NOT NULL;--> statement-breakpoint
+ALTER TABLE "medicines" ADD CONSTRAINT "medicines_min_stock_non_negative" CHECK ("medicines"."min_stock" >= 0);

@@ -4,6 +4,8 @@ import {Clock3, LogIn, LogOut} from 'lucide-react';
 import {useTranslations} from 'next-intl';
 import {useActionState} from 'react';
 
+import {ConfirmForm} from '@/components/confirm-form';
+
 import {
   closeShiftAction,
   openShiftAction,
@@ -38,13 +40,10 @@ export function ShiftPanel({
             : t('ready')}
         </h2>
       </div>
-      <form
+      <ConfirmForm
         action={formAction}
-        onSubmit={(event) => {
-          if (activeShift && !window.confirm(t('closeConfirm'))) {
-            event.preventDefault();
-          }
-        }}
+        enabled={Boolean(activeShift)}
+        message={t('closeConfirm')}
       >
         <input type="hidden" name="locale" value={locale} />
         {activeShift ? <input type="hidden" name="id" value={activeShift.id} /> : null}
@@ -53,7 +52,7 @@ export function ShiftPanel({
           {activeShift ? <LogOut size={18} /> : <LogIn size={18} />}
           {activeShift ? t('close') : t('open')}
         </button>
-      </form>
+      </ConfirmForm>
     </section>
   );
 }

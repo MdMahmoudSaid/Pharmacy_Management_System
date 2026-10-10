@@ -40,7 +40,7 @@ export default async function SaleDetailPage({
     <main className="page-content sale-detail-page">
       <header className="page-heading no-print">
         <p>{t('detailKicker')}</p>
-        <h1 dir="ltr">{detail.sale.saleNumber}</h1>
+        <h1>{t('detailTitle', {date: format.format(detail.sale.createdAt)})}</h1>
         <Link href={`/${locale}/sales`}>{t('backToSales')}</Link>
       </header>
       <div className="sale-detail-grid">
@@ -58,7 +58,7 @@ export default async function SaleDetailPage({
             <div><dt>{t('createdAt')}</dt><dd>{format.format(detail.sale.createdAt)}</dd></div>
             <div><dt>{t('createdBy')}</dt><dd>{detail.createdByName ?? '—'}</dd></div>
             <div><dt>{t('updatedBy')}</dt><dd>{detail.updatedByName ?? '—'}</dd></div>
-            <div><dt>{t('shift')}</dt><dd>#{detail.shift?.id ?? detail.sale.shiftId}</dd></div>
+            <div><dt>{t('shift')}</dt><dd>{detail.shift ? format.format(detail.shift.openedAt) : '—'}</dd></div>
             <div><dt>{t('status')}</dt><dd>{detail.sale.status === 'COMPLETED' ? t('completed') : t('cancelled')}</dd></div>
           </dl>
           <h2>{t('auditTimeline')}</h2>
@@ -66,7 +66,7 @@ export default async function SaleDetailPage({
             {detail.audit.map((entry) => (
               <li key={entry.id}>
                 <strong>{t(`auditActions.${entry.action}`)}</strong>
-                <span>{entry.actorName} · {format.format(entry.createdAt)}</span>
+                <span><bdi>{entry.actorName}</bdi> · <bdi>{format.format(entry.createdAt)}</bdi></span>
                 {entry.reason ? <p>{entry.reason}</p> : null}
               </li>
             ))}

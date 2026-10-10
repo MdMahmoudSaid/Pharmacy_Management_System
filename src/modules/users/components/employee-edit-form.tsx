@@ -18,17 +18,17 @@ export function EmployeeEditForm({
     undefined
   );
   return (
-    <details className="permission-editor">
-      <summary>{t('edit')}</summary>
-      <form action={action}>
-        <input type="hidden" name="id" value={employee.id} />
-        <input type="hidden" name="locale" value={locale} />
-        <label>
-          <span>{t('name')}</span>
-          <input name="name" defaultValue={employee.name} required />
-        </label>
-        <label>
-          <span>{t('phone')}</span>
+    <form action={action} className="entry-form">
+      <input type="hidden" name="id" value={employee.id} />
+      <input type="hidden" name="locale" value={locale} />
+      <label>
+        <span>{t('name')}</span>
+        <input name="name" defaultValue={employee.name} minLength={2} maxLength={120} required />
+      </label>
+      <label>
+        <span>{t('phone')}</span>
+        <span className="prefixed-input" dir="ltr">
+          <b>+222</b>
           <input
             name="phone"
             defaultValue={employee.phoneE164.slice(4)}
@@ -38,16 +38,17 @@ export function EmployeeEditForm({
             maxLength={8}
             required
           />
-        </label>
+        </span>
+      </label>
+      <div className="entry-footer">
+        <button className="primary-action" disabled={pending}>{t('save')}</button>
         {state && !state.ok ? (
-          <p className="form-error" data-result={state.code}>
+          <p className="form-error" role="alert" data-result={state.code}>
             {t(`errors.${state.code}`)}
           </p>
         ) : null}
-        <button className="secondary-action" disabled={pending}>
-          {t('save')}
-        </button>
-      </form>
-    </details>
+        {state?.ok ? <p className="form-success" role="status">{t('saved')}</p> : null}
+      </div>
+    </form>
   );
 }

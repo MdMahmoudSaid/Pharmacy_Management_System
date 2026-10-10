@@ -1,11 +1,12 @@
-import {and, desc, eq, gte, lte} from 'drizzle-orm';
+import {and, desc, eq, gte, lt} from 'drizzle-orm';
 
 import {db} from '@/db/client';
-import {expenses, users} from '@/db/schema';
+import {expenseCategories, expenses, users} from '@/db/schema';
 import {AppError} from '@/lib/errors';
 import {appendAudit} from '@/modules/audit/service';
 import type {PermissionActor} from '@/modules/permissions/service';
 import {requireActiveShift} from '@/modules/shifts/service';
+import {requireActiveCategory} from './categories';
 import {
   authorizeExpenseCancellation,
   authorizeExpenseCorrection,
@@ -21,13 +22,14 @@ import {
 
 export async function createExpense(
   actor: PermissionActor,
-  rawInput: {shiftId: number; amount: string; description: string}
+  rawInput: {shiftId: number; amount: string; categoryId?: number; description?: string}
 ) {
   authorizeExpenseCreation(actor);
   const input = expenseInputSchema.parse(rawInput);
   return db.transaction(async (tx) => {
     const shift = await requireActiveShift(actor.id, tx);
     if (shift.id !== input.shiftId) throw new AppError('SHIFT_REQUIRED');
+    if (input.categoryId) await requireActiveCategory(tx, input.categoryId);
     const [expense] = await tx
       .insert(expenses)
       .values({
@@ -42,7 +44,7 @@ export async function createExpense(
       entityType: 'expenses',
       entityId: expense.id,
       action: 'CREATE',
-      newValues: {amount: expense.amount, description: expense.description},
+      newValues: {categoryId: expense.categoryId, amount: expense.amount, description: expense.description},
       relatedShiftId: shift.id,
       relatedTransactionType: 'EXPENSE',
       relatedTransactionId: expense.id
@@ -54,7 +56,7 @@ export async function createExpense(
 export async function correctExpense(
   actor: PermissionActor,
   rawId: number,
-  rawInput: {amount: string; description: string; reason: string}
+  rawInput: {amount: string; categoryId?: number; description?: string; reason: string}
 ) {
   const id = expenseIdSchema.parse(rawId);
   const input = expenseCorrectionSchema.parse(rawInput);
@@ -67,10 +69,14 @@ export async function correctExpense(
     if (!current) throw new AppError('NOT_FOUND');
     authorizeExpenseCorrection(actor, current.operatorId);
     if (current.status !== 'ACTIVE') throw new AppError('CONFLICT');
+    if (input.categoryId && input.categoryId !== current.categoryId) {
+      await requireActiveCategory(tx, input.categoryId);
+    }
     const [expense] = await tx
       .update(expenses)
       .set({
         amount: input.amount,
+        categoryId: input.categoryId ?? null,
         description: input.description,
         updatedBy: actor.id,
         updatedAt: new Date()
@@ -82,8 +88,8 @@ export async function correctExpense(
       entityType: 'expenses',
       entityId: id,
       action: 'CORRECT',
-      oldValues: {amount: current.amount, description: current.description},
-      newValues: {amount: expense.amount, description: expense.description},
+      oldValues: {categoryId: current.categoryId, amount: current.amount, description: current.description},
+      newValues: {categoryId: expense.categoryId, amount: expense.amount, description: expense.description},
       reason: input.reason,
       relatedShiftId: current.shiftId,
       relatedTransactionType: 'EXPENSE',
@@ -142,12 +148,13 @@ export async function listExpenses(
     filters.operatorId ? eq(expenses.operatorId, filters.operatorId) : undefined,
     filters.shiftId ? eq(expenses.shiftId, filters.shiftId) : undefined,
     filters.from ? gte(expenses.occurredAt, filters.from) : undefined,
-    filters.to ? lte(expenses.occurredAt, filters.to) : undefined
+    filters.to ? lt(expenses.occurredAt, filters.to) : undefined
   ].filter((condition) => condition !== undefined);
   return db
-    .select({expense: expenses, operatorName: users.name})
+    .select({expense: expenses, operatorName: users.name, categoryName: expenseCategories.name})
     .from(expenses)
     .innerJoin(users, eq(expenses.operatorId, users.id))
+    .leftJoin(expenseCategories, eq(expenses.categoryId, expenseCategories.id))
     .where(and(...conditions))
-    .orderBy(desc(expenses.occurredAt));
+    .orderBy(desc(expenses.occurredAt), desc(expenses.id));
 }

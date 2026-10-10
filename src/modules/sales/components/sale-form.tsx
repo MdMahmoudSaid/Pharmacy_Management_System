@@ -1,19 +1,23 @@
 'use client';
 import Decimal from 'decimal.js';
+import {CheckCircle2, Printer} from 'lucide-react';
+import Link from 'next/link';
 import {useTranslations} from 'next-intl';
 import {useActionState, useEffect, useState} from 'react';
 import {createSaleAction, type SaleActionState} from '../actions';
-import {MedicineSearch, type SaleMedicine} from './medicine-search';
+import {formatMru, MedicineSearch, type SaleMedicine} from './medicine-search';
 import {SaleCart, type CartItem} from './sale-cart';
 
 export function SaleForm({
   medicines,
   shiftId,
-  canOverride
+  canOverride,
+  locale
 }: {
   medicines: SaleMedicine[];
   shiftId: number;
   canOverride: boolean;
+  locale: 'ar' | 'fr';
 }) {
   const t = useTranslations('Sales');
   const [items, setItems] = useState<CartItem[]>([]);
@@ -41,10 +45,17 @@ export function SaleForm({
     undefined
   );
   const add = (medicine: SaleMedicine) => {
-    if (items.some(({id}) => id === medicine.id)) return;
+    const existing = items.find(({id}) => id === medicine.id);
+    if (existing) {
+      if (existing.quantity >= medicine.currentStock) return;
+      setItems(items.map((item) => (item.id === medicine.id ? {...item, quantity: item.quantity + 1} : item)));
+      return;
+    }
+    if (medicine.currentStock < 1) return;
     if (!key) setKey(crypto.randomUUID());
     setItems([...items, {...medicine, quantity: 1, unitPrice: medicine.sellingPrice, overrideReason: ''}]);
   };
+  const inCart = Object.fromEntries(items.map(({id, quantity}) => [id, quantity]));
   const total = items
     .reduce(
       (sum, item) => sum.plus(new Decimal(item.unitPrice || 0).times(item.quantity)),
@@ -63,7 +74,7 @@ export function SaleForm({
       <input type="hidden" name="shiftId" value={shiftId} />
       <input type="hidden" name="idempotencyKey" value={key} data-testid="sale-idempotency-key" />
       <input type="hidden" name="items" value={JSON.stringify(payload)} />
-      <MedicineSearch medicines={medicines} onAdd={add} />
+      <MedicineSearch medicines={medicines} inCart={inCart} onAdd={add} />
       <div className="sale-checkout">
         <SaleCart items={items} setItems={setItems} canOverride={canOverride} />
         {state && !state.ok ? (
@@ -71,15 +82,17 @@ export function SaleForm({
             {t(`errors.${state.code}`)}
           </p>
         ) : null}
-        {state?.ok ? (
-          <p className="form-success" data-result="success">
-            {t('success', {total: state.data.total})}
-          </p>
+        {state?.ok && items.length === 0 ? (
+          <div className="sale-success" data-result="success" role="status">
+            <CheckCircle2 size={22} aria-hidden="true" />
+            <p>{t('success', {total: formatMru(state.data.total)})}</p>
+            <Link href={`/${locale}/sales/${state.data.id}`}><Printer size={16} aria-hidden="true" />{t('viewReceipt')}</Link>
+          </div>
         ) : null}
         {!online ? <p className="form-error" data-testid="offline-draft">{t('offlineDraft')}</p> : null}
         <div className="sale-total">
           <span>{t('total')}</span>
-          <strong>{total}</strong>
+          <strong dir="ltr">{formatMru(total)} <small>MRU</small></strong>
           <button className="primary-action" disabled={pending || items.length === 0 || !online}>
             {pending ? t('processing') : t('confirm')}
           </button>

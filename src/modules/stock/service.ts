@@ -1,7 +1,7 @@
-import {desc, eq, sql} from 'drizzle-orm';
+import {and, desc, eq, gte, inArray, lt, sql} from 'drizzle-orm';
 
 import {db, type DbTransaction} from '@/db/client';
-import {medicines, stockMovements, stockReceipts} from '@/db/schema';
+import {medicines, stockMovements, stockReceipts, users} from '@/db/schema';
 import {AppError} from '@/lib/errors';
 import {appendAudit} from '@/modules/audit/service';
 import {authorize, type PermissionActor} from '@/modules/permissions/service';
@@ -196,14 +196,24 @@ export async function correctStockReceipt(
   });
 }
 
-export async function getMedicineMovements(filters: {medicineId?: number} = {}) {
-  const query = db
-    .select({movement: stockMovements, medicineName: medicines.name})
+export type MovementType = (typeof stockMovements.type.enumValues)[number];
+
+export async function getMedicineMovements(
+  filters: {medicineId?: number; types?: MovementType[]; from?: Date; to?: Date; limit?: number} = {}
+) {
+  return db
+    .select({movement: stockMovements, medicineName: medicines.name, actorName: users.name})
     .from(stockMovements)
     .innerJoin(medicines, eq(medicines.id, stockMovements.medicineId))
-    .orderBy(desc(stockMovements.createdAt));
-  if (filters.medicineId) {
-    return query.where(eq(stockMovements.medicineId, filters.medicineId));
-  }
-  return query;
+    .innerJoin(users, eq(users.id, stockMovements.actorId))
+    .where(
+      and(
+        filters.medicineId ? eq(stockMovements.medicineId, filters.medicineId) : undefined,
+        filters.types?.length ? inArray(stockMovements.type, filters.types) : undefined,
+        filters.from ? gte(stockMovements.createdAt, filters.from) : undefined,
+        filters.to ? lt(stockMovements.createdAt, filters.to) : undefined
+      )
+    )
+    .orderBy(desc(stockMovements.createdAt), desc(stockMovements.id))
+    .limit(filters.limit ?? 300);
 }

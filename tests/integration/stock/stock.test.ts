@@ -184,4 +184,23 @@ describe('medicine catalog and immutable stock ledger', () => {
       await expect(call()).rejects.toBeDefined();
     }
   );
+
+  it('stores a per-medicine minimum stock and filters movements by type', async () => {
+    const medicine = await createMedicine(admin, {name: 'Ibuprofène', sellingPrice: '12.00', minStock: 8});
+    expect(medicine.minStock).toBe(8);
+    const fallback = await createMedicine(admin, {name: 'Vitamine C', sellingPrice: '5.00'});
+    expect(fallback.minStock).toBe(5);
+    const updated = await updateMedicine(admin, {id: medicine.id, name: 'Ibuprofène', sellingPrice: '12.00', minStock: 3});
+    expect(updated.minStock).toBe(3);
+    await expect(
+      createMedicine(admin, {name: 'Négatif', sellingPrice: '1.00', minStock: -1})
+    ).rejects.toThrow();
+
+    await receiveStock(admin, {medicineId: medicine.id, quantity: 10});
+    const received = await getMedicineMovements({types: ['STOCK_RECEIVED']});
+    expect(received).toHaveLength(1);
+    expect(received[0]).toMatchObject({medicineName: 'Ibuprofène', movement: {quantityChange: 10}});
+    expect(received[0].actorName).toBeTruthy();
+    await expect(getMedicineMovements({types: ['SALE']})).resolves.toEqual([]);
+  });
 });

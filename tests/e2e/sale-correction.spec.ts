@@ -55,7 +55,7 @@ test('admin corrects and cancels a sale without an open shift', async ({page}) =
   await login(page);
   await page.goto('/ar/sales');
   await expect(page.getByText('افتح مناوبة قبل البيع')).toBeVisible();
-  await page.getByRole('link', {name: /S-/}).click();
+  await page.getByRole('link', {name: /Amoxicilline Correction × 3/}).click();
   await expect(page).toHaveURL(new RegExp(`/ar/sales/${seededSaleId}$`));
 
   await page.getByText('تصحيح عملية البيع', {exact: true}).click();

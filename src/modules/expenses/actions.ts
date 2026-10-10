@@ -12,6 +12,11 @@ export type ExpenseActionState = ActionResult<{id: number}> | undefined;
 const value = (data: FormData, key: string) => String(data.get(key) ?? '');
 const locale = (data: FormData) => (value(data, 'locale') === 'fr' ? 'fr' : 'ar');
 const refresh = (data: FormData) => revalidatePath(`/${locale(data)}/expenses`);
+const categoryId = (data: FormData) => {
+  const id = Number(value(data, 'categoryId'));
+  if (!Number.isInteger(id) || id <= 0) throw new AppError('VALIDATION_ERROR');
+  return id;
+};
 const failure = (error: unknown): Exclude<ExpenseActionState, undefined> => {
   if (error instanceof AppError) return {ok: false, code: error.code};
   if (error instanceof ZodError) return {ok: false, code: 'VALIDATION_ERROR'};
@@ -26,6 +31,7 @@ export async function createExpenseAction(
     const expense = await createExpense(await requireSession(), {
       shiftId: Number(value(data, 'shiftId')),
       amount: value(data, 'amount'),
+      categoryId: categoryId(data),
       description: value(data, 'description')
     });
     refresh(data);
@@ -45,6 +51,7 @@ export async function correctExpenseAction(
       Number(value(data, 'id')),
       {
         amount: value(data, 'amount'),
+        categoryId: categoryId(data),
         description: value(data, 'description'),
         reason: value(data, 'reason')
       }

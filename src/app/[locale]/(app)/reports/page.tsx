@@ -25,18 +25,19 @@ export default async function ReportsPage({params, searchParams}: {
   const preset: ReportPreset = presetResult.success ? presetResult.data : 'today';
   const customFrom = text(query.from);
   const customTo = text(query.to);
+  // The end date is inclusive for the user, so the query stops at the start of the following day.
   const range = customFrom && customTo
-    ? {from: new Date(`${customFrom}T00:00:00.000Z`), to: new Date(`${customTo}T00:00:00.000Z`)}
+    ? {from: new Date(`${customFrom}T00:00:00.000Z`), to: new Date(new Date(`${customTo}T00:00:00.000Z`).getTime() + 86_400_000)}
     : nouakchottRange(preset);
   const [t, data] = await Promise.all([getTranslations('Reports'), getReportData(actor, range)]);
   return (
     <main className="page-content reports-page">
       <header className="page-heading"><p>{t('kicker')}</p><h1>{t('title')}</h1><span>{t('subtitle')}</span></header>
-      <form className="report-filters no-print">
-        <select name="preset" defaultValue={preset}>{(['today', 'yesterday', 'this_week', 'this_month'] as const).map((key) => <option value={key} key={key}>{t(key)}</option>)}</select>
-        <input type="date" name="from" defaultValue={customFrom} aria-label={t('from')} />
-        <input type="date" name="to" defaultValue={customTo} aria-label={t('toExclusive')} />
-        <button className="secondary-action">{t('apply')}</button>
+      <form className="report-filters filter-form no-print">
+        <label className="filter-field-wide"><span>{t('period')}</span><select name="preset" defaultValue={preset}>{(['today', 'yesterday', 'this_week', 'this_month'] as const).map((key) => <option value={key} key={key}>{t(key)}</option>)}</select></label>
+        <label><span>{t('from')}</span><input type="date" name="from" defaultValue={customFrom} /></label>
+        <label><span>{t('to')}</span><input type="date" name="to" defaultValue={customTo} /></label>
+        <button className="primary-action">{t('apply')}</button>
       </form>
       <ReportTabs data={data} canPrint={can(actor, 'reports.print.own', actor.id)} />
     </main>

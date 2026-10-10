@@ -15,6 +15,20 @@
       "when": 1791613445884,
       "tag": "0001_application_role",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791669911561,
+      "tag": "0002_expense_categories",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791671743190,
+      "tag": "0003_medicine_min_stock",
+      "breakpoints": true
     }
   ]
 }

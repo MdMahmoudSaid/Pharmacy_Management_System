@@ -1,6 +1,7 @@
 import {sql} from 'drizzle-orm';
 import {
   bigint,
+  boolean,
   check,
   index,
   integer,
@@ -172,12 +173,36 @@ export const saleItems = pgTable(
   ]
 );
 
+export const expenseCategories = pgTable(
+  'expense_categories',
+  {
+    id: identity('id').primaryKey(),
+    name: text('name').notNull(),
+    isActive: boolean('is_active').notNull().default(true),
+    createdBy: bigint('created_by', {mode: 'number'}).references(() => users.id, {
+      onDelete: 'restrict'
+    }),
+    createdAt: timestampWithTimeZone('created_at').notNull().defaultNow(),
+    updatedAt: timestampWithTimeZone('updated_at').notNull().defaultNow()
+  },
+  (table) => [
+    check('expense_categories_name_non_empty', sql`length(trim(${table.name})) > 0`),
+    uniqueIndex('expense_categories_active_name_unique')
+      .on(sql`lower(${table.name})`)
+      .where(sql`${table.isActive}`),
+    index('expense_categories_created_by_idx').on(table.createdBy)
+  ]
+);
+
 export const expenses = pgTable(
   'expenses',
   {
     id: identity('id').primaryKey(),
     amount: numeric('amount', {precision: 14, scale: 2}).notNull(),
-    description: text('description').notNull(),
+    categoryId: bigint('category_id', {mode: 'number'}).references(() => expenseCategories.id, {
+      onDelete: 'restrict'
+    }),
+    description: text('description'),
     shiftId: bigint('shift_id', {mode: 'number'})
       .notNull()
       .references(() => shifts.id, {onDelete: 'restrict'}),
@@ -197,7 +222,11 @@ export const expenses = pgTable(
   },
   (table) => [
     check('expenses_amount_positive', sql`${table.amount} > 0`),
-    check('expenses_description_non_empty', sql`length(trim(${table.description})) > 0`),
+    check(
+      'expenses_category_or_description',
+      sql`${table.categoryId} is not null or length(trim(coalesce(${table.description}, ''))) > 0`
+    ),
+    index('expenses_category_id_idx').on(table.categoryId),
     index('expenses_shift_id_idx').on(table.shiftId),
     index('expenses_operator_id_idx').on(table.operatorId),
     index('expenses_created_by_idx').on(table.createdBy),

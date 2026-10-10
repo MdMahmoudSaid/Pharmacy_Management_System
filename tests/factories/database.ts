@@ -13,6 +13,7 @@ export async function resetDatabase() {
       stock_movements,
       stock_receipts,
       expenses,
+      expense_categories,
       sales,
       shifts,
       user_permissions,

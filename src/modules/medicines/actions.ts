@@ -9,8 +9,15 @@ import {archiveMedicine, createMedicine, restoreMedicine, updateMedicine} from '
 
 export type MedicineActionState = ActionResult<{id: number}> | undefined;
 const text = (data: FormData, key: string) => String(data.get(key) ?? '');
-const refresh = (data: FormData) =>
-  revalidatePath(`/${text(data, 'locale') === 'fr' ? 'fr' : 'ar'}/medicines`);
+const refresh = (data: FormData) => {
+  const locale = text(data, 'locale') === 'fr' ? 'fr' : 'ar';
+  revalidatePath(`/${locale}/medicines`);
+  revalidatePath(`/${locale}/stock`);
+};
+const minStock = (data: FormData) => {
+  const raw = text(data, 'minStock').trim();
+  return raw === '' ? undefined : Number(raw);
+};
 const failure = (error: unknown): Exclude<MedicineActionState, undefined> => {
   if (error instanceof AppError) return {ok: false, code: error.code};
   if (error instanceof ZodError) return {ok: false, code: 'VALIDATION_ERROR'};
@@ -25,7 +32,8 @@ export async function createMedicineAction(
     const medicine = await createMedicine(await requireSession(), {
       name: text(data, 'name'),
       code: text(data, 'code') || null,
-      sellingPrice: text(data, 'sellingPrice')
+      sellingPrice: text(data, 'sellingPrice'),
+      minStock: minStock(data)
     });
     refresh(data);
     return {ok: true, data: {id: medicine.id}};
@@ -44,6 +52,7 @@ export async function updateMedicineAction(
       name: text(data, 'name'),
       code: text(data, 'code') || null,
       sellingPrice: text(data, 'sellingPrice'),
+      minStock: minStock(data),
       reason: text(data, 'reason')
     });
     refresh(data);

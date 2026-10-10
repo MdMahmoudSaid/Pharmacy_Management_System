@@ -68,6 +68,17 @@ describe('source-of-truth reports', () => {
       expect.arrayContaining([activeExpense.id, cancelledExpense.id])
     );
     expect(report.stockUnits).toBe(17);
+
+    const dashboard = await getDashboardSummary(admin, {
+      from: new Date('2020-01-01T00:00:00Z'),
+      to: new Date('2030-01-01T00:00:00Z')
+    });
+    expect(dashboard.recentOperations).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({kind: 'sale', id: cancelledSale.id, cancelled: true}),
+        expect.objectContaining({kind: 'expense', id: activeExpense.id, amount: '5.00', cancelled: false})
+      ])
+    );
   });
 
   it('does not expose global stock, employees, shifts, or audit to own scope', async () => {
@@ -84,10 +95,10 @@ describe('source-of-truth reports', () => {
     };
     const range = {from: new Date('2020-01-01'), to: new Date('2030-01-01')};
     const report = await getReportData(employee, range);
-    const dashboard = await getDashboardSummary(employee, new Date('2026-10-10T12:00:00Z'));
+    const dashboard = await getDashboardSummary(employee, range);
     expect(report.stock).toEqual([]);
     expect(report.employees).toEqual([{id: employee.id, name: employeeUser.name, isActive: true}]);
     expect(dashboard.openShifts).toEqual([]);
-    expect(dashboard.recentActivity).toEqual([]);
+    expect(dashboard.recentOperations).toEqual([]);
   });
 });

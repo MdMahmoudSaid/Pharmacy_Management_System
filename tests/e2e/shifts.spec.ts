@@ -65,8 +65,8 @@ test('employee operates one shift and admin audits correction and reopen', async
   await logout(page);
   await login(page, '31234567', '5678');
   await page.goto('/ar/shifts');
-  page.once('dialog', (dialog) => dialog.accept());
   await page.getByRole('button', {name: 'إغلاق المناوبة'}).click();
+  await page.getByRole('dialog').getByRole('button', {name: 'تأكيد', exact: true}).click();
   await expect(page.getByText('مغلقة')).toBeVisible();
 
   await logout(page);

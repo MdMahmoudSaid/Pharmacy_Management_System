@@ -2,15 +2,27 @@ import {z} from 'zod';
 
 import {positiveMoneySchema, sensitiveReasonSchema} from '@/modules/auth/schemas';
 
+const optionalText = z
+  .string()
+  .trim()
+  .max(2000)
+  .optional()
+  .transform((value) => value || null);
+
+const expenseFields = z.object({
+  amount: positiveMoneySchema,
+  categoryId: z.number().int().positive().optional(),
+  description: optionalText
+});
+
+const namesExpense = (value: {categoryId?: number; description: string | null}) =>
+  value.categoryId !== undefined || value.description !== null;
+
 export const expenseIdSchema = z.number().int().positive();
-export const expenseInputSchema = z.object({
-  shiftId: z.number().int().positive(),
-  amount: positiveMoneySchema,
-  description: z.string().trim().min(1)
-});
-export const expenseCorrectionSchema = z.object({
-  amount: positiveMoneySchema,
-  description: z.string().trim().min(1),
-  reason: sensitiveReasonSchema
-});
+export const expenseInputSchema = expenseFields
+  .extend({shiftId: z.number().int().positive()})
+  .refine(namesExpense, 'CATEGORY_REQUIRED');
+export const expenseCorrectionSchema = expenseFields
+  .extend({reason: sensitiveReasonSchema})
+  .refine(namesExpense, 'CATEGORY_REQUIRED');
 export const expenseReasonSchema = sensitiveReasonSchema;

@@ -8,18 +8,23 @@ import {searchMedicines} from '@/modules/medicines/service';
 import {can} from '@/modules/permissions/service';
 import {SaleForm} from '@/modules/sales/components/sale-form';
 import {SaleHistory} from '@/modules/sales/components/sale-history';
+import {parseSalePeriod, salePeriodRange} from '@/modules/sales/period';
 import {listSales} from '@/modules/sales/queries';
 import {requireActiveShift} from '@/modules/shifts/service';
 
 export default async function SalesPage({
-  params
+  params,
+  searchParams
 }: {
   params: Promise<{locale: string}>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const {locale} = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
   const actor = await requireSession();
+  const query = await searchParams;
+  const period = parseSalePeriod(typeof query.period === 'string' ? query.period : undefined);
   const t = await getTranslations('Sales');
   const canCreate = can(actor, 'sales.create.own', actor.id);
   const canView = can(actor, 'sales.view.own', actor.id);
@@ -33,11 +38,11 @@ export default async function SalesPage({
   }
   const [medicines, rows] = await Promise.all([
     shift ? searchMedicines() : Promise.resolve([]),
-    canView ? listSales(actor) : Promise.resolve([])
+    canView ? listSales(actor, salePeriodRange(period)) : Promise.resolve([])
   ]);
 
   return (
-    <main className="page-content">
+    <main className="page-content sales-page">
       <header className="page-heading">
         <p>{t('kicker')}</p>
         <h1>{t('title')}</h1>
@@ -48,6 +53,7 @@ export default async function SalesPage({
           medicines={medicines}
           shiftId={shift.id}
           canOverride={can(actor, 'sales.price_override.all')}
+          locale={locale}
         />
       ) : canCreate ? (
         <DataState
@@ -55,7 +61,7 @@ export default async function SalesPage({
           description={t('shiftRequiredText')}
         />
       ) : null}
-      {canView ? <SaleHistory rows={rows} locale={locale} /> : null}
+      {canView ? <SaleHistory rows={rows} locale={locale} period={period} /> : null}
     </main>
   );
 }

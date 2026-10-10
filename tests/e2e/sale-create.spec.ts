@@ -33,16 +33,16 @@ test('creates one atomic sale from a rapid confirmation', async ({page}) => {
   await expect(page).toHaveURL(/\/ar\/dashboard$/);
 
   await page.goto('/ar/sales');
-  await page.getByPlaceholder('البحث عن دواء أو رمز…').fill('PV-01');
+  await page.getByRole('searchbox', {name: /ابحث بالاسم أو الرمز/}).fill('PV-01');
   await page
     .locator('.sale-medicine-results button')
     .filter({hasText: 'Paracétamol Vente'})
     .click();
   await page.locator('.quantity-stepper input').fill('2');
-  await expect(page.locator('.sale-total strong')).toHaveText('51.00');
+  await expect(page.locator('.sale-total strong')).toHaveText('51.00 MRU');
 
   await page.getByRole('button', {name: 'تأكيد البيع'}).click({clickCount: 2});
-  await expect(page.getByText('تم تسجيل البيع — المجموع 51.00 أوقية.')).toBeVisible();
+  await expect(page.getByText('تم تسجيل البيع — المجموع 51.00 MRU.')).toBeVisible();
 
   const [{db}, schema] = await Promise.all([
     import('../../src/db/client'),

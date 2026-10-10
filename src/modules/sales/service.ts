@@ -538,12 +538,12 @@ export async function getSaleDetail(
     sale,
     items,
     shift,
-    operatorName: names.get(sale.operatorId) ?? `#${sale.operatorId}`,
+    operatorName: names.get(sale.operatorId) ?? String(sale.operatorId),
     createdByName: sale.createdBy ? names.get(sale.createdBy) ?? null : null,
     updatedByName: sale.updatedBy ? names.get(sale.updatedBy) ?? null : null,
     audit: audit.map((entry) => ({
       ...entry,
-      actorName: names.get(entry.actorId) ?? `#${entry.actorId}`
+      actorName: names.get(entry.actorId) ?? String(entry.actorId)
     }))
   };
 }
