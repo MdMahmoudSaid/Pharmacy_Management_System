@@ -1,0 +1,53 @@
+export const PERMISSION_KEYS = [
+  'sales.view.own',
+  'sales.view.all',
+  'sales.create.own',
+  'sales.correct.own',
+  'sales.correct.all',
+  'sales.cancel.own',
+  'sales.cancel.all',
+  'sales.print.own',
+  'sales.print.all',
+  'expenses.view.own',
+  'expenses.view.all',
+  'expenses.create.own',
+  'expenses.correct.own',
+  'expenses.correct.all',
+  'expenses.cancel.own',
+  'expenses.cancel.all',
+  'stock.view.all',
+  'stock.receive.own',
+  'stock.correct.all',
+  'shifts.view.own',
+  'shifts.view.all',
+  'shifts.open.own',
+  'shifts.close.own',
+  'shifts.correct.all',
+  'shifts.reopen.all',
+  'medicines.view.all',
+  'medicines.create.all',
+  'medicines.update.all',
+  'medicines.archive.all',
+  'medicines.restore.all',
+  'reports.view.own',
+  'reports.view.all',
+  'reports.print.own',
+  'reports.print.all',
+  'audit.view.all',
+  'employees.view.all',
+  'employees.create.all',
+  'employees.update.all',
+  'employees.archive.all',
+  'employees.restore.all',
+  'employees.reset_pin.all',
+  'permissions.manage.all',
+  'settings.manage.all'
+] as const;
+
+export type PermissionKey = (typeof PERMISSION_KEYS)[number];
+
+const permissionKeySet = new Set<string>(PERMISSION_KEYS);
+
+export function isPermissionKey(value: string): value is PermissionKey {
+  return permissionKeySet.has(value);
+}

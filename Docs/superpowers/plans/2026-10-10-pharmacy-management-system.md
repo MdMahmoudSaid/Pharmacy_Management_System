@@ -451,7 +451,7 @@ git commit -m "feat: add validated domain and audit primitives"
 - Produces: `authorize(actor, permission, ownerId?): void`.
 - Produces: `PermissionKey` from a fixed catalog; no string literals elsewhere.
 
-- [ ] **Step 1: Define the fixed permission catalog and failing scope tests**
+- [x] **Step 1: Define the fixed permission catalog and failing scope tests**
 
 Use keys shaped as `domain.action.scope`, including sales, expenses, stock,
 shifts, medicines, reports, audit, employees, PIN reset, permission management,
@@ -467,7 +467,7 @@ it('does not treat own scope as all scope', () => {
 
 Also prove admins pass every catalog permission and disabled users fail all.
 
-- [ ] **Step 2: Write failing authentication integration tests**
+- [x] **Step 2: Write failing authentication integration tests**
 
 Test successful login, wrong PIN, disabled user, generic failure messages,
 Argon2id hashes, session revocation, PIN reset revocation, and rate limiting after
@@ -477,7 +477,7 @@ Run: `pnpm vitest run tests/unit/permissions tests/integration/auth --config vit
 
 Expected: FAIL because services do not exist.
 
-- [ ] **Step 3: Implement authentication and authorization**
+- [x] **Step 3: Implement authentication and authorization**
 
 Generate 32 random bytes per session, store only a SHA-256 token hash, place the
 raw token in the secure cookie, and compare PINs with Argon2id. Apply a rolling
@@ -487,19 +487,19 @@ the same translated error for unknown phone and wrong PIN.
 The admin command accepts `--name`, `--phone`, and an interactively entered PIN;
 it refuses non-interactive PIN arguments so shell history cannot capture them.
 
-- [ ] **Step 4: Build and test the Arabic-first login page**
+- [x] **Step 4: Build and test the Arabic-first login page**
 
 Render fixed `+222`, an eight-digit numeric input, a four-digit PIN input, an eye
 toggle, translated errors, and no account-enumeration message. The E2E test logs
 in, confirms RTL, switches to French, logs out, and confirms the saved locale.
 
-- [ ] **Step 5: Run the first milestone gate**
+- [x] **Step 5: Run the first milestone gate**
 
 Run: `pnpm check && pnpm playwright test tests/e2e/login.spec.ts`
 
 Expected: unit, integration, lint, type, build, and login E2E checks PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/modules/auth src/modules/permissions src/modules/users scripts src/app tests

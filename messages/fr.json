@@ -5,10 +5,25 @@
     "start": "Se connecter"
   },
   "Auth": {
+    "secureAccess": "Accès sécurisé",
+    "title": "Heureux de vous revoir",
+    "subtitle": "Saisissez votre numéro et votre code PIN pour accéder à la pharmacie.",
     "phone": "Numéro de téléphone",
+    "phoneHelp": "Huit chiffres commençant par 2, 3 ou 4",
     "pin": "Code PIN",
     "login": "Connexion",
-    "showPin": "Afficher le code PIN"
+    "signingIn": "Connexion…",
+    "showPin": "Afficher le code PIN",
+    "hidePin": "Masquer le code PIN",
+    "switchLanguage": "العربية",
+    "asideTitle": "Toute l’activité de la pharmacie, au même endroit",
+    "asideText": "Ventes, stock et shifts clairement suivis, avec l’historique de chaque changement."
+  },
+  "Dashboard": {
+    "welcome": "Connexion réussie",
+    "signedIn": "La session de l’utilisateur n° {id} est active.",
+    "switchLanguage": "التبديل إلى العربية",
+    "logout": "Déconnexion"
   },
   "Navigation": {
     "home": "Accueil",
@@ -19,6 +34,8 @@
   },
   "Errors": {
     "generic": "Impossible de terminer l’opération. Réessayez.",
-    "invalidPhone": "Saisissez un numéro mauritanien valide de huit chiffres."
+    "invalidPhone": "Saisissez un numéro mauritanien valide de huit chiffres.",
+    "authentication": "Le numéro ou le code PIN est incorrect.",
+    "rateLimited": "Trop de tentatives. Patientez avant de réessayer."
   }
 }

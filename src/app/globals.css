@@ -102,6 +102,222 @@ textarea {
   background: var(--color-primary-strong);
 }
 
+.login-shell {
+  display: grid;
+  min-height: 100vh;
+  grid-template-columns: minmax(0, 1fr) minmax(22rem, 0.85fr);
+  background: var(--color-panel);
+}
+
+.login-panel {
+  width: min(100%, 31rem);
+  margin: auto;
+  padding: clamp(1.5rem, 5vw, 4rem);
+}
+
+.login-brand {
+  display: grid;
+  width: 3.25rem;
+  height: 3.25rem;
+  place-items: center;
+  margin-block-end: 2.5rem;
+  border-radius: 1rem 1rem 1rem 0.35rem;
+  background: var(--color-primary);
+  color: white;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+[dir="rtl"] .login-brand {
+  border-radius: 1rem 1rem 0.35rem 1rem;
+}
+
+.login-heading {
+  margin-block-end: 2rem;
+}
+
+.login-kicker {
+  color: var(--color-primary) !important;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.login-heading h1 {
+  margin: 0.35rem 0 0;
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+}
+
+.login-heading p {
+  margin: 0.75rem 0 0;
+  color: var(--color-muted);
+  line-height: 1.7;
+}
+
+.login-form {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.login-form label {
+  margin-block-start: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.field-frame {
+  display: flex;
+  min-height: 3.4rem;
+  align-items: center;
+  gap: 0.7rem;
+  padding-inline: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.85rem;
+  background: #fbfdfc;
+  color: var(--color-muted);
+}
+
+.field-frame:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgb(15 93 94 / 0.1);
+}
+
+.field-frame input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.phone-prefix {
+  padding-inline-end: 0.7rem;
+  border-inline-end: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.icon-button {
+  display: grid;
+  padding: 0.35rem;
+  border: 0;
+  background: transparent;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.login-form small {
+  color: var(--color-muted);
+}
+
+.form-error {
+  margin: 0.4rem 0 0;
+  padding: 0.8rem 1rem;
+  border-radius: 0.7rem;
+  background: rgb(180 35 24 / 0.08);
+  color: var(--color-danger);
+  font-size: 0.9rem;
+}
+
+.login-submit {
+  margin-block-start: 1rem;
+  border: 0;
+  cursor: pointer;
+}
+
+.login-submit:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.language-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-block-start: 1.5rem;
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.login-aside {
+  display: flex;
+  align-items: end;
+  padding: clamp(2rem, 6vw, 5rem);
+  background:
+    linear-gradient(145deg, rgb(10 70 71 / 0.2), rgb(10 70 71 / 0.92)),
+    radial-gradient(circle at 20% 20%, #438b80, #0a4647 65%);
+  color: white;
+}
+
+.login-aside-copy {
+  max-width: 30rem;
+}
+
+.aside-icon {
+  display: inline-grid;
+  width: 4.5rem;
+  height: 4.5rem;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 0.3);
+  border-radius: 50%;
+  font-family: serif;
+  font-size: 1.5rem;
+  font-style: italic;
+}
+
+.login-aside h2 {
+  margin-block: 1.5rem 0.75rem;
+  font-size: clamp(1.8rem, 4vw, 3.25rem);
+  line-height: 1.2;
+}
+
+.login-aside p {
+  margin: 0;
+  color: rgb(255 255 255 / 0.78);
+  line-height: 1.8;
+}
+
+.dashboard-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.dashboard-actions form {
+  flex: 1;
+}
+
+.dashboard-actions button {
+  width: 100%;
+  min-height: 3rem;
+  border: 0;
+  cursor: pointer;
+}
+
+.secondary-action {
+  border: 1px solid var(--color-border) !important;
+  border-radius: 0.75rem;
+  background: white;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+@media (max-width: 800px) {
+  .login-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .login-aside {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .primary-action {
     transition: background-color 150ms ease;

@@ -13,6 +13,7 @@
     "test:unit": "vitest run",
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:e2e": "playwright test",
+    "create-admin": "node --import tsx scripts/create-admin.ts",
     "check": "pnpm lint && pnpm typecheck && pnpm test:unit && pnpm test:integration && pnpm build"
   },
   "license": "UNLICENSED",

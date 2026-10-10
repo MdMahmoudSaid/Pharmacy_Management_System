@@ -1,8 +1,13 @@
+import {loadEnvFile} from 'node:process';
+
 import {defineConfig, devices} from '@playwright/test';
+
+loadEnvFile('.env.test');
 
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: false,
+  workers: 1,
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? 'github' : 'list',
   use: {
