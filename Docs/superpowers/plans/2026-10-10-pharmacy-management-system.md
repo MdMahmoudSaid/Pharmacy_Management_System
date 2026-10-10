@@ -860,7 +860,7 @@ git commit -m "feat: add auditable expense lifecycle"
 - Produces: sales, expense, stock, movement, employee, and shift report queries.
 - Produces: immutable audit filters and detail view.
 
-- [ ] **Step 1: Write failing source-of-truth report tests**
+- [x] **Step 1: Write failing source-of-truth report tests**
 
 Seed active, corrected, and cancelled transactions across two employees and two
 shifts. Assert dashboard and every report total equals direct active-source sums;
@@ -868,33 +868,33 @@ cancelled rows remain visible with status but do not count. Correct a transactio
 inside a closed shift and assert shift, dashboard, employee, and sales totals all
 change without editing stored manual totals.
 
-- [ ] **Step 2: Write failing date-boundary tests**
+- [x] **Step 2: Write failing date-boundary tests**
 
 Use a fixed instant around midnight in `Africa/Nouakchott`. Assert Today,
 Yesterday, This week, This month, and custom half-open ranges include boundary
 records once and exclude the adjacent period.
 
-- [ ] **Step 3: Implement indexed queries and permission gates**
+- [x] **Step 3: Implement indexed queries and permission gates**
 
 Keep report aggregation in SQL, filter active totals by status, paginate detail
 rows with stable `(created_at,id)` ordering, and use the exact range helper from
 Task 3. Gate view and print separately for each report family.
 
-- [ ] **Step 4: Implement dashboard, reports, audit, and print views**
+- [x] **Step 4: Implement dashboard, reports, audit, and print views**
 
 Dashboard shows today’s sales, expenses, stock summary, open shifts, recent
 activity, and employee activity without decorative charts. Reports expose the
 approved presets and relevant filters. Audit shows actor, date, action, entity,
 old/new values, and reason. Print CSS removes navigation and controls.
 
-- [ ] **Step 5: Run the third milestone gate and acceptance scenarios 15, 16, 19**
+- [x] **Step 5: Run the third milestone gate and acceptance scenarios 15, 16, 19**
 
 Run: `pnpm check && pnpm playwright test tests/e2e/reports.spec.ts tests/e2e/audit.spec.ts`
 
 Expected: all reports reconcile, printed sales/stock reports contain correct
 values without chrome, and normal users cannot edit audit records.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/modules/dashboard src/modules/reports src/modules/audit src/app tests/integration/reports tests/e2e

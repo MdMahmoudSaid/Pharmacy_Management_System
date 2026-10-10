@@ -2,6 +2,8 @@ import {
   Boxes,
   Clock3,
   Home,
+  FileBarChart,
+  ListChecks,
   Menu,
   ReceiptText,
   WalletCards,
@@ -15,7 +17,7 @@ import type {PermissionActor} from '@/modules/permissions/service';
 import {LanguageSwitcher} from './language-switcher';
 
 type NavItem = {
-  key: 'home' | 'sales' | 'expenses' | 'stock' | 'shift' | 'medicines' | 'employees' | 'more';
+  key: 'home' | 'sales' | 'expenses' | 'stock' | 'shift' | 'medicines' | 'employees' | 'reports' | 'audit' | 'more';
   href: string;
   icon: typeof Home;
   domain?: string;
@@ -70,6 +72,8 @@ export async function AppShell({
       icon: Boxes,
       domain: 'medicines'
     },
+    {key: 'reports', href: `${base}/reports`, icon: FileBarChart, domain: 'reports'},
+    {key: 'audit', href: `${base}/audit`, icon: ListChecks, domain: 'audit'},
     {key: 'more', href: `${base}/more`, icon: Menu}
   ];
   const visible = items.filter(

@@ -20,10 +20,17 @@
     "asideText": "Ventes, stock et shifts clairement suivis, avec l’historique de chaque changement."
   },
   "Dashboard": {
+    "kicker": "Vue du jour",
     "welcome": "Connexion réussie",
     "signedIn": "La session de l’utilisateur n° {id} est active.",
     "switchLanguage": "التبديل إلى العربية",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+    "todaySales": "Ventes du jour",
+    "todayExpenses": "Dépenses du jour",
+    "todayNet": "Net du jour",
+    "stockUnits": "Unités en stock",
+    "openShifts": "Shifts ouverts",
+    "recentActivity": "Activité récente"
   },
   "Navigation": {
     "brand": "Pharmacie",
@@ -32,6 +39,8 @@
     "home": "Accueil",
     "sales": "Ventes",
     "expenses": "Dépenses",
+    "reports": "Rapports",
+    "audit": "Audit",
     "stock": "Stock",
     "shift": "Shift",
     "employees": "Employés",
@@ -258,6 +267,44 @@
       "INSUFFICIENT_STOCK": "Stock insuffisant.",
       "INTERNAL_ERROR": "Impossible de terminer l’opération."
     }
+  },
+  "Reports": {
+    "kicker": "Source de vérité",
+    "title": "Rapports",
+    "subtitle": "Totaux réconciliés directement avec les transactions actives.",
+    "today": "Aujourd’hui",
+    "yesterday": "Hier",
+    "this_week": "Cette semaine",
+    "this_month": "Ce mois",
+    "from": "Du",
+    "toExclusive": "Au (exclu)",
+    "apply": "Appliquer",
+    "salesTotal": "Ventes",
+    "expensesTotal": "Dépenses",
+    "netTotal": "Net",
+    "stockUnits": "Stock total",
+    "sales": "Ventes",
+    "expenses": "Dépenses",
+    "stock": "Stock",
+    "movements": "Mouvements",
+    "employees": "Employés",
+    "shifts": "Shifts",
+    "active": "Actif",
+    "inactive": "Inactif",
+    "print": "Imprimer",
+    "reference": "Référence",
+    "status": "Statut",
+    "value": "Valeur"
+  },
+  "Audit": {
+    "kicker": "Traçabilité",
+    "title": "Journal d’audit",
+    "subtitle": "Historique immuable des actions et de leurs motifs.",
+    "action": "Action",
+    "entity": "Entité",
+    "filter": "Filtrer",
+    "reason": "Motif",
+    "values": "Anciennes et nouvelles valeurs"
   },
   "Errors": {
     "generic": "Impossible de terminer l’opération. Réessayez.",

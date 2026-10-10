@@ -1494,6 +1494,141 @@ textarea {
   padding-inline: 0.8rem;
 }
 
+.metric-grid,
+.report-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.8rem;
+  margin-block-start: 2rem;
+}
+
+.metric-grid article,
+.report-summary article {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.8rem;
+  background: white;
+}
+
+.metric-grid span,
+.report-summary span {
+  color: var(--color-muted);
+  font-size: 0.85rem;
+}
+
+.metric-grid strong,
+.report-summary strong {
+  font-size: 1.35rem;
+}
+
+.recent-activity,
+.dashboard-session-actions,
+.reports-panel,
+.audit-table {
+  margin-block-start: 1.25rem;
+}
+
+.recent-activity article {
+  display: flex;
+  gap: 0.7rem;
+  padding: 0.75rem;
+  border-block-start: 1px solid var(--color-border);
+}
+
+.recent-activity span,
+.recent-activity p {
+  color: var(--color-muted);
+}
+
+.recent-activity p {
+  margin: 0;
+}
+
+.dashboard-session-actions {
+  max-width: 28rem;
+}
+
+.report-filters,
+.report-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-block-start: 1.25rem;
+}
+
+.report-filters input,
+.report-filters select,
+.report-filters button,
+.report-tabs button {
+  min-height: 2.75rem;
+  padding-inline: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.65rem;
+  background: white;
+}
+
+.report-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+}
+
+.report-tabs button.active {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: white;
+}
+
+.report-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: 0.8rem;
+  background: white;
+}
+
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.report-table th,
+.report-table td {
+  padding: 0.75rem;
+  border-block-end: 1px solid var(--color-border);
+  text-align: start;
+}
+
+.audit-table {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.audit-table article {
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.8rem;
+  background: white;
+}
+
+.audit-table header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.audit-table header span {
+  color: var(--color-muted);
+}
+
+.audit-table pre {
+  overflow-x: auto;
+  direction: ltr;
+  text-align: left;
+}
+
 @media (max-width: 600px) {
   .compact-grid-form {
     grid-template-columns: 1fr;
