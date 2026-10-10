@@ -757,7 +757,7 @@ git commit -m "feat: create sales with atomic stock and idempotency"
 - Produces: `cancelSale(actor, saleId, reason)` and `getSaleDetail(actor, saleId)`.
 - Produces: print-only bilingual `Receipt` from immutable sale values.
 
-- [ ] **Step 1: Write failing correction and cancellation tests**
+- [x] **Step 1: Write failing correction and cancellation tests**
 
 Starting stock 20, create quantity 3, then correct to quantity 2. Assert stock 18,
 new sale total, derived shift total, old/new audit values, and compensating stock
@@ -766,13 +766,13 @@ totals, retained history, and cancellation audit. Add wrong-medicine, closed-shi
 missing reason, own/all scope, already-cancelled, and insufficient replacement
 stock cases.
 
-- [ ] **Step 2: Run and verify failure**
+- [x] **Step 2: Run and verify failure**
 
 Run: `pnpm vitest run --config vitest.integration.config.ts tests/integration/sales/corrections.test.ts`
 
 Expected: FAIL on missing correction methods.
 
-- [ ] **Step 3: Implement correction and cancellation transactions**
+- [x] **Step 3: Implement correction and cancellation transactions**
 
 Lock the sale and union of old/new medicine IDs in stable order. Reverse the old
 stock effect, validate and apply the replacement effect, replace active item
@@ -780,20 +780,20 @@ values, recalculate total, insert compensating movements, and append audit in on
 transaction. Cancellation reverses once and is idempotent only when the same
 already-completed command is replayed.
 
-- [ ] **Step 4: Implement history, detail, and print CSS**
+- [x] **Step 4: Implement history, detail, and print CSS**
 
 Show status, creator/updater, shift, reasoned audit timeline, and authorized
 actions. Receipt print must contain pharmacy name, sale number, time, employee,
 items, quantity, unit price, and total; `@media print` hides application chrome.
 
-- [ ] **Step 5: Verify acceptance scenarios 6, 7, and receipt portion of 16**
+- [x] **Step 5: Verify acceptance scenarios 6, 7, and receipt portion of 16**
 
 Run: `pnpm vitest run --config vitest.integration.config.ts tests/integration/sales && pnpm playwright test tests/e2e/sale-correction.spec.ts tests/e2e/receipt-print.spec.ts`
 
 Expected: corrections and cancellation reconcile stock and totals; print snapshot
 contains no navigation.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/modules/sales src/app tests/integration/sales tests/e2e

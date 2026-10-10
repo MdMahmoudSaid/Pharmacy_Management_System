@@ -1147,14 +1147,298 @@ textarea {
   font-weight: 600;
 }
 
+.sale-history {
+  display: grid;
+  gap: 0.65rem;
+  margin-block-start: 2rem;
+}
+
+.sale-history > h2,
+.sale-history > p {
+  margin: 0;
+}
+
+.sale-history > p {
+  color: var(--color-muted);
+}
+
+.sale-history > a {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.8rem;
+  background: white;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.sale-history > a:hover {
+  border-color: var(--color-primary);
+}
+
+.sale-history > a > span {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.sale-history small {
+  color: var(--color-muted);
+}
+
+.sale-history em {
+  font-style: normal;
+}
+
+.sale-detail-page .page-heading a {
+  display: inline-block;
+  margin-block-start: 0.4rem;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.sale-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(20rem, 0.85fr) minmax(19rem, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+  margin-block-start: 2rem;
+}
+
+.receipt,
+.sale-meta,
+.sale-admin-actions {
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  background: white;
+  box-shadow: 0 10px 35px rgb(15 93 94 / 0.06);
+}
+
+.receipt {
+  position: relative;
+  padding: 1.5rem;
+}
+
+.receipt header {
+  padding-block-end: 1rem;
+  border-block-end: 1px dashed var(--color-border);
+  text-align: center;
+}
+
+.receipt h1,
+.receipt p {
+  margin: 0;
+}
+
+.receipt header p {
+  margin-block-start: 0.4rem;
+}
+
+.receipt header small {
+  color: var(--color-muted);
+}
+
+.receipt-items {
+  display: grid;
+  padding-block: 0.5rem;
+}
+
+.receipt-items > div {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.75rem;
+  padding-block: 0.75rem;
+  border-block-end: 1px dashed var(--color-border);
+}
+
+.receipt footer {
+  display: flex;
+  justify-content: space-between;
+  padding-block-start: 1rem;
+  font-size: 1.2rem;
+}
+
+.receipt-cancelled {
+  display: block;
+  margin-block-start: 1rem;
+  color: var(--color-danger);
+  text-align: center;
+}
+
+.print-button {
+  width: 100%;
+  gap: 0.5rem;
+  margin-block-start: 1.25rem;
+  border: 0;
+  cursor: pointer;
+}
+
+.sale-meta {
+  padding: 1.25rem;
+}
+
+.sale-meta h2 {
+  margin-block: 0 0.8rem;
+}
+
+.sale-meta dl {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0 0 1.5rem;
+}
+
+.sale-meta dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block-end: 0.5rem;
+  border-block-end: 1px solid var(--color-border);
+}
+
+.sale-meta dt,
+.audit-timeline span {
+  color: var(--color-muted);
+}
+
+.sale-meta dd {
+  margin: 0;
+  text-align: end;
+}
+
+.audit-timeline {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding-inline-start: 1.4rem;
+}
+
+.audit-timeline li {
+  padding-inline-start: 0.25rem;
+}
+
+.audit-timeline span {
+  display: block;
+  font-size: 0.82rem;
+}
+
+.audit-timeline p {
+  margin: 0.3rem 0 0;
+}
+
+.sale-admin-actions {
+  display: grid;
+  gap: 1rem;
+  margin-block-start: 1.25rem;
+  padding: 1.25rem;
+}
+
+.sale-admin-actions h2 {
+  margin: 0;
+}
+
+.sale-admin-actions summary {
+  color: var(--color-primary);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.sale-admin-actions details form,
+.cancel-sale-form {
+  display: grid;
+  gap: 0.75rem;
+  margin-block-start: 0.8rem;
+}
+
+.correction-row {
+  display: grid;
+  grid-template-columns: 1fr 8rem 10rem;
+  gap: 0.75rem;
+  align-items: end;
+}
+
+.correction-row label {
+  display: grid;
+  gap: 0.3rem;
+  color: var(--color-muted);
+  font-size: 0.82rem;
+}
+
+.sale-admin-actions input {
+  min-width: 0;
+  min-height: 2.8rem;
+  padding-inline: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.65rem;
+}
+
+.sale-admin-actions button {
+  min-height: 2.8rem;
+  padding-inline: 1rem;
+  cursor: pointer;
+}
+
 @media (max-width: 600px) {
   .compact-grid-form {
     grid-template-columns: 1fr;
+  }
+
+  .sale-history > a,
+  .sale-detail-grid,
+  .correction-row {
+    grid-template-columns: 1fr;
+  }
+
+  .sale-history > a > b,
+  .sale-history > a > em {
+    justify-self: start;
   }
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .primary-action {
     transition: background-color 150ms ease;
+  }
+}
+
+@media print {
+  @page {
+    size: 80mm auto;
+    margin: 5mm;
+  }
+
+  body {
+    background: white;
+  }
+
+  .desktop-sidebar,
+  .mobile-header,
+  .mobile-bottom-nav,
+  .no-print {
+    display: none !important;
+  }
+
+  .app-content,
+  .page-content {
+    width: auto;
+    min-height: auto;
+    margin: 0;
+    padding: 0;
+  }
+
+  .sale-detail-grid {
+    display: block;
+    margin: 0;
+  }
+
+  .receipt {
+    width: 70mm;
+    margin: 0 auto;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    color: black;
   }
 }

@@ -7,12 +7,55 @@ import {requireSession} from '@/modules/auth/session';
 import {searchMedicines} from '@/modules/medicines/service';
 import {can} from '@/modules/permissions/service';
 import {SaleForm} from '@/modules/sales/components/sale-form';
+import {SaleHistory} from '@/modules/sales/components/sale-history';
+import {listSales} from '@/modules/sales/queries';
 import {requireActiveShift} from '@/modules/shifts/service';
 
-export default async function SalesPage({params}: {params: Promise<{locale: string}>}) {
-  const {locale} = await params;if (!hasLocale(routing.locales, locale)) notFound();setRequestLocale(locale);
-  const actor = await requireSession();const t = await getTranslations('Sales');
-  let shift;try {shift = await requireActiveShift(actor.id);} catch {return <main className="page-content"><DataState title={t('shiftRequired')} description={t('shiftRequiredText')} /></main>;}
-  const medicines = await searchMedicines();
-  return <main className="page-content"><header className="page-heading"><p>{t('kicker')}</p><h1>{t('title')}</h1><span>{t('subtitle')}</span></header><SaleForm medicines={medicines} shiftId={shift.id} canOverride={can(actor, 'sales.price_override.all')} /></main>;
+export default async function SalesPage({
+  params
+}: {
+  params: Promise<{locale: string}>;
+}) {
+  const {locale} = await params;
+  if (!hasLocale(routing.locales, locale)) notFound();
+  setRequestLocale(locale);
+  const actor = await requireSession();
+  const t = await getTranslations('Sales');
+  const canCreate = can(actor, 'sales.create.own', actor.id);
+  const canView = can(actor, 'sales.view.own', actor.id);
+  let shift = null;
+  if (canCreate) {
+    try {
+      shift = await requireActiveShift(actor.id);
+    } catch {
+      shift = null;
+    }
+  }
+  const [medicines, rows] = await Promise.all([
+    shift ? searchMedicines() : Promise.resolve([]),
+    canView ? listSales(actor) : Promise.resolve([])
+  ]);
+
+  return (
+    <main className="page-content">
+      <header className="page-heading">
+        <p>{t('kicker')}</p>
+        <h1>{t('title')}</h1>
+        <span>{t('subtitle')}</span>
+      </header>
+      {shift ? (
+        <SaleForm
+          medicines={medicines}
+          shiftId={shift.id}
+          canOverride={can(actor, 'sales.price_override.all')}
+        />
+      ) : canCreate ? (
+        <DataState
+          title={t('shiftRequired')}
+          description={t('shiftRequiredText')}
+        />
+      ) : null}
+      {canView ? <SaleHistory rows={rows} locale={locale} /> : null}
+    </main>
+  );
 }

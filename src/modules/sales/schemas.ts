@@ -25,3 +25,15 @@ export const createSaleSchema = z
   );
 
 export const priceOverrideReasonSchema = sensitiveReasonSchema;
+
+export const saleIdSchema = z.number().int().positive();
+
+export const replacementSaleItemsSchema = z
+  .array(saleItemSchema)
+  .min(1)
+  .refine(
+    (items) => new Set(items.map(({medicineId}) => medicineId)).size === items.length,
+    {message: 'DUPLICATE_MEDICINE'}
+  );
+
+export const saleChangeReasonSchema = sensitiveReasonSchema;
