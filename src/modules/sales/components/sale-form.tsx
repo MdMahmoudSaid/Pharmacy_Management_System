@@ -53,7 +53,7 @@ export function SaleForm({
     }
     if (medicine.currentStock < 1) return;
     if (!key) setKey(crypto.randomUUID());
-    setItems([...items, {...medicine, quantity: 1, unitPrice: medicine.sellingPrice, overrideReason: ''}]);
+    setItems([...items, {...medicine, quantity: 1, unitPrice: medicine.sellingPrice}]);
   };
   const inCart = Object.fromEntries(items.map(({id, quantity}) => [id, quantity]));
   const total = items
@@ -65,8 +65,7 @@ export function SaleForm({
   const payload = items.map((item) => ({
     medicineId: item.id,
     quantity: item.quantity,
-    unitPrice: item.unitPrice,
-    overrideReason: item.overrideReason
+    unitPrice: item.unitPrice
   }));
 
   return (

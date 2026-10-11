@@ -46,7 +46,6 @@ function AdminShiftActions({
             {shift.status === 'CLOSED' ? (
               <input type="datetime-local" name="closedAt" defaultValue={localDateTime(shift.closedAt)} required />
             ) : null}
-            <input name="reason" placeholder={t('reason')} required />
             {correctState && !correctState.ok ? <small>{correctState.code}</small> : null}
             {correctState?.ok ? <small data-testid="correction-saved">OK</small> : null}
             <button className="secondary-action" disabled={correcting}>{t('save')}</button>

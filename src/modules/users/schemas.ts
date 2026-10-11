@@ -3,8 +3,8 @@ import {z} from 'zod';
 import {PERMISSION_KEYS} from '@/modules/permissions/catalog';
 import {
   localPhoneSchema,
-  pinSchema,
-  sensitiveReasonSchema
+  optionalReasonSchema,
+  pinSchema
 } from '@/modules/auth/schemas';
 
 export const createEmployeeSchema = z.object({
@@ -19,5 +19,5 @@ export const updateEmployeeSchema = z.object({
   phone: localPhoneSchema
 });
 
-export const employeeReasonSchema = sensitiveReasonSchema;
+export const employeeReasonSchema = optionalReasonSchema;
 export const employeePermissionsSchema = z.array(z.enum(PERMISSION_KEYS));

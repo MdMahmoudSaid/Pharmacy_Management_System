@@ -100,7 +100,7 @@ describe('expense lifecycle', () => {
     ).rejects.toMatchObject({code: 'SHIFT_REQUIRED'});
   });
 
-  it('requires correction reasons and enforces own/all scope', async () => {
+  it('corrects without a reason, requires one to cancel, and enforces own/all scope', async () => {
     const expense = await createExpense(employee, {
       shiftId,
       amount: '100.00',
@@ -112,7 +112,8 @@ describe('expense lifecycle', () => {
         description: 'Livraison',
         reason: ''
       })
-    ).rejects.toBeDefined();
+    ).resolves.toMatchObject({amount: '80.00'});
+    await expect(cancelExpense(employee, expense.id, '  ')).rejects.toBeDefined();
 
     const otherUser = await createUser();
     const outsider: PermissionActor = {

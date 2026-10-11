@@ -1,6 +1,6 @@
 {
   "Common": {
-    "appName": "Gestion de la pharmacie",
+    "appName": "Pharmacie Haramen Aminen",
     "tagline": "Une gestion claire des ventes, du stock et des shifts quotidiens.",
     "start": "Se connecter",
     "confirmTitle": "Confirmer l'opération",
@@ -65,7 +65,7 @@
     "medicinesLow": "{count} stock bas"
   },
   "Navigation": {
-    "brand": "Pharmacie",
+    "brand": "Pharmacie Haramen Aminen",
     "main": "Navigation principale",
     "mobile": "Navigation mobile",
     "home": "Accueil",
@@ -104,7 +104,6 @@
     "emptyDescription": "Créez le premier compte employé pour commencer.",
     "permissions": "Permissions",
     "savePermissions": "Enregistrer les permissions",
-    "reason": "Motif du changement (obligatoire)",
     "archive": "Archiver",
     "restore": "Restaurer",
     "newPin": "Nouveau PIN",
@@ -220,7 +219,7 @@
     "closedStatus": "Fermé",
     "correct": "Corriger les horaires",
     "reopen": "Rouvrir",
-    "reason": "Motif du changement (obligatoire)",
+    "reason": "Motif de la réouverture (obligatoire)",
     "save": "Enregistrer la correction",
     "errors": {
       "SHIFT_ALREADY_OPEN": "Vous avez déjà un shift ouvert.",
@@ -278,7 +277,6 @@
     "edit": "Modifier",
     "save": "Enregistrer",
     "priceReason": "Motif du changement de prix",
-    "reason": "Motif de l’action (obligatoire)",
     "archive": "Archiver",
     "restore": "Restaurer",
     "receive": "Réception de stock",
@@ -304,7 +302,6 @@
     "emptyCatalog": "Aucun médicament. Ajoutez le premier ci-dessus.",
     "created": "Médicament ajouté.",
     "saved": "Enregistré.",
-    "priceReasonHint": "Motif du changement de prix (obligatoire si le prix change)",
     "archiveConfirm": "Archiver « {name} » ? Il ne sera plus proposé à la vente ni à la réception ; son historique est conservé.",
     "restoreConfirm": "Restaurer « {name} » ?",
     "medicinePlaceholder": "Choisir ou rechercher un médicament…",
@@ -359,7 +356,6 @@
     "cart": "Panier",
     "empty": "Ajoutez un médicament pour commencer la vente.",
     "unitPrice": "Prix unitaire",
-    "overrideReason": "Motif du changement de prix (obligatoire)",
     "remove": "Retirer du panier",
     "total": "Total",
     "confirm": "Confirmer la vente",
@@ -387,7 +383,6 @@
     "sensitiveActions": "Actions sensibles",
     "correct": "Corriger la vente",
     "quantity": "Quantité",
-    "changeReason": "Motif de la correction (obligatoire)",
     "saveCorrection": "Enregistrer la correction",
     "corrected": "Correction enregistrée.",
     "cancelReason": "Motif de l’annulation (obligatoire)",
@@ -432,7 +427,27 @@
     "all": "Tout",
     "historySummary": "{count, plural, =0 {Aucune vente} one {# vente} other {# ventes}} · {total} MRU",
     "checkout": "Encaissement",
-    "detailTitle": "Vente du {date}"
+    "detailTitle": "Vente du {date}",
+    "receiptNumber": "N°",
+    "receiptDate": "Date",
+    "receiptTime": "Heure",
+    "receiptSeller": "Vendeur",
+    "receiptItem": "Article",
+    "receiptQty": "Qté",
+    "receiptUnitPrice": "P.U.",
+    "receiptAmount": "Montant",
+    "receiptUnits": "Nombre d’articles",
+    "receiptTotalDue": "Total à payer",
+    "receiptThanks": "Merci de votre confiance. Prompt rétablissement !",
+    "receiptKeep": "Conservez ce reçu.",
+    "saleTitle": "Vente n° {number}",
+    "actionsHint": "Une correction remplace les articles de la vente ; une annulation remet les médicaments en stock et retire la vente des totaux.",
+    "cancelSummary": "Annuler la vente",
+    "openShift": "Voir le shift",
+    "receiptSavePdf": "Enregistrer en PDF",
+    "receiptSaving": "Préparation…",
+    "receiptPdfError": "Le PDF n’a pas pu être créé. Réessayez.",
+    "receiptFileName": "Recu-vente-{number}"
   },
   "Expenses": {
     "kicker": "Sorties de caisse",
@@ -446,7 +461,6 @@
     "active": "Active",
     "cancelled": "Annulée",
     "correct": "Corriger",
-    "reason": "Motif de la correction (obligatoire)",
     "saveCorrection": "Enregistrer la correction",
     "corrected": "Correction enregistrée.",
     "cancelReason": "Motif de l’annulation (obligatoire)",
@@ -492,31 +506,100 @@
     "cancelConfirm": "Annuler cette dépense ?"
   },
   "Reports": {
-    "kicker": "Source de vérité",
+    "kicker": "Analyse de l’activité",
     "title": "Rapports",
-    "subtitle": "Totaux réconciliés directement avec les transactions actives.",
-    "today": "Aujourd’hui",
-    "yesterday": "Hier",
-    "this_week": "Cette semaine",
-    "this_month": "Ce mois",
-    "from": "Du",
-    "apply": "Appliquer",
-    "salesTotal": "Ventes",
-    "expensesTotal": "Dépenses",
-    "netTotal": "Net",
-    "stockUnits": "Stock total",
-    "sales": "Ventes",
-    "expenses": "Dépenses",
-    "stock": "Stock",
-    "movements": "Mouvements",
-    "employees": "Employés",
-    "shifts": "Shifts",
-    "active": "Actif",
-    "inactive": "Inactif",
-    "print": "Imprimer",
-    "status": "Statut",
-    "period": "Période",
-    "to": "Au",
+    "subtitle": "Choisissez un rapport : chaque chiffre renvoie aux opérations qui le composent, et chaque rapport se télécharge en PDF ou en CSV.",
+    "allReports": "Tous les rapports",
+    "groups": {
+      "sales": "Ventes et finances",
+      "expenses": "Dépenses",
+      "stock": "Stock",
+      "team": "Équipe et contrôle"
+    },
+    "list": {
+      "financial-summary": {
+        "title": "Synthèse financière",
+        "description": "Ventes, dépenses et résultat net jour par jour (ou mois par mois sur une longue période)."
+      },
+      "sales-journal": {
+        "title": "Journal des ventes",
+        "description": "Chaque vente avec ses médicaments, son employé, son statut et son montant."
+      },
+      "sales-by-medicine": {
+        "title": "Ventes par médicament",
+        "description": "Classement des médicaments par chiffre d’affaires, quantités vendues et part du total."
+      },
+      "sales-by-employee": {
+        "title": "Ventes par employé",
+        "description": "Nombre de ventes, annulations, panier moyen et chiffre d’affaires de chaque employé."
+      },
+      "expenses-journal": {
+        "title": "Journal des dépenses",
+        "description": "Toutes les dépenses avec leur catégorie, leur auteur et leur statut. Filtrez par catégorie pour voir où part l’argent."
+      },
+      "stock-valuation": {
+        "title": "Valeur du stock",
+        "description": "Quantités, seuils, valeur au prix de vente et état de chaque médicament."
+      },
+      "stock-alerts": {
+        "title": "Ruptures et stock faible",
+        "description": "Médicaments à commander, avec les ventes des 30 derniers jours et la dernière vente."
+      },
+      "stock-receipts": {
+        "title": "Réceptions de stock",
+        "description": "Les livraisons enregistrées : médicament, quantité, employé et note."
+      },
+      "stock-movements": {
+        "title": "Mouvements de stock",
+        "description": "Chaque entrée et sortie avec le stock avant et après."
+      },
+      "dormant-stock": {
+        "title": "Stock dormant",
+        "description": "Médicaments en stock qui ne se sont pas vendus sur la période, et l’argent qu’ils immobilisent."
+      },
+      "shifts": {
+        "title": "Shifts et caisse",
+        "description": "Durée, ventes, dépenses et caisse attendue de chaque shift."
+      },
+      "cancellations": {
+        "title": "Annulations et corrections",
+        "description": "Ventes et dépenses annulées ou corrigées, shifts rouverts : qui, quand et pourquoi."
+      }
+    },
+    "filters": {
+      "period": "Période",
+      "from": "Du",
+      "to": "Au",
+      "employee": "Employé",
+      "status": "Statut",
+      "category": "Catégorie",
+      "movementType": "Type de mouvement",
+      "stockLevel": "État du stock",
+      "all": "Tous",
+      "apply": "Appliquer"
+    },
+    "presets": {
+      "today": "Aujourd’hui",
+      "yesterday": "Hier",
+      "this_week": "Cette semaine",
+      "this_month": "Ce mois",
+      "last_month": "Mois dernier",
+      "this_year": "Cette année",
+      "custom": "Personnalisée"
+    },
+    "periodLabel": "Période :",
+    "snapshot": "État actuel du stock (sans période)",
+    "snapshotAt": "État du stock au",
+    "downloadPdf": "Télécharger le PDF",
+    "rowCount": "{count, plural, =0 {Aucune ligne} one {# ligne} other {# lignes}}",
+    "truncated": "Seules les {count} premières lignes sont affichées. Réduisez la période pour tout voir.",
+    "empty": "Aucune donnée pour ces filtres.",
+    "totals": "Total",
+    "totalsCompleted": "Total des ventes terminées",
+    "totalsActive": "Total (hors annulations)",
+    "uncategorized": "Sans catégorie",
+    "never": "Jamais vendu",
+    "durationValue": "{hours} h {minutes, plural, =0 {} other {# min}}",
     "statuses": {
       "COMPLETED": "Terminée",
       "CANCELLED": "Annulée",
@@ -524,21 +607,130 @@
       "OPEN": "Ouvert",
       "CLOSED": "Fermé"
     },
-    "colMedicines": "Médicaments",
-    "colEmployee": "Employé",
-    "colDate": "Date",
-    "colAmount": "Montant",
-    "colCategory": "Catégorie",
-    "colMedicine": "Médicament",
-    "colStock": "Stock",
-    "colPrice": "Prix",
-    "colType": "Type",
-    "colQuantity": "Quantité",
-    "colBalance": "Solde",
-    "colName": "Nom",
-    "colOpened": "Ouverture",
-    "colClosed": "Fermeture",
-    "empty": "Aucune donnée pour cette période."
+    "levels": {
+      "ok": "Disponible",
+      "low": "Stock faible",
+      "out": "Rupture"
+    },
+    "movementTypes": {
+      "STOCK_RECEIVED": "Réception",
+      "SALE": "Vente",
+      "SALE_CANCELLATION": "Annulation de vente",
+      "SALE_CORRECTION": "Correction de vente",
+      "STOCK_RECEIPT_CORRECTION": "Correction de réception",
+      "MANUAL_CORRECTION": "Correction manuelle",
+      "OTHER_ADJUSTMENT": "Autre ajustement"
+    },
+    "operations": {
+      "sales": {
+        "CANCEL": "Vente annulée",
+        "CORRECT": "Vente corrigée",
+        "REOPEN": "Vente rouverte"
+      },
+      "expenses": {
+        "CANCEL": "Dépense annulée",
+        "CORRECT": "Dépense corrigée",
+        "REOPEN": "Dépense rouverte"
+      },
+      "stock_receipts": {
+        "CANCEL": "Réception annulée",
+        "CORRECT": "Réception corrigée",
+        "REOPEN": "Réception rouverte"
+      },
+      "shifts": {
+        "CANCEL": "Shift annulé",
+        "CORRECT": "Horaires de shift corrigés",
+        "REOPEN": "Shift rouvert"
+      }
+    },
+    "cols": {
+      "day": "Jour",
+      "month": "Mois",
+      "salesCount": "Ventes",
+      "cancelledCount": "Annulées",
+      "revenue": "Chiffre d’affaires",
+      "expenses": "Dépenses",
+      "net": "Net",
+      "reference": "N°",
+      "dateTime": "Date",
+      "employee": "Employé",
+      "medicines": "Médicaments",
+      "units": "Articles",
+      "status": "Statut",
+      "amount": "Montant",
+      "rank": "Rang",
+      "medicine": "Médicament",
+      "code": "Code",
+      "unitsSold": "Qté vendue",
+      "averagePrice": "Prix moyen",
+      "share": "Part",
+      "averageBasket": "Panier moyen",
+      "category": "Catégorie",
+      "description": "Description",
+      "expensesCount": "Nombre",
+      "averageExpense": "Moyenne",
+      "stock": "Stock",
+      "minStock": "Seuil",
+      "sellingPrice": "Prix de vente",
+      "stockValue": "Valeur",
+      "state": "État",
+      "sold30": "Vendu (30 j)",
+      "lastSale": "Dernière vente",
+      "note": "Note",
+      "quantity": "Quantité",
+      "movementType": "Type",
+      "before": "Avant",
+      "change": "Variation",
+      "after": "Après",
+      "opened": "Ouverture",
+      "closed": "Fermeture",
+      "duration": "Durée",
+      "expectedCash": "Caisse attendue",
+      "operation": "Opération",
+      "subject": "Élément",
+      "by": "Par",
+      "reason": "Motif"
+    },
+    "metrics": {
+      "net": "Résultat net",
+      "revenue": "Chiffre d’affaires",
+      "expenses": "Total des dépenses",
+      "salesCount": "Ventes",
+      "cancelledCount": "Annulées",
+      "averageBasket": "Panier moyen",
+      "unitsSold": "Unités vendues",
+      "medicinesSold": "Médicaments vendus",
+      "topShare": "Part du n° 1",
+      "activeEmployees": "Employés actifs",
+      "expensesCount": "Dépenses",
+      "averageExpense": "Dépense moyenne",
+      "categories": "Catégories",
+      "stockValue": "Valeur du stock",
+      "units": "Unités",
+      "medicines": "Médicaments",
+      "outOfStock": "Ruptures",
+      "lowStock": "Stock faible",
+      "alerts": "Médicaments à commander",
+      "unitsReceived": "Unités reçues",
+      "receipts": "Réceptions",
+      "movements": "Mouvements",
+      "unitsIn": "Unités entrées",
+      "unitsOut": "Unités sorties",
+      "idleValue": "Valeur immobilisée",
+      "shifts": "Shifts",
+      "hoursWorked": "Temps travaillé",
+      "expectedCash": "Caisse attendue",
+      "cancelledAmount": "Montant des ventes annulées",
+      "cancellations": "Annulations",
+      "corrections": "Corrections et réouvertures"
+    },
+    "printTagline": "Rapport de gestion",
+    "issuedAt": "Date d’édition",
+    "page": "Page",
+    "generatedBy": "Document généré automatiquement — les montants sont en MRU.",
+    "print": "Imprimer",
+    "preparingPdf": "Préparation du PDF…",
+    "pdfError": "Le PDF n’a pas pu être créé. Réessayez ou utilisez « Imprimer »."
   },
   "Audit": {
     "kicker": "Traçabilité",

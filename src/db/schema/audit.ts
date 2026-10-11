@@ -52,7 +52,7 @@ export const auditLogs = pgTable(
   (table) => [
     check(
       'audit_sensitive_reason_required',
-      sql`${table.action} not in ('CORRECT', 'CANCEL', 'ARCHIVE', 'RESTORE', 'REOPEN', 'RESET_PIN', 'PERMISSION_CHANGE', 'PRICE_OVERRIDE') or length(trim(${table.reason})) > 0`
+      sql`${table.action} not in ('CANCEL', 'REOPEN') or length(trim(${table.reason})) > 0`
     ),
     index('audit_logs_actor_id_idx').on(table.actorId),
     index('audit_logs_entity_idx').on(table.entityType, table.entityId),

@@ -77,7 +77,6 @@ export function PermissionEditor({
         })}
       </div>
       <div className="permission-footer">
-        <input name="reason" placeholder={t('reason')} aria-label={t('reason')} required />
         <button className="primary-action" disabled={pending}>
           {t('savePermissions')}
         </button>

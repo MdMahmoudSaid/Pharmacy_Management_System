@@ -1,0 +1,2 @@
+ALTER TABLE "audit_logs" DROP CONSTRAINT "audit_sensitive_reason_required";--> statement-breakpoint
+ALTER TABLE "audit_logs" ADD CONSTRAINT "audit_sensitive_reason_required" CHECK ("audit_logs"."action" not in ('CANCEL', 'REOPEN') or length(trim("audit_logs"."reason")) > 0);

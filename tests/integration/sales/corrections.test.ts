@@ -153,8 +153,16 @@ describe('sale correction and cancellation', () => {
     ).resolves.toMatchObject({total: '51.00'});
   });
 
+  it('corrects without a reason but refuses to cancel without one', async () => {
+    await expect(correctSale(owner, saleId, [{medicineId, quantity: 2}], '')).resolves.toMatchObject({
+      total: '51.00'
+    });
+    await expect(cancelSale(owner, saleId, '   ')).rejects.toBeDefined();
+    const [sale] = await db.select().from(sales).where(eq(sales.id, saleId));
+    expect(sale.status).toBe('COMPLETED');
+  });
+
   it.each([
-    {name: 'missing reason', items: [{medicineId: 1, quantity: 2}], reason: ''},
     {name: 'missing medicine', items: [{medicineId: 999_999, quantity: 2}], reason: 'Erreur'},
     {name: 'empty replacement', items: [], reason: 'Erreur'}
   ])('rejects $name without changing the original sale', async ({items, reason}) => {

@@ -108,7 +108,7 @@ describe('employee management', () => {
   });
 
   it.each(['archive', 'restore', 'reset_pin', 'permissions'] as const)(
-    'requires a reason for %s',
+    'does not require a reason for %s',
     async (operation) => {
       const employee = await createEmployee(admin, {
         name: 'Reason Test',
@@ -123,7 +123,7 @@ describe('employee management', () => {
           setEmployeePermissions(admin, employee.id, [], '   ')
       }[operation];
 
-      await expect(call()).rejects.toBeDefined();
+      await expect(call()).resolves.not.toThrow();
     }
   );
 

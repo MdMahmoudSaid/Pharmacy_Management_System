@@ -6,7 +6,7 @@ import {useTranslations} from 'next-intl';
 
 import {formatMru, type SaleMedicine} from './medicine-search';
 
-export type CartItem = SaleMedicine & {quantity: number; unitPrice: string; overrideReason: string};
+export type CartItem = SaleMedicine & {quantity: number; unitPrice: string};
 
 export function SaleCart({items, setItems, canOverride}: {
   items: CartItem[];
@@ -65,12 +65,6 @@ export function SaleCart({items, setItems, canOverride}: {
                       <span>{t('unitPrice')}</span>
                       <input className="price-input" value={item.unitPrice} onChange={(event) => update(item.id, {unitPrice: event.target.value})} inputMode="decimal" dir="ltr" />
                     </label>
-                    {item.unitPrice !== item.sellingPrice ? (
-                      <label>
-                        <span>{t('overrideReason')}</span>
-                        <input value={item.overrideReason} onChange={(event) => update(item.id, {overrideReason: event.target.value})} required />
-                      </label>
-                    ) : null}
                   </div>
                 ) : null}
               </li>

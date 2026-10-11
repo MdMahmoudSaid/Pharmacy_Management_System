@@ -1,6 +1,6 @@
 import {z} from 'zod';
 
-import {positiveMoneySchema, sensitiveReasonSchema} from '@/modules/auth/schemas';
+import {optionalReasonSchema, positiveMoneySchema} from '@/modules/auth/schemas';
 
 export const medicineIdSchema = z.number().int().positive();
 export const medicineInputSchema = z.object({
@@ -11,6 +11,6 @@ export const medicineInputSchema = z.object({
 });
 export const updateMedicineSchema = medicineInputSchema.extend({
   id: medicineIdSchema,
-  reason: z.string().optional()
+  reason: optionalReasonSchema
 });
-export const medicineReasonSchema = sensitiveReasonSchema;
+export const medicineReasonSchema = optionalReasonSchema;

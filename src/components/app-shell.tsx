@@ -15,6 +15,7 @@ import Link from 'next/link';
 import type {ReactNode} from 'react';
 
 import type {PermissionActor} from '@/modules/permissions/service';
+import {BrandMark} from './brand-mark';
 import {LanguageSwitcher} from './language-switcher';
 
 export type NavItem = {
@@ -97,7 +98,7 @@ export async function AppShell({
     <div className="app-frame">
       <aside className="desktop-sidebar">
         <Link className="shell-brand" href={`${base}/dashboard`}>
-          <span>+</span>
+          <BrandMark className="brand-icon" />
           <strong>{t('brand')}</strong>
         </Link>
         <nav aria-label={t('main')}>
@@ -114,7 +115,10 @@ export async function AppShell({
       </aside>
       <div className="app-content">
         <header className="mobile-header">
-          <span className="shell-brand-mark">+</span>
+          <Link className="mobile-brand" href={`${base}/dashboard`}>
+            <BrandMark className="brand-icon" />
+            <strong>{t('brand')}</strong>
+          </Link>
           <LanguageSwitcher locale={locale} />
         </header>
         {children}

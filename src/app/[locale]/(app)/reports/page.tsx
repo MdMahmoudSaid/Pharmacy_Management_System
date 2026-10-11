@@ -3,43 +3,28 @@ import {getTranslations, setRequestLocale} from 'next-intl/server';
 import {notFound} from 'next/navigation';
 
 import {routing} from '@/i18n/routing';
-import {nouakchottRange, type ReportPreset} from '@/lib/time';
 import {requireSession} from '@/modules/auth/session';
-import {can} from '@/modules/permissions/service';
-import {ReportTabs} from '@/modules/reports/components/report-tabs';
-import {getReportData} from '@/modules/reports/queries';
-import {reportPresetSchema} from '@/modules/reports/schemas';
+import {authorize} from '@/modules/permissions/service';
+import {canOpenReport} from '@/modules/reports/builders';
+import {REPORTS} from '@/modules/reports/catalog';
+import {ReportCatalog} from '@/modules/reports/components/report-catalog';
 
-const text = (value: string | string[] | undefined) => typeof value === 'string' ? value : '';
-
-export default async function ReportsPage({params, searchParams}: {
-  params: Promise<{locale: string}>;
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
+export default async function ReportsPage({params}: {params: Promise<{locale: string}>}) {
   const {locale} = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
   const actor = await requireSession();
-  const query = await searchParams;
-  const presetResult = reportPresetSchema.safeParse(text(query.preset) || 'today');
-  const preset: ReportPreset = presetResult.success ? presetResult.data : 'today';
-  const customFrom = text(query.from);
-  const customTo = text(query.to);
-  // The end date is inclusive for the user, so the query stops at the start of the following day.
-  const range = customFrom && customTo
-    ? {from: new Date(`${customFrom}T00:00:00.000Z`), to: new Date(new Date(`${customTo}T00:00:00.000Z`).getTime() + 86_400_000)}
-    : nouakchottRange(preset);
-  const [t, data] = await Promise.all([getTranslations('Reports'), getReportData(actor, range)]);
+  authorize(actor, 'reports.view.own', actor.id);
+  const t = await getTranslations('Reports');
+  const visible = REPORTS.filter(({slug}) => canOpenReport(actor, slug)).map(({slug}) => slug);
   return (
     <main className="page-content reports-page">
-      <header className="page-heading"><p>{t('kicker')}</p><h1>{t('title')}</h1><span>{t('subtitle')}</span></header>
-      <form className="report-filters filter-form no-print">
-        <label className="filter-field-wide"><span>{t('period')}</span><select name="preset" defaultValue={preset}>{(['today', 'yesterday', 'this_week', 'this_month'] as const).map((key) => <option value={key} key={key}>{t(key)}</option>)}</select></label>
-        <label><span>{t('from')}</span><input type="date" name="from" defaultValue={customFrom} /></label>
-        <label><span>{t('to')}</span><input type="date" name="to" defaultValue={customTo} /></label>
-        <button className="primary-action">{t('apply')}</button>
-      </form>
-      <ReportTabs data={data} canPrint={can(actor, 'reports.print.own', actor.id)} />
+      <header className="page-heading">
+        <p>{t('kicker')}</p>
+        <h1>{t('title')}</h1>
+        <span>{t('subtitle')}</span>
+      </header>
+      <ReportCatalog locale={locale} visible={visible} />
     </main>
   );
 }

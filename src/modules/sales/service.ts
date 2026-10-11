@@ -26,9 +26,9 @@ import {
 } from './permissions';
 import {
   createSaleSchema,
-  priceOverrideReasonSchema,
   replacementSaleItemsSchema,
-  saleChangeReasonSchema,
+  saleCancellationReasonSchema,
+  saleCorrectionReasonSchema,
   saleIdSchema
 } from './schemas';
 
@@ -131,7 +131,6 @@ async function createSaleTransaction(actor: PermissionActor, input: SaleInput) {
       const selectedPrice = item.unitPrice ?? medicine.selling_price;
       if (selectedPrice !== medicine.selling_price) {
         authorizePriceOverride(actor);
-        priceOverrideReasonSchema.parse(item.overrideReason);
       }
       return {
         ...item,
@@ -184,7 +183,7 @@ async function createSaleTransaction(actor: PermissionActor, input: SaleInput) {
         actorId: actor.id,
         reason:
           item.unitPrice !== byId.get(item.medicineId)!.selling_price
-            ? item.overrideReason
+            ? item.overrideReason?.trim() || undefined
             : undefined
       }))
     );
@@ -283,7 +282,7 @@ export async function correctSale(
 ) {
   const saleId = saleIdSchema.parse(rawSaleId);
   const items = replacementSaleItemsSchema.parse(rawItems);
-  const reason = saleChangeReasonSchema.parse(rawReason);
+  const reason = saleCorrectionReasonSchema.parse(rawReason);
 
   return retryableTransaction(() =>
     db.transaction(async (tx) => {
@@ -338,7 +337,6 @@ export async function correctSale(
           const unitPrice = item.unitPrice ?? medicine.selling_price;
           if (unitPrice !== medicine.selling_price) {
             authorizePriceOverride(actor);
-            priceOverrideReasonSchema.parse(item.overrideReason ?? reason);
           }
           const before = balances.get(item.medicineId)!;
           if (before < item.quantity) throw new AppError('INSUFFICIENT_STOCK');
@@ -404,7 +402,7 @@ export async function cancelSale(
   rawReason: string
 ) {
   const saleId = saleIdSchema.parse(rawSaleId);
-  const reason = saleChangeReasonSchema.parse(rawReason);
+  const reason = saleCancellationReasonSchema.parse(rawReason);
 
   return retryableTransaction(() =>
     db.transaction(async (tx) => {

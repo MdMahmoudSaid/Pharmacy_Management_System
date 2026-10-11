@@ -61,11 +61,11 @@ test('admin corrects and cancels a sale without an open shift', async ({page}) =
   await page.getByText('تصحيح عملية البيع', {exact: true}).click();
   const correction = page.getByTestId('correct-sale-form');
   await correction.locator('input[type="number"]').fill('2');
-  await correction.locator('[name="reason"]').fill('خطأ في الكمية');
   await correction.getByRole('button', {name: 'حفظ التصحيح'}).click();
   await expect(correction.getByText('تم حفظ التصحيح.')).toBeVisible();
   await expect(page.locator('[data-testid="receipt"] footer strong')).toHaveText('51.00 MRU');
 
+  await page.locator('.cancel-sale > summary').click();
   const cancellation = page.locator('.cancel-sale-form');
   await cancellation.locator('[name="reason"]').fill('بيع مكرر');
   await cancellation.getByRole('button', {name: 'إلغاء عملية البيع'}).click();

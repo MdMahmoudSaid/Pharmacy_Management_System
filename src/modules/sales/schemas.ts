@@ -3,6 +3,7 @@ import {z} from 'zod';
 import {
   positiveMoneySchema,
   positiveQuantitySchema,
+  optionalReasonSchema,
   sensitiveReasonSchema
 } from '@/modules/auth/schemas';
 
@@ -24,8 +25,6 @@ export const createSaleSchema = z
     {message: 'DUPLICATE_MEDICINE'}
   );
 
-export const priceOverrideReasonSchema = sensitiveReasonSchema;
-
 export const saleIdSchema = z.number().int().positive();
 
 export const replacementSaleItemsSchema = z
@@ -36,4 +35,5 @@ export const replacementSaleItemsSchema = z
     {message: 'DUPLICATE_MEDICINE'}
   );
 
-export const saleChangeReasonSchema = sensitiveReasonSchema;
+export const saleCorrectionReasonSchema = optionalReasonSchema;
+export const saleCancellationReasonSchema = sensitiveReasonSchema;

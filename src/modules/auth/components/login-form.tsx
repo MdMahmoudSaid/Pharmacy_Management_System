@@ -5,12 +5,14 @@ import {useTranslations} from 'next-intl';
 import Link from 'next/link';
 import {useActionState, useState} from 'react';
 
+import {BrandMark} from '@/components/brand-mark';
 import {loginAction, type LoginActionState} from '../actions';
 
 const initialState: LoginActionState = {};
 
 export function LoginForm({locale}: {locale: 'ar' | 'fr'}) {
   const t = useTranslations('Auth');
+  const brand = useTranslations('Navigation');
   const errors = useTranslations('Errors');
   const [showPin, setShowPin] = useState(false);
   const [state, action, pending] = useActionState(loginAction, initialState);
@@ -19,8 +21,9 @@ export function LoginForm({locale}: {locale: 'ar' | 'fr'}) {
   return (
     <main className="login-shell">
       <section className="login-panel" aria-labelledby="login-title">
-        <div className="login-brand" aria-hidden="true">
-          <span>+</span>
+        <div className="login-brand">
+          <BrandMark className="brand-icon" />
+          <strong>{brand('brand')}</strong>
         </div>
         <div className="login-heading">
           <p className="login-kicker">{t('secureAccess')}</p>

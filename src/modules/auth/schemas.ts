@@ -18,4 +18,10 @@ export const positiveMoneySchema = z
 
 export const positiveQuantitySchema = z.number().int().positive();
 
+// Only cancellations and shift reopenings must be justified; other corrections may carry a note.
 export const sensitiveReasonSchema = z.string().trim().min(1, 'REASON_REQUIRED');
+export const optionalReasonSchema = z
+  .string()
+  .trim()
+  .optional()
+  .transform((value) => value || undefined);

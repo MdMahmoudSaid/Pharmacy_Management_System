@@ -1,6 +1,6 @@
 import {z} from 'zod';
 
-import {sensitiveReasonSchema} from '@/modules/auth/schemas';
+import {optionalReasonSchema, sensitiveReasonSchema} from '@/modules/auth/schemas';
 
 export const shiftIdSchema = z.number().int().positive();
 
@@ -9,7 +9,7 @@ export const correctShiftSchema = z
     shiftId: shiftIdSchema,
     openedAt: z.date(),
     closedAt: z.date().nullable(),
-    reason: sensitiveReasonSchema
+    reason: optionalReasonSchema
   })
   .refine(
     ({openedAt, closedAt}) => !closedAt || closedAt.getTime() >= openedAt.getTime(),

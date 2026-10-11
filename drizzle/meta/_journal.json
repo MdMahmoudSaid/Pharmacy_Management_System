@@ -29,6 +29,13 @@
       "when": 1791671743190,
       "tag": "0003_medicine_min_stock",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791685830718,
+      "tag": "0004_reason_only_sensitive",
+      "breakpoints": true
     }
   ]
 }

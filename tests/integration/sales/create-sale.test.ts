@@ -85,7 +85,7 @@ describe('sale creation', () => {
     ).rejects.toMatchObject({code: 'SHIFT_REQUIRED'});
   });
 
-  it('requires permission and reason for a price override', async () => {
+  it('requires permission but no reason for a price override', async () => {
     const medicine = await createMedicine({currentStock: 2, sellingPrice: '10.00'});
     const input = {
       shiftId,
@@ -98,9 +98,9 @@ describe('sale creation', () => {
       createSale(employee, {
         ...input,
         idempotencyKey: 'override-no-reason',
-        items: [{medicineId: medicine.id, quantity: 1, unitPrice: '9.00', overrideReason: ''}]
+        items: [{medicineId: medicine.id, quantity: 1, unitPrice: '9.00'}]
       })
-    ).rejects.toBeDefined();
+    ).resolves.toMatchObject({total: '9.00'});
     const sale = await createSale(employee, input);
     expect(sale.total).toBe('9.00');
   });

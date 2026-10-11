@@ -4,7 +4,9 @@ export type ReportPreset =
   | 'today'
   | 'yesterday'
   | 'this_week'
-  | 'this_month';
+  | 'this_month'
+  | 'last_month'
+  | 'this_year';
 
 const startOfUtcDay = (date: Date) =>
   new Date(
@@ -35,6 +37,20 @@ export function nouakchottRange(
     const mondayOffset = (today.getUTCDay() + 6) % 7;
     const from = addUtcDays(today, -mondayOffset);
     return {from, to: addUtcDays(from, 7)};
+  }
+
+  if (preset === 'last_month') {
+    return {
+      from: new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() - 1, 1)),
+      to: new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1))
+    };
+  }
+
+  if (preset === 'this_year') {
+    return {
+      from: new Date(Date.UTC(today.getUTCFullYear(), 0, 1)),
+      to: new Date(Date.UTC(today.getUTCFullYear() + 1, 0, 1))
+    };
   }
 
   const from = new Date(

@@ -59,7 +59,6 @@ test('receives stock once, archives selection, and keeps movement history', asyn
   const row = page.locator('.medicine-row').filter({hasText: 'Paracétamol UI'});
   await expect(row.locator('.stock-badge')).toHaveText('20 وحدة');
   await row.getByText('تعديل', {exact: true}).click();
-  await row.locator('.medicine-archive-form [name="reason"]').fill('Produit retiré');
   await row.getByRole('button', {name: 'أرشفة'}).click();
   await page.getByRole('dialog').getByRole('button', {name: 'تأكيد', exact: true}).click();
   await expect(row).toHaveCount(0);

@@ -4,11 +4,11 @@ import {db} from '@/db/client';
 import {medicines} from '@/db/schema';
 import {AppError} from '@/lib/errors';
 import {appendAudit} from '@/modules/audit/service';
-import {sensitiveReasonSchema} from '@/modules/auth/schemas';
 import {authorize, type PermissionActor} from '@/modules/permissions/service';
 import {
   medicineIdSchema,
   medicineInputSchema,
+  medicineReasonSchema,
   updateMedicineSchema
 } from './schemas';
 
@@ -66,7 +66,6 @@ export async function updateMedicine(
     .limit(1);
   if (!current) throw new AppError('NOT_FOUND');
   const priceChanged = current.sellingPrice !== value.sellingPrice;
-  const reason = priceChanged ? sensitiveReasonSchema.parse(value.reason) : undefined;
 
   return db.transaction(async (tx) => {
     const [medicine] = await tx
@@ -98,7 +97,7 @@ export async function updateMedicine(
         sellingPrice: medicine.sellingPrice,
         minStock: medicine.minStock
       },
-      reason
+      reason: value.reason
     });
     return medicine;
   });
@@ -115,7 +114,7 @@ async function setMedicineActive(
     isActive ? 'medicines.restore.all' : 'medicines.archive.all'
   );
   medicineIdSchema.parse(medicineId);
-  const cleanReason = sensitiveReasonSchema.parse(reason);
+  const cleanReason = medicineReasonSchema.parse(reason);
   const [current] = await db
     .select({id: medicines.id, isActive: medicines.isActive})
     .from(medicines)

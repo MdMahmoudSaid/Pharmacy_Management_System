@@ -43,7 +43,6 @@ test('creates a category inline, then corrects and cancels an expense', async ({
   await row.getByText('تصحيح', {exact: true}).click();
   const correction = row.locator('details form');
   await correction.locator('[name="amount"]').fill('300.00');
-  await correction.locator('[name="reason"]').fill('خطأ في المبلغ');
   await correction.getByRole('button', {name: 'حفظ التصحيح'}).click();
   await expect(row.getByText('−300.00 MRU')).toBeVisible();
 

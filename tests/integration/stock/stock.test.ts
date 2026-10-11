@@ -125,7 +125,7 @@ describe('medicine catalog and immutable stock ledger', () => {
     await expect(searchMedicines('Historique')).resolves.toHaveLength(1);
   });
 
-  it('changes current price with a reason without rewriting historical sale prices', async () => {
+  it('changes current price without rewriting historical sale prices', async () => {
     const medicine = await createMedicine(admin, {name: 'Prix historique', sellingPrice: '10.00'});
     const [sale] = await db
       .insert(sales)
@@ -145,9 +145,7 @@ describe('medicine catalog and immutable stock ledger', () => {
       lineTotal: '10.00'
     });
 
-    await expect(
-      updateMedicine(admin, {...medicine, sellingPrice: '12.00', reason: ''})
-    ).rejects.toBeDefined();
+    await updateMedicine(admin, {...medicine, sellingPrice: '11.00', reason: ''});
     await updateMedicine(admin, {
       id: medicine.id,
       name: medicine.name,
@@ -162,11 +160,11 @@ describe('medicine catalog and immutable stock ledger', () => {
       .from(auditLogs)
       .where(eq(auditLogs.action, 'PRICE_OVERRIDE'));
     expect(item.unitPrice).toBe('10.00');
-    expect(audits[0].reason).toBe('Nouveau tarif fournisseur');
+    expect(audits.map(({reason}) => reason).sort()).toEqual(['Nouveau tarif fournisseur', null]);
   });
 
   it.each(['archive', 'restore', 'correction'] as const)(
-    'requires a reason for sensitive %s',
+    'does not require a reason for %s',
     async (operation) => {
       const medicine = await createMedicine(admin, {name: 'Motif', sellingPrice: '10.00'});
       const receipt = await receiveStock(admin, {medicineId: medicine.id, quantity: 2});
@@ -181,7 +179,7 @@ describe('medicine catalog and immutable stock ledger', () => {
             reason: ''
           })
       }[operation];
-      await expect(call()).rejects.toBeDefined();
+      await expect(call()).resolves.not.toThrow();
     }
   );
 

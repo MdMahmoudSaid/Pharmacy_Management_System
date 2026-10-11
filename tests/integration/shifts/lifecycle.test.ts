@@ -84,7 +84,7 @@ describe('shift lifecycle', () => {
     });
   });
 
-  it('requires permission and a reason to correct or reopen a shift', async () => {
+  it('requires permission to correct or reopen a shift and a reason only to reopen', async () => {
     const shift = await openShift(employee, firstTime);
     await closeShift(employee, shift.id, new Date('2026-10-10T16:00:00.000Z'));
 
@@ -101,7 +101,7 @@ describe('shift lifecycle', () => {
         closedAt: new Date('2026-10-10T15:30:00.000Z'),
         reason: ''
       })
-    ).rejects.toBeDefined();
+    ).resolves.toMatchObject({closedAt: new Date('2026-10-10T15:30:00.000Z')});
   });
 
   it('corrects timestamps and reopens with reasoned audit entries', async () => {

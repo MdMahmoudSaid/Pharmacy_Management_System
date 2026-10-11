@@ -1,6 +1,6 @@
 import {z} from 'zod';
 
-import {positiveQuantitySchema, sensitiveReasonSchema} from '@/modules/auth/schemas';
+import {optionalReasonSchema, positiveQuantitySchema} from '@/modules/auth/schemas';
 
 export const receiveStockSchema = z.object({
   medicineId: z.number().int().positive(),
@@ -12,5 +12,5 @@ export const correctStockReceiptSchema = z.object({
   receiptId: z.number().int().positive(),
   medicineId: z.number().int().positive(),
   quantity: positiveQuantitySchema,
-  reason: sensitiveReasonSchema
+  reason: optionalReasonSchema
 });

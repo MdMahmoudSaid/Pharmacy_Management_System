@@ -57,7 +57,6 @@ test('filters navigation and rejects a forged employee-management action', async
   await employeeCard
     .locator('input[value="sales.correct.own"]')
     .check();
-  await employeeCard.locator('.permission-editor [name="reason"]').fill('Correction autorisée');
   await employeeCard.getByRole('button', {name: 'حفظ الصلاحيات'}).click();
   await expect(employeeCard.getByText('تم حفظ الصلاحيات.')).toBeVisible();
   await expect(employeeCard.getByText('صلاحية واحدة')).toBeVisible();

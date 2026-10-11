@@ -1,6 +1,6 @@
 {
   "Common": {
-    "appName": "نظام إدارة الصيدلية",
+    "appName": "صيدلية حرما آمنا",
     "tagline": "إدارة واضحة للمبيعات والمخزون والمناوبات اليومية.",
     "start": "تسجيل الدخول",
     "confirmTitle": "تأكيد العملية",
@@ -65,7 +65,7 @@
     "medicinesLow": "منخفض: {count}"
   },
   "Navigation": {
-    "brand": "الصيدلية",
+    "brand": "صيدلية حرما آمنا",
     "main": "التنقل الرئيسي",
     "mobile": "التنقل عبر الهاتف",
     "home": "الرئيسية",
@@ -104,7 +104,6 @@
     "emptyDescription": "أنشئ أول حساب موظف للبدء.",
     "permissions": "الصلاحيات",
     "savePermissions": "حفظ الصلاحيات",
-    "reason": "سبب التغيير (إجباري)",
     "archive": "أرشفة",
     "restore": "استعادة",
     "newPin": "PIN جديد",
@@ -220,7 +219,7 @@
     "closedStatus": "مغلقة",
     "correct": "تصحيح التوقيت",
     "reopen": "إعادة فتح",
-    "reason": "سبب التغيير (إجباري)",
+    "reason": "سبب إعادة الفتح (إجباري)",
     "save": "حفظ التصحيح",
     "errors": {
       "SHIFT_ALREADY_OPEN": "لديك مناوبة مفتوحة بالفعل.",
@@ -278,7 +277,6 @@
     "edit": "تعديل",
     "save": "حفظ",
     "priceReason": "سبب تغيير السعر",
-    "reason": "سبب الإجراء (إجباري)",
     "archive": "أرشفة",
     "restore": "استعادة",
     "receive": "استلام مخزون",
@@ -304,7 +302,6 @@
     "emptyCatalog": "لا توجد أدوية بعد. أضف أول دواء من الأعلى.",
     "created": "تمت إضافة الدواء.",
     "saved": "تم الحفظ.",
-    "priceReasonHint": "سبب تغيير السعر (إجباري إذا تغيّر السعر)",
     "archiveConfirm": "أرشفة «{name}»؟ لن يظهر في البيع والاستلام، ويبقى سجله محفوظًا.",
     "restoreConfirm": "استعادة «{name}»؟",
     "medicinePlaceholder": "اختر دواءً أو ابحث…",
@@ -359,7 +356,6 @@
     "cart": "السلة",
     "empty": "أضف دواءً لبدء عملية البيع.",
     "unitPrice": "سعر الوحدة",
-    "overrideReason": "سبب تغيير السعر (إجباري)",
     "remove": "حذف من السلة",
     "total": "المجموع",
     "confirm": "تأكيد البيع",
@@ -387,7 +383,6 @@
     "sensitiveActions": "إجراءات حساسة",
     "correct": "تصحيح عملية البيع",
     "quantity": "الكمية",
-    "changeReason": "سبب التصحيح (إجباري)",
     "saveCorrection": "حفظ التصحيح",
     "corrected": "تم حفظ التصحيح.",
     "cancelReason": "سبب الإلغاء (إجباري)",
@@ -432,7 +427,27 @@
     "all": "الكل",
     "historySummary": "{count, plural, =0 {لا عمليات} one {عملية واحدة} two {عمليتان} few {# عمليات} many {# عملية} other {# عملية}} · {total} MRU",
     "checkout": "الدفع",
-    "detailTitle": "بيع {date}"
+    "detailTitle": "بيع {date}",
+    "receiptNumber": "الرقم",
+    "receiptDate": "التاريخ",
+    "receiptTime": "الوقت",
+    "receiptSeller": "البائع",
+    "receiptItem": "الصنف",
+    "receiptQty": "الكمية",
+    "receiptUnitPrice": "سعر الوحدة",
+    "receiptAmount": "المبلغ",
+    "receiptUnits": "عدد القطع",
+    "receiptTotalDue": "المبلغ المستحق",
+    "receiptThanks": "شكرًا لثقتكم، نتمنى لكم الشفاء العاجل!",
+    "receiptKeep": "يرجى الاحتفاظ بهذا الإيصال.",
+    "saleTitle": "عملية البيع رقم {number}",
+    "actionsHint": "التصحيح يستبدل أصناف عملية البيع، والإلغاء يعيد الأدوية إلى المخزون ويحذف البيع من المجاميع.",
+    "cancelSummary": "إلغاء عملية البيع",
+    "openShift": "عرض المناوبة",
+    "receiptSavePdf": "حفظ بصيغة PDF",
+    "receiptSaving": "جارٍ التجهيز…",
+    "receiptPdfError": "تعذر إنشاء ملف PDF. أعد المحاولة.",
+    "receiptFileName": "ايصال-بيع-{number}"
   },
   "Expenses": {
     "kicker": "المبالغ الخارجة",
@@ -446,7 +461,6 @@
     "active": "نشط",
     "cancelled": "ملغى",
     "correct": "تصحيح",
-    "reason": "سبب التصحيح (إجباري)",
     "saveCorrection": "حفظ التصحيح",
     "corrected": "تم حفظ التصحيح.",
     "cancelReason": "سبب الإلغاء (إجباري)",
@@ -492,53 +506,231 @@
     "cancelConfirm": "هل تريد إلغاء هذا المصروف؟"
   },
   "Reports": {
-    "kicker": "المصدر المعتمد",
+    "kicker": "تحليل النشاط",
     "title": "التقارير",
-    "subtitle": "مجاميع محسوبة مباشرة من العمليات النشطة.",
-    "today": "اليوم",
-    "yesterday": "أمس",
-    "this_week": "هذا الأسبوع",
-    "this_month": "هذا الشهر",
-    "from": "من",
-    "apply": "تطبيق",
-    "salesTotal": "المبيعات",
-    "expensesTotal": "المصروفات",
-    "netTotal": "الصافي",
-    "stockUnits": "إجمالي المخزون",
-    "sales": "المبيعات",
-    "expenses": "المصروفات",
-    "stock": "المخزون",
-    "movements": "الحركات",
-    "employees": "الموظفون",
-    "shifts": "المناوبات",
-    "active": "نشط",
-    "inactive": "غير نشط",
-    "print": "طباعة",
-    "status": "الحالة",
-    "period": "الفترة",
-    "to": "إلى",
+    "subtitle": "اختر تقريرًا: كل رقم مبني على العمليات المسجلة، ويمكن تنزيل كل تقرير بصيغة PDF أو CSV.",
+    "allReports": "جميع التقارير",
+    "groups": {
+      "sales": "المبيعات والمالية",
+      "expenses": "المصروفات",
+      "stock": "المخزون",
+      "team": "الفريق والرقابة"
+    },
+    "list": {
+      "financial-summary": {
+        "title": "الملخص المالي",
+        "description": "المبيعات والمصروفات والصافي يومًا بيوم (أو شهرًا بشهر للفترات الطويلة)."
+      },
+      "sales-journal": {
+        "title": "سجل المبيعات",
+        "description": "كل عملية بيع مع أدويتها والموظف والحالة والمبلغ."
+      },
+      "sales-by-medicine": {
+        "title": "المبيعات حسب الدواء",
+        "description": "ترتيب الأدوية حسب رقم المبيعات والكميات المباعة والنسبة من الإجمالي."
+      },
+      "sales-by-employee": {
+        "title": "المبيعات حسب الموظف",
+        "description": "عدد المبيعات والإلغاءات ومتوسط السلة ورقم مبيعات كل موظف."
+      },
+      "expenses-journal": {
+        "title": "سجل المصروفات",
+        "description": "جميع المصروفات مع الفئة والموظف والحالة. صفِّ حسب الفئة لمعرفة أين تذهب الأموال."
+      },
+      "stock-valuation": {
+        "title": "قيمة المخزون",
+        "description": "الكميات والحد الأدنى والقيمة بسعر البيع وحالة كل دواء."
+      },
+      "stock-alerts": {
+        "title": "النفاد والمخزون المنخفض",
+        "description": "الأدوية التي يجب طلبها، مع مبيعات آخر 30 يومًا وتاريخ آخر بيع."
+      },
+      "stock-receipts": {
+        "title": "استلامات المخزون",
+        "description": "الشحنات المسجلة: الدواء والكمية والموظف والملاحظة."
+      },
+      "stock-movements": {
+        "title": "حركات المخزون",
+        "description": "كل دخول وخروج مع المخزون قبل الحركة وبعدها."
+      },
+      "dormant-stock": {
+        "title": "المخزون الراكد",
+        "description": "أدوية في المخزون لم تُبع خلال الفترة، والمبلغ المجمد فيها."
+      },
+      "shifts": {
+        "title": "المناوبات والصندوق",
+        "description": "المدة والمبيعات والمصروفات والنقد المتوقع لكل مناوبة."
+      },
+      "cancellations": {
+        "title": "الإلغاءات والتصحيحات",
+        "description": "المبيعات والمصروفات الملغاة أو المصححة والمناوبات المعاد فتحها: من ومتى ولماذا."
+      }
+    },
+    "filters": {
+      "period": "الفترة",
+      "from": "من",
+      "to": "إلى",
+      "employee": "الموظف",
+      "status": "الحالة",
+      "category": "الفئة",
+      "movementType": "نوع الحركة",
+      "stockLevel": "حالة المخزون",
+      "all": "الكل",
+      "apply": "تطبيق"
+    },
+    "presets": {
+      "today": "اليوم",
+      "yesterday": "أمس",
+      "this_week": "هذا الأسبوع",
+      "this_month": "هذا الشهر",
+      "last_month": "الشهر الماضي",
+      "this_year": "هذه السنة",
+      "custom": "مخصصة"
+    },
+    "periodLabel": "الفترة:",
+    "snapshot": "الحالة الحالية للمخزون (بدون فترة)",
+    "snapshotAt": "حالة المخزون في",
+    "downloadPdf": "تنزيل تقرير PDF",
+    "rowCount": "{count, plural, =0 {لا توجد صفوف} one {صف واحد} two {صفان} few {# صفوف} other {# صفًا}}",
+    "truncated": "تُعرض أول {count} صفوف فقط. قلّص الفترة لرؤية الكل.",
+    "empty": "لا توجد بيانات لهذه الفلاتر.",
+    "totals": "المجموع",
+    "totalsCompleted": "مجموع المبيعات المكتملة",
+    "totalsActive": "المجموع (دون الملغاة)",
+    "uncategorized": "بدون فئة",
+    "never": "لم يُبع أبدًا",
+    "durationValue": "{hours} س {minutes, plural, =0 {} other {# د}}",
     "statuses": {
       "COMPLETED": "مكتملة",
       "CANCELLED": "ملغاة",
-      "ACTIVE": "نشط",
+      "ACTIVE": "نشطة",
       "OPEN": "مفتوحة",
       "CLOSED": "مغلقة"
     },
-    "colMedicines": "الأدوية",
-    "colEmployee": "الموظف",
-    "colDate": "التاريخ",
-    "colAmount": "المبلغ",
-    "colCategory": "الفئة",
-    "colMedicine": "الدواء",
-    "colStock": "المخزون",
-    "colPrice": "السعر",
-    "colType": "النوع",
-    "colQuantity": "الكمية",
-    "colBalance": "الرصيد",
-    "colName": "الاسم",
-    "colOpened": "الفتح",
-    "colClosed": "الإغلاق",
-    "empty": "لا توجد بيانات لهذه الفترة."
+    "levels": {
+      "ok": "متوفر",
+      "low": "مخزون منخفض",
+      "out": "نفد"
+    },
+    "movementTypes": {
+      "STOCK_RECEIVED": "استلام",
+      "SALE": "بيع",
+      "SALE_CANCELLATION": "إلغاء بيع",
+      "SALE_CORRECTION": "تصحيح بيع",
+      "STOCK_RECEIPT_CORRECTION": "تصحيح استلام",
+      "MANUAL_CORRECTION": "تصحيح يدوي",
+      "OTHER_ADJUSTMENT": "تعديل آخر"
+    },
+    "operations": {
+      "sales": {
+        "CANCEL": "إلغاء بيع",
+        "CORRECT": "تصحيح بيع",
+        "REOPEN": "إعادة فتح بيع"
+      },
+      "expenses": {
+        "CANCEL": "إلغاء مصروف",
+        "CORRECT": "تصحيح مصروف",
+        "REOPEN": "إعادة فتح مصروف"
+      },
+      "stock_receipts": {
+        "CANCEL": "إلغاء استلام",
+        "CORRECT": "تصحيح استلام",
+        "REOPEN": "إعادة فتح استلام"
+      },
+      "shifts": {
+        "CANCEL": "إلغاء مناوبة",
+        "CORRECT": "تصحيح توقيت مناوبة",
+        "REOPEN": "إعادة فتح مناوبة"
+      }
+    },
+    "cols": {
+      "day": "اليوم",
+      "month": "الشهر",
+      "salesCount": "المبيعات",
+      "cancelledCount": "الملغاة",
+      "revenue": "رقم المبيعات",
+      "expenses": "المصروفات",
+      "net": "الصافي",
+      "reference": "الرقم",
+      "dateTime": "التاريخ",
+      "employee": "الموظف",
+      "medicines": "الأدوية",
+      "units": "القطع",
+      "status": "الحالة",
+      "amount": "المبلغ",
+      "rank": "الترتيب",
+      "medicine": "الدواء",
+      "code": "الرمز",
+      "unitsSold": "الكمية المباعة",
+      "averagePrice": "متوسط السعر",
+      "share": "النسبة",
+      "averageBasket": "متوسط السلة",
+      "category": "الفئة",
+      "description": "الوصف",
+      "expensesCount": "العدد",
+      "averageExpense": "المتوسط",
+      "stock": "المخزون",
+      "minStock": "الحد الأدنى",
+      "sellingPrice": "سعر البيع",
+      "stockValue": "القيمة",
+      "state": "الحالة",
+      "sold30": "المباع (30 يومًا)",
+      "lastSale": "آخر بيع",
+      "note": "ملاحظة",
+      "quantity": "الكمية",
+      "movementType": "النوع",
+      "before": "قبل",
+      "change": "التغير",
+      "after": "بعد",
+      "opened": "الفتح",
+      "closed": "الإغلاق",
+      "duration": "المدة",
+      "expectedCash": "النقد المتوقع",
+      "operation": "العملية",
+      "subject": "العنصر",
+      "by": "بواسطة",
+      "reason": "السبب"
+    },
+    "metrics": {
+      "net": "الصافي",
+      "revenue": "رقم المبيعات",
+      "expenses": "إجمالي المصروفات",
+      "salesCount": "المبيعات",
+      "cancelledCount": "الملغاة",
+      "averageBasket": "متوسط السلة",
+      "unitsSold": "الوحدات المباعة",
+      "medicinesSold": "الأدوية المباعة",
+      "topShare": "نسبة الأول",
+      "activeEmployees": "الموظفون النشطون",
+      "expensesCount": "المصروفات",
+      "averageExpense": "متوسط المصروف",
+      "categories": "الفئات",
+      "stockValue": "قيمة المخزون",
+      "units": "الوحدات",
+      "medicines": "الأدوية",
+      "outOfStock": "نفد",
+      "lowStock": "مخزون منخفض",
+      "alerts": "أدوية يجب طلبها",
+      "unitsReceived": "الوحدات المستلمة",
+      "receipts": "الاستلامات",
+      "movements": "الحركات",
+      "unitsIn": "الوحدات الداخلة",
+      "unitsOut": "الوحدات الخارجة",
+      "idleValue": "القيمة المجمدة",
+      "shifts": "المناوبات",
+      "hoursWorked": "وقت العمل",
+      "expectedCash": "النقد المتوقع",
+      "cancelledAmount": "مبلغ المبيعات الملغاة",
+      "cancellations": "الإلغاءات",
+      "corrections": "التصحيحات وإعادة الفتح"
+    },
+    "printTagline": "تقرير إداري",
+    "issuedAt": "تاريخ الإصدار",
+    "page": "صفحة",
+    "generatedBy": "مستند مُنشأ تلقائيًا — المبالغ بالأوقية (MRU).",
+    "print": "طباعة",
+    "preparingPdf": "جارٍ تجهيز PDF…",
+    "pdfError": "تعذر إنشاء ملف PDF. أعد المحاولة أو استخدم «طباعة»."
   },
   "Audit": {
     "kicker": "التتبع",

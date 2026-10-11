@@ -77,7 +77,6 @@ test('employee operates one shift and admin audits correction and reopen', async
   await row.getByRole('button', {name: 'إعادة فتح'}).click();
   await expect(row.getByText('مفتوحة')).toBeVisible();
   await row.getByText('تصحيح التوقيت').click();
-  await row.locator('details [name="reason"]').fill('Correction validée');
   await row.getByRole('button', {name: 'حفظ التصحيح'}).click();
   await expect(row.getByTestId('correction-saved')).toBeVisible();
 
@@ -92,7 +91,7 @@ test('employee operates one shift and admin audits correction and reopen', async
   expect(audits).toEqual(
     expect.arrayContaining([
       {action: 'REOPEN', reason: 'Fermeture erronée'},
-      {action: 'CORRECT', reason: 'Correction validée'}
+      {action: 'CORRECT', reason: null}
     ])
   );
 });

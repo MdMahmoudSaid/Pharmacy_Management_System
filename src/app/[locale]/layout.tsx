@@ -6,17 +6,19 @@ import '../globals.css';
 
 import type {Metadata} from 'next';
 import {hasLocale, NextIntlClientProvider} from 'next-intl';
-import {getMessages, setRequestLocale} from 'next-intl/server';
+import {getMessages, getTranslations, setRequestLocale} from 'next-intl/server';
 import {notFound} from 'next/navigation';
 import type {ReactNode} from 'react';
 
 import {directionFor, routing} from '@/i18n/routing';
 import {ServiceWorkerRegistration} from '@/components/service-worker-registration';
 
-export const metadata: Metadata = {
-  title: 'Pharmacy Management System',
-  description: 'Gestion interne de la pharmacie'
-};
+export async function generateMetadata({params}: {params: Promise<{locale: string}>}): Promise<Metadata> {
+  const {locale} = await params;
+  if (!hasLocale(routing.locales, locale)) return {};
+  const t = await getTranslations({locale, namespace: 'Navigation'});
+  return {title: t('brand'), description: t('brand')};
+}
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({locale}));

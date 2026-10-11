@@ -46,9 +46,26 @@ test('print view contains the receipt and hides application navigation', async (
 
   const receipt = page.getByTestId('receipt');
   await expect(receipt).toContainText('Doliprane Reçu');
-  await expect(receipt).toContainText('2 × 12.75');
-  await expect(receipt).toContainText('25.50 MRU');
+  const line = receipt.locator('.receipt-lines tbody tr');
+  await expect(line).toContainText('Doliprane Reçu');
+  await expect(line.locator('td').nth(1)).toHaveText('2');
+  await expect(line.locator('td').nth(2)).toHaveText('12.75');
+  await expect(line.locator('td').nth(3)).toHaveText('25.50');
+  await expect(receipt.locator('.receipt-total strong')).toHaveText('25.50 MRU');
+  await expect(receipt.locator('.receipt-head')).toContainText('صيدلية حرما آمنا');
   await expect(receipt).toContainText('Administrateur Reçu');
+
+  const quantityHeader = await receipt.locator('.receipt-lines thead th').nth(1).boundingBox();
+  const quantityCell = await line.locator('td').nth(1).boundingBox();
+  // Numbers sit on the same edge as their column header (the left edge in Arabic).
+  expect(Math.abs(quantityHeader!.x - quantityCell!.x)).toBeLessThan(2);
+
+  const [download] = await Promise.all([
+    page.waitForEvent('download'),
+    page.getByRole('button', {name: 'حفظ بصيغة PDF'}).click()
+  ]);
+  expect(download.suggestedFilename()).toBe(`ايصال-بيع-${seededSaleId}.pdf`);
+  if (process.env.SHOTS_DIR) await download.saveAs(`${process.env.SHOTS_DIR}/receipt.pdf`);
 
   await page.emulateMedia({media: 'print'});
   await expect(receipt).toBeVisible();

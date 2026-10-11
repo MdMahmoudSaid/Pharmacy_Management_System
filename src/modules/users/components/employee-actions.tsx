@@ -36,7 +36,6 @@ function ActiveStateForm({employeeId, name, locale, active}: {
       <p>{active ? t('archiveHint') : t('restoreHint')}</p>
       <input type="hidden" name="id" value={employeeId} />
       <input type="hidden" name="locale" value={locale} />
-      <input name="reason" placeholder={t('reason')} aria-label={t('reason')} required />
       <button disabled={pending} className={active ? 'danger-action' : 'secondary-action'}>
         {active ? t('archive') : t('restore')}
       </button>
@@ -85,7 +84,6 @@ function ResetPinForm({employeeId, name, locale}: {employeeId: number; name: str
         dir="ltr"
         required
       />
-      <input name="reason" placeholder={t('reason')} aria-label={t('reason')} required />
       <button disabled={pending} className="secondary-action">{t('resetPin')}</button>
       {state && !state.ok ? (
         <p className="form-error" role="alert" data-result={state.code}>{t(`errors.${state.code}`)}</p>

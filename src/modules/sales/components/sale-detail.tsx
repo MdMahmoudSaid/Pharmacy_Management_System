@@ -47,7 +47,10 @@ export function SaleDetailActions({
 
   return (
     <section className="sale-admin-actions no-print">
-      <h2>{t('sensitiveActions')}</h2>
+      <header>
+        <h2>{t('sensitiveActions')}</h2>
+        <p>{t('actionsHint')}</p>
+      </header>
       {canCorrect ? (
         <details>
           <summary>{t('correct')}</summary>
@@ -104,7 +107,6 @@ export function SaleDetailActions({
                 </label>
               </div>
             ))}
-            <input name="reason" placeholder={t('changeReason')} required />
             {correctState && !correctState.ok ? (
               <p className="form-error">{t(`errors.${correctState.code}`)}</p>
             ) : null}
@@ -116,17 +118,20 @@ export function SaleDetailActions({
         </details>
       ) : null}
       {canCancel ? (
-        <form action={cancelAction} className="cancel-sale-form">
-          <input type="hidden" name="id" value={saleId} />
-          <input type="hidden" name="locale" value={locale} />
-          <input name="reason" placeholder={t('cancelReason')} required />
-          {cancelState && !cancelState.ok ? (
-            <p className="form-error">{t(`errors.${cancelState.code}`)}</p>
-          ) : null}
-          <button className="danger-action" disabled={cancelling}>
-            {t('cancelSale')}
-          </button>
-        </form>
+        <details className="cancel-sale">
+          <summary>{t('cancelSummary')}</summary>
+          <form action={cancelAction} className="cancel-sale-form">
+            <input type="hidden" name="id" value={saleId} />
+            <input type="hidden" name="locale" value={locale} />
+            <input name="reason" placeholder={t('cancelReason')} required />
+            {cancelState && !cancelState.ok ? (
+              <p className="form-error">{t(`errors.${cancelState.code}`)}</p>
+            ) : null}
+            <button className="danger-action" disabled={cancelling}>
+              {t('cancelSale')}
+            </button>
+          </form>
+        </details>
       ) : null}
     </section>
   );

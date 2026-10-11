@@ -55,7 +55,6 @@ function ExpenseActions({row, locale, categories, canCreateCategory, canCorrect,
             </div>
             <label><span>{t('amountMru')}</span><input name="amount" defaultValue={row.expense.amount} inputMode="decimal" dir="ltr" required /></label>
             <label className="entry-field-wide"><span>{t('note')}</span><textarea name="description" defaultValue={row.expense.description ?? ''} rows={1} /></label>
-            <label className="entry-field-wide"><span>{t('reason')}</span><input name="reason" required /></label>
             <div className="entry-footer">
               <button className="secondary-action" disabled={correcting}>{t('saveCorrection')}</button>
               {correctState && !correctState.ok ? <small className="form-error">{t(`errors.${correctState.code}`)}</small> : null}

@@ -74,7 +74,6 @@ function MedicineRow({medicine, locale, canEdit, canArchive}: {
               <label><span>{t('codeLabel')}</span><input name="code" defaultValue={medicine.code ?? ''} dir="ltr" /></label>
               <label><span>{t('priceMru')}</span><input name="sellingPrice" defaultValue={medicine.sellingPrice} inputMode="decimal" dir="ltr" required /></label>
               <label><span>{t('minStock')}</span><input name="minStock" type="number" min="0" step="1" defaultValue={medicine.minStock} dir="ltr" required /></label>
-              <label className="entry-field-wide"><span>{t('priceReasonHint')}</span><input name="reason" /></label>
               <div className="entry-footer">
                 <button className="primary-action" disabled={saving}>{t('save')}</button>
                 {editState && !editState.ok ? <small className="form-error" role="alert">{t(`errors.${editState.code}`)}</small> : null}
@@ -90,7 +89,6 @@ function MedicineRow({medicine, locale, canEdit, canArchive}: {
             >
               <input type="hidden" name="id" value={medicine.id} />
               <input type="hidden" name="locale" value={locale} />
-              <input name="reason" placeholder={t('reason')} aria-label={t('reason')} required />
               <button className={medicine.isActive ? 'danger-action' : 'secondary-action'} disabled={switching}>
                 {medicine.isActive ? t('archive') : t('restore')}
               </button>
