@@ -41,6 +41,8 @@ export async function createSaleAction(
       idempotencyKey: String(data.get('idempotencyKey') ?? ''),
       items: parsed
     });
+    // Without this the history and stock badges on the sales page keep showing the pre-sale data.
+    refresh(data, sale.id);
     return {ok: true, data: {id: sale.id, total: sale.total}};
   } catch (error) {
     if (error instanceof AppError) return {ok: false, code: error.code};

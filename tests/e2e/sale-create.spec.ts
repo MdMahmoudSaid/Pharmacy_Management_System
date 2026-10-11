@@ -43,6 +43,11 @@ test('creates one atomic sale from a rapid confirmation', async ({page}) => {
 
   await page.getByRole('button', {name: 'تأكيد البيع'}).click({clickCount: 2});
   await expect(page.getByText('تم تسجيل البيع — المجموع 51.00 MRU.')).toBeVisible();
+  // The history and stock badge refresh without reloading the page.
+  await expect(page.locator('.sale-history-rows')).toContainText('Paracétamol Vente × 2');
+  await expect(
+    page.locator('.sale-medicine-results button').filter({hasText: 'Paracétamol Vente'}).locator('.stock-badge')
+  ).toHaveText('3 متوفر');
 
   const [{db}, schema] = await Promise.all([
     import('../../src/db/client'),

@@ -71,6 +71,7 @@ export function SaleForm({
 
   return (
     <form action={action} className="sale-layout">
+      <input type="hidden" name="locale" value={locale} />
       <input type="hidden" name="shiftId" value={shiftId} />
       <input type="hidden" name="idempotencyKey" value={key} data-testid="sale-idempotency-key" />
       <input type="hidden" name="items" value={JSON.stringify(payload)} />
