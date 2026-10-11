@@ -234,6 +234,31 @@
       "RATE_LIMITED": "Trop de tentatives.",
       "SESSION_REQUIRED": "Une connexion est requise.",
       "INSUFFICIENT_STOCK": "Le stock est insuffisant."
+    },
+    "viewDetail": "Voir le détail",
+    "detailKicker": "Détail du shift",
+    "backToShifts": "← Retour aux shifts",
+    "durationValue": "{hours} h {minutes} min",
+    "salesTotal": "Ventes",
+    "expensesTotal": "Dépenses",
+    "netTotal": "Net",
+    "stockReceived": "Stock reçu",
+    "salesCount": "{count, plural, =0 {Aucune vente} one {# vente} other {# ventes}}",
+    "expensesCount": "{count, plural, =0 {Aucune dépense} one {# dépense} other {# dépenses}}",
+    "receiptsCount": "{count, plural, =0 {Aucune réception} one {# réception} other {# réceptions}}",
+    "netCaption": "Caisse attendue (ventes − dépenses)",
+    "units": "{count, plural, one {# unité} other {# unités}}",
+    "salesSection": "Ventes du shift",
+    "expensesSection": "Dépenses du shift",
+    "receiptsSection": "Réceptions de stock",
+    "correctionsSection": "Corrections et réouvertures",
+    "noSales": "Aucune vente pendant ce shift.",
+    "noExpenses": "Aucune dépense pendant ce shift.",
+    "noReceipts": "Aucune réception de stock pendant ce shift.",
+    "cancelled": "Annulée",
+    "correctionActions": {
+      "CORRECT": "Horaires corrigés",
+      "REOPEN": "Shift rouvert"
     }
   },
   "Stock": {

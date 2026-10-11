@@ -234,6 +234,31 @@
       "RATE_LIMITED": "محاولات كثيرة.",
       "SESSION_REQUIRED": "يجب تسجيل الدخول.",
       "INSUFFICIENT_STOCK": "المخزون غير كافٍ."
+    },
+    "viewDetail": "عرض التفاصيل",
+    "detailKicker": "تفاصيل المناوبة",
+    "backToShifts": "→ العودة إلى المناوبات",
+    "durationValue": "{hours} س {minutes} د",
+    "salesTotal": "المبيعات",
+    "expensesTotal": "المصروفات",
+    "netTotal": "الصافي",
+    "stockReceived": "المخزون المستلم",
+    "salesCount": "{count, plural, =0 {لا توجد مبيعات} one {عملية بيع واحدة} two {عمليتا بيع} few {# عمليات بيع} other {# عملية بيع}}",
+    "expensesCount": "{count, plural, =0 {لا توجد مصروفات} one {مصروف واحد} two {مصروفان} few {# مصروفات} other {# مصروف}}",
+    "receiptsCount": "{count, plural, =0 {لا توجد استلامات} one {استلام واحد} two {استلامان} few {# استلامات} other {# استلام}}",
+    "netCaption": "النقد المتوقع (المبيعات − المصروفات)",
+    "units": "{count, plural, one {# وحدة} two {وحدتان} few {# وحدات} other {# وحدة}}",
+    "salesSection": "مبيعات المناوبة",
+    "expensesSection": "مصروفات المناوبة",
+    "receiptsSection": "استلامات المخزون",
+    "correctionsSection": "التصحيحات وإعادة الفتح",
+    "noSales": "لا توجد مبيعات خلال هذه المناوبة.",
+    "noExpenses": "لا توجد مصروفات خلال هذه المناوبة.",
+    "noReceipts": "لا توجد استلامات مخزون خلال هذه المناوبة.",
+    "cancelled": "ملغاة",
+    "correctionActions": {
+      "CORRECT": "تم تصحيح التوقيت",
+      "REOPEN": "أُعيد فتح المناوبة"
     }
   },
   "Stock": {

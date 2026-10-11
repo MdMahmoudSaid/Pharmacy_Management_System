@@ -1,6 +1,8 @@
 'use client';
 
+import {ChevronLeft, ChevronRight} from 'lucide-react';
 import {useTranslations} from 'next-intl';
+import Link from 'next/link';
 import {useActionState} from 'react';
 
 import {
@@ -81,15 +83,19 @@ export function ShiftList({
     timeStyle: 'short',
     timeZone: 'Africa/Nouakchott'
   });
+  const Chevron = locale === 'ar' ? ChevronLeft : ChevronRight;
   return (
     <section className="shift-list">
       <h2>{t('history')}</h2>
       {rows.map(({shift, userName}) => (
         <article key={shift.id} className="shift-row">
-          <div>
-            <strong>{userName}</strong>
-            <p>{format.format(shift.openedAt)} — {shift.closedAt ? format.format(shift.closedAt) : t('ongoing')}</p>
-          </div>
+          <Link href={`/${locale}/shifts/${shift.id}`} className="shift-row-link">
+            <span>
+              <strong>{userName}</strong>
+              <p><bdi>{format.format(shift.openedAt)}</bdi> — <bdi>{shift.closedAt ? format.format(shift.closedAt) : t('ongoing')}</bdi></p>
+            </span>
+            <small>{t('viewDetail')}<Chevron size={14} aria-hidden="true" /></small>
+          </Link>
           <span className={shift.status === 'OPEN' ? 'status-active' : 'status-archived'}>
             {shift.status === 'OPEN' ? t('openStatus') : t('closedStatus')}
           </span>
