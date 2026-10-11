@@ -3478,3 +3478,206 @@ textarea {
 .movement-history > * {
   min-width: 0;
 }
+
+/* Dashboard: medicines card (whole card links to the catalogue, alerts link to a filtered view) */
+.metric-catalog {
+  position: relative;
+}
+
+.metric-catalog:hover {
+  background: #f3f8f7;
+}
+
+.metric-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.metric-catalog:hover .metric-link {
+  color: var(--color-primary);
+}
+
+.metric-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.metric-link:focus-visible {
+  outline: none;
+}
+
+.metric-catalog:has(.metric-link:focus-visible) {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+.metric-alerts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.metric-alert {
+  position: relative;
+  z-index: 1;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.metric-alert.is-out {
+  background: rgb(180 35 24 / 0.1);
+  color: var(--color-danger);
+}
+
+.metric-alert.is-low {
+  background: rgb(196 122 18 / 0.14);
+  color: #8a5409;
+}
+
+.metric-alert:hover {
+  text-decoration: underline;
+}
+
+
+/* Medicines: stat cards that filter the list */
+.catalog-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.catalog-stat {
+  display: grid;
+  gap: 0.35rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--color-border);
+  border-inline-start: 4px solid var(--stat-accent, var(--color-primary));
+  border-radius: 0.9rem;
+  background: var(--color-panel);
+  color: var(--color-text);
+  cursor: pointer;
+  text-align: start;
+}
+
+.catalog-stat span {
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.catalog-stat strong {
+  font-size: 1.75rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.catalog-stat.is-all { --stat-accent: #6b7f7c; }
+.catalog-stat.is-available { --stat-accent: var(--color-primary); }
+.catalog-stat.is-low { --stat-accent: #c47a12; }
+.catalog-stat.is-out { --stat-accent: var(--color-danger); }
+
+.catalog-stat.is-low strong { color: #8a5409; }
+.catalog-stat.is-out strong { color: var(--color-danger); }
+
+.catalog-stat:hover {
+  background: #f3f8f7;
+}
+
+.catalog-stat[aria-pressed="true"] {
+  border-color: var(--stat-accent);
+  background: color-mix(in srgb, var(--stat-accent) 8%, white);
+  box-shadow: 0 0 0 1px var(--stat-accent);
+}
+
+.catalog-value {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.catalog-value b {
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.catalog-value b small {
+  color: var(--color-muted);
+  font-size: 0.75em;
+}
+
+.archived-toggle {
+  display: inline-flex;
+  min-height: 2.9rem;
+  align-items: center;
+  gap: 0.45rem;
+  padding-inline: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  background: var(--color-panel);
+  color: var(--color-muted);
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.archived-toggle .archived-count {
+  min-width: 1.4rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  background: #e9eeec;
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.archived-toggle[aria-pressed="true"] {
+  border-color: var(--color-text);
+  color: var(--color-text);
+}
+
+@media (max-width: 600px) {
+  .catalog-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .catalog-stat {
+    padding: 0.8rem 0.9rem;
+  }
+
+  .catalog-stat strong {
+    font-size: 1.45rem;
+  }
+
+  .catalog-toolbar .search-box {
+    flex-basis: 10rem;
+    min-width: 0;
+  }
+
+  .catalog-toolbar .search-box input {
+    width: 100%;
+  }
+
+  .archived-toggle {
+    padding-inline: 0.8rem;
+  }
+
+  .archived-label {
+    display: none;
+  }
+
+  /* Label on its own line, then value and unit count together. */
+  .catalog-value > span {
+    flex-basis: 100%;
+    font-size: 0.8rem;
+  }
+}

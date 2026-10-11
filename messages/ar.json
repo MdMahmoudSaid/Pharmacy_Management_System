@@ -26,7 +26,6 @@
     "welcome": "تم تسجيل الدخول بنجاح",
     "signedIn": "مرحبًا {name}، جلستك نشطة.",
     "logout": "تسجيل الخروج",
-    "stockUnits": "وحدات المخزون",
     "openShifts": "المناوبات المفتوحة",
     "summary_today": "ملخص اليوم",
     "summary_this_week": "ملخص هذا الأسبوع",
@@ -43,7 +42,6 @@
     "sales": "المبيعات",
     "expenses": "المصروفات",
     "net": "الصافي",
-    "stockCaption": "الرصيد الحالي",
     "shiftsCaption": "حاليًا",
     "shortcuts": "إجراءات سريعة",
     "newSale": "بيع جديد",
@@ -59,7 +57,12 @@
     "stockLabel": "استلام مخزون: {medicine}",
     "cancelled": "ملغاة",
     "units": "{count} وحدة",
-    "saleFallback": "عملية بيع"
+    "saleFallback": "عملية بيع",
+    "medicines": "الأدوية",
+    "medicinesCaption": "في الدليل",
+    "medicinesAllGood": "كل الأدوية متوفرة",
+    "medicinesOut": "نفد: {count}",
+    "medicinesLow": "منخفض: {count}"
   },
   "Navigation": {
     "brand": "الصيدلية",
@@ -315,7 +318,12 @@
       "SHIFT_ALREADY_OPEN": "توجد مناوبة مفتوحة.",
       "INSUFFICIENT_STOCK": "المخزون غير كافٍ.",
       "INTERNAL_ERROR": "تعذر إكمال العملية."
-    }
+    },
+    "statTotal": "إجمالي الأدوية",
+    "statAvailable": "متوفرة",
+    "statLow": "مخزون منخفض",
+    "statOut": "نفدت",
+    "stockValue": "قيمة المخزون بسعر البيع"
   },
   "Sales": {
     "kicker": "نقطة البيع",

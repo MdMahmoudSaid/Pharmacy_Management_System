@@ -26,7 +26,6 @@
     "welcome": "Connexion réussie",
     "signedIn": "Bonjour {name}, votre session est active.",
     "logout": "Déconnexion",
-    "stockUnits": "Unités en stock",
     "openShifts": "Shifts ouverts",
     "summary_today": "Résumé du jour",
     "summary_this_week": "Résumé de la semaine",
@@ -43,7 +42,6 @@
     "sales": "Ventes",
     "expenses": "Dépenses",
     "net": "Net",
-    "stockCaption": "Solde actuel",
     "shiftsCaption": "En ce moment",
     "shortcuts": "Actions rapides",
     "newSale": "Nouvelle vente",
@@ -59,7 +57,12 @@
     "stockLabel": "Réception : {medicine}",
     "cancelled": "Annulée",
     "units": "{count} unités",
-    "saleFallback": "Vente"
+    "saleFallback": "Vente",
+    "medicines": "Médicaments",
+    "medicinesCaption": "dans le catalogue",
+    "medicinesAllGood": "Tout est en stock",
+    "medicinesOut": "{count} en rupture",
+    "medicinesLow": "{count} stock bas"
   },
   "Navigation": {
     "brand": "Pharmacie",
@@ -265,7 +268,7 @@
     "priceMru": "Prix de vente (MRU)",
     "minStock": "Stock minimum",
     "codeLabel": "Code",
-    "stockCount": "{count} unités",
+    "stockCount": "{count, plural, one {# unité} other {# unités}}",
     "minStockShort": "Minimum {count}",
     "filterAll": "Tous",
     "filterAvailable": "Disponible",
@@ -315,7 +318,12 @@
       "SHIFT_ALREADY_OPEN": "Un shift est déjà ouvert.",
       "INSUFFICIENT_STOCK": "Stock insuffisant.",
       "INTERNAL_ERROR": "L'opération a échoué."
-    }
+    },
+    "statTotal": "Total",
+    "statAvailable": "Disponibles",
+    "statLow": "Stock bas",
+    "statOut": "En rupture",
+    "stockValue": "Valeur du stock (prix de vente)"
   },
   "Sales": {
     "kicker": "Caisse",

@@ -1,6 +1,7 @@
 'use client';
 
-import {Search} from 'lucide-react';
+import Decimal from 'decimal.js';
+import {Archive, Search} from 'lucide-react';
 import {useTranslations} from 'next-intl';
 import {useActionState, useDeferredValue, useState} from 'react';
 
@@ -11,6 +12,7 @@ import {
   updateMedicineAction,
   type MedicineActionState
 } from '../actions';
+import {MEDICINE_FILTERS as FILTERS, type MedicineFilter as Filter} from '../filters';
 
 type Medicine = {
   id: number;
@@ -23,9 +25,13 @@ type Medicine = {
 };
 
 type Status = 'available' | 'low' | 'out' | 'archived';
-const FILTERS = ['all', 'available', 'low', 'out', 'archived'] as const;
-type Filter = (typeof FILTERS)[number];
-const filterLabel = {all: 'filterAll', available: 'filterAvailable', low: 'filterLow', out: 'filterOut', archived: 'filterArchived'} as const;
+// The four stat cards double as the list filters; archived medicines sit behind a separate toggle.
+const STAT_CARDS = [
+  {key: 'all', label: 'statTotal'},
+  {key: 'available', label: 'statAvailable'},
+  {key: 'low', label: 'statLow'},
+  {key: 'out', label: 'statOut'}
+] as const;
 
 const amountFormat = new Intl.NumberFormat('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
@@ -97,15 +103,16 @@ function MedicineRow({medicine, locale, canEdit, canArchive}: {
   );
 }
 
-export function MedicineList({medicines, locale, canEdit, canArchive}: {
+export function MedicineList({medicines, locale, canEdit, canArchive, initialFilter = 'all'}: {
   medicines: Medicine[];
   locale: 'ar' | 'fr';
   canEdit: boolean;
   canArchive: boolean;
+  initialFilter?: Filter;
 }) {
   const t = useTranslations('Stock');
   const [query, setQuery] = useState('');
-  const [filter, setFilter] = useState<Filter>('all');
+  const [filter, setFilter] = useState<Filter>(initialFilter);
   const search = useDeferredValue(query.trim().toLocaleLowerCase());
   const counts = Object.fromEntries(FILTERS.map((key) => [key, 0])) as Record<Filter, number>;
   for (const medicine of medicines) {
@@ -118,21 +125,33 @@ export function MedicineList({medicines, locale, canEdit, canArchive}: {
     const inFilter = filter === 'all' ? status !== 'archived' : status === filter;
     return inFilter && `${medicine.name} ${medicine.code ?? ''}`.toLocaleLowerCase().includes(search);
   });
+  const active = medicines.filter(({isActive}) => isActive);
+  const units = active.reduce((sum, {currentStock}) => sum + currentStock, 0);
+  const stockValue = active.reduce((sum, {currentStock, sellingPrice}) => sum.plus(new Decimal(sellingPrice).times(currentStock)), new Decimal(0));
 
   return (
     <section className="catalog">
+      <div className="catalog-stats" role="group" aria-label={t('statTotal')}>
+        {STAT_CARDS.map(({key, label}) => (
+          <button key={key} type="button" aria-pressed={filter === key} onClick={() => setFilter(key)} className={`catalog-stat is-${key}`}>
+            <span>{t(label)}</span>
+            <strong>{counts[key]}</strong>
+          </button>
+        ))}
+      </div>
+      <div className="catalog-value">
+        <span>{t('stockValue')}</span>
+        <b dir="ltr">{amountFormat.format(stockValue.toNumber())} <small>MRU</small></b>
+        <small>· {t('stockCount', {count: units})}</small>
+      </div>
       <div className="catalog-toolbar">
         <label className="search-box">
           <Search size={18} aria-hidden="true" />
           <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t('search')} aria-label={t('search')} />
         </label>
-        <div className="filter-pills" role="group" aria-label={t('filterAll')}>
-          {FILTERS.map((key) => (
-            <button key={key} type="button" aria-pressed={filter === key} onClick={() => setFilter(key)} className={`is-${key}`}>
-              {t(filterLabel[key])}<span>{counts[key]}</span>
-            </button>
-          ))}
-        </div>
+        <button type="button" className="archived-toggle" aria-pressed={filter === 'archived'} aria-label={t('filterArchived')} onClick={() => setFilter(filter === 'archived' ? 'all' : 'archived')}>
+          <Archive size={16} aria-hidden="true" /><span className="archived-label">{t('filterArchived')}</span><span className="archived-count">{counts.archived}</span>
+        </button>
       </div>
       {visible.length ? (
         <div className="medicine-rows">

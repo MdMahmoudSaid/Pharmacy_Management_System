@@ -1,4 +1,4 @@
-import {Banknote, Boxes, Clock3, Receipt, Scale} from 'lucide-react';
+import {Banknote, ChevronLeft, ChevronRight, Clock3, Pill, Receipt, Scale} from 'lucide-react';
 import {getTranslations} from 'next-intl/server';
 import Link from 'next/link';
 import type {ReactNode} from 'react';
@@ -25,9 +25,19 @@ export async function DashboardView({data, period, locale, children}: {data: Das
     {key: 'sales', icon: Banknote, value: amountFormat.format(Number(data.summary.salesTotal)), unit: 'MRU', caption: periodCaption},
     {key: 'expenses', icon: Receipt, value: amountFormat.format(Number(data.summary.expensesTotal)), unit: 'MRU', caption: periodCaption},
     {key: 'net', icon: Scale, value: amountFormat.format(Number(data.summary.netTotal)), unit: 'MRU', caption: periodCaption, negative: Number(data.summary.netTotal) < 0},
-    {key: 'stockUnits', icon: Boxes, value: countFormat.format(data.stockUnits), caption: t('stockCaption')},
     {key: 'openShifts', icon: Clock3, value: String(data.openShifts.length), caption: t('shiftsCaption')}
   ];
+
+  const {catalog} = data;
+  const medicinesHref = `/${locale}/medicines`;
+  const Chevron = locale === 'ar' ? ChevronLeft : ChevronRight;
+  const renderCard = ({key, icon: Icon, value, unit, caption, negative}: (typeof cards)[number]) => (
+    <article key={key}>
+      <header><span>{t(key)}</span><Icon size={20} aria-hidden="true" /></header>
+      <strong dir="ltr" className={negative ? 'is-negative' : undefined}>{value}{unit ? <small> {unit}</small> : null}</strong>
+      <small>{caption}</small>
+    </article>
+  );
 
   return (
     <>
@@ -47,13 +57,23 @@ export async function DashboardView({data, period, locale, children}: {data: Das
       </section>
 
       <section className="dashboard-metrics">
-        {cards.map(({key, icon: Icon, value, unit, caption, negative}) => (
-          <article key={key}>
-            <header><span>{t(key)}</span><Icon size={20} aria-hidden="true" /></header>
-            <strong dir="ltr" className={negative ? 'is-negative' : undefined}>{value}{unit ? <small> {unit}</small> : null}</strong>
-            <small>{caption}</small>
+        {cards.slice(0, 3).map(renderCard)}
+        {catalog ? (
+          <article className="metric-catalog">
+            <header>
+              <Link href={medicinesHref} className="metric-link">{t('medicines')}<Chevron size={14} aria-hidden="true" /></Link>
+              <Pill size={20} aria-hidden="true" />
+            </header>
+            <strong dir="ltr">{countFormat.format(catalog.total)}</strong>
+            {catalog.out || catalog.low ? (
+              <span className="metric-alerts">
+                {catalog.out ? <Link href={`${medicinesHref}?filter=out`} className="metric-alert is-out">{t('medicinesOut', {count: catalog.out})}</Link> : null}
+                {catalog.low ? <Link href={`${medicinesHref}?filter=low`} className="metric-alert is-low">{t('medicinesLow', {count: catalog.low})}</Link> : null}
+              </span>
+            ) : <small>{catalog.total ? t('medicinesAllGood') : t('medicinesCaption')}</small>}
           </article>
-        ))}
+        ) : null}
+        {cards.slice(3).map(renderCard)}
       </section>
 
       {children}

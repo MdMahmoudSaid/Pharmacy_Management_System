@@ -72,7 +72,19 @@ export async function getDashboardSummary(actor: PermissionActor, range: {from: 
     }
   }
 
-  return {summary: report.summary, stockUnits: report.stockUnits, openShifts, recentOperations};
+  return {summary: report.summary, catalog: await getCatalogHealth(actor), openShifts, recentOperations};
+}
+
+// Counts only: what the dashboard card needs to say how many medicines exist and how many need restocking.
+async function getCatalogHealth(actor: PermissionActor) {
+  if (!can(actor, 'medicines.view.all')) return null;
+  const rows = await db
+    .select({currentStock: medicines.currentStock, minStock: medicines.minStock})
+    .from(medicines)
+    .where(eq(medicines.isActive, true));
+  const out = rows.filter(({currentStock}) => currentStock === 0).length;
+  const low = rows.filter(({currentStock, minStock}) => currentStock > 0 && currentStock <= minStock).length;
+  return {total: rows.length, out, low};
 }
 
 export async function getUserName(userId: number) {
