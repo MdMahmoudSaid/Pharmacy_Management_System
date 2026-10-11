@@ -75,18 +75,22 @@ export function Receipt({
           <thead>
             <tr>
               <th scope="col">{t('receiptItem')}</th>
-              <th scope="col" className="is-numeric">{t('receiptQty')}</th>
-              <th scope="col" className="is-numeric">{t('receiptUnitPrice')}</th>
+              <th scope="col" className="is-numeric receipt-col-detail">{t('receiptQty')}</th>
+              <th scope="col" className="is-numeric receipt-col-detail">{t('receiptUnitPrice')}</th>
               <th scope="col" className="is-numeric">{t('receiptAmount')}</th>
             </tr>
           </thead>
           <tbody>
             {items.map((item) => (
               <tr key={item.id}>
-                <td>{item.medicineName}</td>
+                <td>
+                  {item.medicineName}
+                  {/* Shown instead of the quantity and unit-price columns on narrow screens. */}
+                  <small className="receipt-line-detail"><bdi dir="ltr">{item.quantity} × {formatMru(item.unitPrice)}</bdi></small>
+                </td>
                 {/* The cell keeps the page direction so it lines up with its header; only the number is isolated. */}
-                <td className="is-numeric"><bdi dir="ltr">{item.quantity}</bdi></td>
-                <td className="is-numeric"><bdi dir="ltr">{formatMru(item.unitPrice)}</bdi></td>
+                <td className="is-numeric receipt-col-detail"><bdi dir="ltr">{item.quantity}</bdi></td>
+                <td className="is-numeric receipt-col-detail"><bdi dir="ltr">{formatMru(item.unitPrice)}</bdi></td>
                 <td className="is-numeric"><bdi dir="ltr">{formatMru(item.lineTotal)}</bdi></td>
               </tr>
             ))}

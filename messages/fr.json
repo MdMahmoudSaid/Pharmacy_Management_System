@@ -508,7 +508,7 @@
   "Reports": {
     "kicker": "Analyse de l’activité",
     "title": "Rapports",
-    "subtitle": "Choisissez un rapport : chaque chiffre renvoie aux opérations qui le composent, et chaque rapport se télécharge en PDF ou en CSV.",
+    "subtitle": "Choisissez un rapport : chaque chiffre renvoie aux opérations qui le composent, et chaque rapport se télécharge en PDF ou s’imprime.",
     "allReports": "Tous les rapports",
     "groups": {
       "sales": "Ventes et finances",

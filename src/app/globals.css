@@ -3659,6 +3659,8 @@ textarea {
 
 .rpt-filters input,
 .rpt-filters select {
+  /* Date inputs otherwise keep a fixed intrinsic width and poke out of narrow grid cells. */
+  min-width: 0;
   width: 100%;
   min-height: 2.75rem;
   padding-inline: 0.75rem;
@@ -4557,6 +4559,56 @@ textarea {
 
 .audit-timeline li[data-action="CANCEL"] strong {
   color: var(--color-danger);
+}
+
+.receipt-line-detail {
+  display: none;
+}
+
+@media screen and (max-width: 600px) {
+  .receipt-paper {
+    padding-inline: 1.1rem;
+  }
+
+  /* Phones: quantity and unit price move under the medicine name so the amount column always fits. */
+  .receipt-col-detail {
+    display: none;
+  }
+
+  .receipt-line-detail {
+    display: block;
+    margin-block-start: 0.2rem;
+    color: var(--color-muted);
+    font-size: 0.78rem;
+    font-weight: 400;
+  }
+
+  .receipt-meta dd {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .receipt-total {
+    padding: 0.75rem 0.85rem;
+  }
+
+  .receipt-total strong {
+    font-size: 1.1rem;
+  }
+
+  .report-bar {
+    display: grid;
+  }
+
+  .report-exports {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .report-export {
+    justify-content: center;
+    white-space: nowrap;
+  }
 }
 
 /* Printed receipt: kept last so it overrides the screen styles above. Sized for an 80 mm thermal roll. */
