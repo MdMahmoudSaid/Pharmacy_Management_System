@@ -61,12 +61,21 @@ export const auditLogs = pgTable(
   ]
 );
 
+export type CompanyProfile = {
+  address?: string;
+  email?: string;
+  taxId?: string;
+  registration?: string;
+  phones?: {code: string; number: string}[];
+};
+
 export const settings = pgTable(
   'settings',
   {
     key: text('key').primaryKey().default('default'),
     pharmacyName: text('pharmacy_name').notNull().default('Pharmacy'),
     defaultLocale: appLocale('default_locale').notNull().default('ar'),
+    profile: jsonb('profile').$type<CompanyProfile>().notNull().default({}),
     receiptPreferences: jsonb('receipt_preferences')
       .$type<Record<string, unknown>>()
       .notNull()

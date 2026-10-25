@@ -4,6 +4,7 @@ import {beforeAll, beforeEach, describe, expect, it} from 'vitest';
 import {db} from '@/db/client';
 import {migrateDatabase} from '@/db/migrate';
 import {auditLogs} from '@/db/schema';
+import {recordCapitalMovement} from '@/modules/accounts/service';
 import {
   createExpenseCategory,
   deleteExpenseCategory,
@@ -46,6 +47,7 @@ describe('expense categories', () => {
   it('archives a deleted category, keeps its name on past expenses, and audits every change', async () => {
     const shift = await createShift({userId: cashier.id});
     const category = await createExpenseCategory(admin, 'Transport');
+    await recordCapitalMovement(admin, {type: 'ADDITION', amount: '100.00'});
     await createExpense(cashier, {shiftId: shift.id, amount: '40.00', categoryId: category.id});
     await renameExpenseCategory(admin, category.id, 'Transport fournisseur');
     await deleteExpenseCategory(admin, category.id);

@@ -7,6 +7,8 @@ import {
   Settings,
   Menu,
   ReceiptText,
+  Landmark,
+  Truck,
   WalletCards,
   UsersRound
 } from 'lucide-react';
@@ -19,7 +21,7 @@ import {BrandMark} from './brand-mark';
 import {LanguageSwitcher} from './language-switcher';
 
 export type NavItem = {
-  key: 'home' | 'sales' | 'expenses' | 'stock' | 'shift' | 'medicines' | 'employees' | 'reports' | 'audit' | 'settings' | 'more';
+  key: 'home' | 'sales' | 'expenses' | 'stock' | 'shift' | 'medicines' | 'suppliers' | 'accounts' | 'employees' | 'reports' | 'audit' | 'settings' | 'more';
   href: string;
   icon: typeof Home;
   domain?: string;
@@ -68,6 +70,8 @@ export function navItems(actor: PermissionActor, locale: 'ar' | 'fr'): NavItem[]
       icon: Boxes,
       domain: 'medicines'
     },
+    {key: 'suppliers', href: `${base}/suppliers`, icon: Truck, domain: 'suppliers'},
+    {key: 'accounts', href: `${base}/accounts`, icon: Landmark, domain: 'accounts'},
     {key: 'reports', href: `${base}/reports`, icon: FileBarChart, domain: 'reports'},
     {key: 'audit', href: `${base}/audit`, icon: ListChecks, domain: 'audit'},
     {key: 'settings', href: `${base}/settings`, icon: Settings, domain: 'settings'},

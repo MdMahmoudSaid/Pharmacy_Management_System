@@ -2,17 +2,19 @@ import {expect, test} from '@playwright/test';
 
 test.beforeEach(async () => {
   if (!process.env.DATABASE_URL) process.loadEnvFile('.env.test');
-  const [{hash}, {createUser, resetDatabase}] = await Promise.all([
+  const [{hash}, {createUser, resetDatabase}, {createSupplier}] = await Promise.all([
     import('@node-rs/argon2'),
-    import('../factories/database')
+    import('../factories/database'),
+    import('../../src/modules/suppliers/service')
   ]);
   await resetDatabase();
-  await createUser({
+  const user = await createUser({
     name: 'Administrateur Stock',
     phoneE164: '+22221234567',
     pinHash: await hash('1234'),
     role: 'ADMIN'
   });
+  await createSupplier({id: user.id, role: 'ADMIN', isActive: true, permissions: []}, {name: 'مورد الاختبار'});
 });
 
 async function login(page: import('@playwright/test').Page) {
@@ -46,7 +48,11 @@ test('receives stock once, archives selection, and keeps movement history', asyn
   await medicine.fill('Paracé');
   await receipt.getByRole('option', {name: /Paracétamol UI/}).click();
   await expect(medicine).toHaveValue('Paracétamol UI');
+  const supplier = receipt.getByRole('combobox', {name: 'المورد'});
+  await supplier.click();
+  await receipt.getByRole('option', {name: 'مورد الاختبار'}).click();
   await receipt.locator('[name="quantity"]').fill('20');
+  await receipt.locator('[name="unitCost"]').fill('12.25');
   await receipt.getByRole('button', {name: 'تأكيد الاستلام'}).click();
   await page.getByRole('dialog').getByRole('button', {name: 'تأكيد', exact: true}).click();
   await expect(receipt.getByText('تم تسجيل الاستلام.')).toBeVisible();
@@ -58,10 +64,13 @@ test('receives stock once, archives selection, and keeps movement history', asyn
   await page.goto('/ar/medicines');
   const row = page.locator('.medicine-row').filter({hasText: 'Paracétamol UI'});
   await expect(row.locator('.stock-badge')).toHaveText('20 وحدة');
-  await row.getByText('تعديل', {exact: true}).click();
-  await row.getByRole('button', {name: 'أرشفة'}).click();
+  await row.getByRole('link').click();
+  await page.getByRole('button', {name: 'أرشفة'}).click();
+  await page.locator('.action-dialog[open]').getByRole('button', {name: 'أرشفة'}).click();
   await page.getByRole('dialog').getByRole('button', {name: 'تأكيد', exact: true}).click();
-  await expect(row).toHaveCount(0);
+  await expect(page.locator('.detail-actions > button').filter({hasText: 'استعادة'})).toBeVisible();
+  await page.goto('/ar/medicines');
+  await expect(page.locator('.medicine-row').filter({hasText: 'Paracétamol UI'})).toHaveCount(0);
   await page.getByRole('button', {name: /مؤرشف/}).click();
   const archived = page.locator('.medicine-row').filter({hasText: 'Paracétamol UI'});
   await expect(archived.locator('.stock-badge')).toHaveText('مؤرشف');

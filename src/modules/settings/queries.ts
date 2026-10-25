@@ -17,6 +17,7 @@ export async function getSettings() {
     key: 'default',
     pharmacyName: 'Pharmacy',
     defaultLocale: 'ar' as const,
+    profile: {},
     receiptPreferences: {},
     updatedBy: null,
     updatedAt: new Date(0)

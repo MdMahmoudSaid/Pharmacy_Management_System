@@ -15,6 +15,7 @@ import {
 
 import {users} from './auth';
 import {medicines} from './catalog';
+import {suppliers} from './suppliers';
 
 export const shiftStatus = pgEnum('shift_status', ['OPEN', 'CLOSED']);
 export const activeStatus = pgEnum('active_status', ['ACTIVE', 'CANCELLED']);
@@ -81,6 +82,12 @@ export const stockReceipts = pgTable(
       .notNull()
       .references(() => medicines.id, {onDelete: 'restrict'}),
     quantity: integer('quantity').notNull(),
+    supplierId: bigint('supplier_id', {mode: 'number'}).references(
+      () => suppliers.id,
+      {onDelete: 'restrict'}
+    ),
+    unitCost: numeric('unit_cost', {precision: 14, scale: 2}),
+    totalCost: numeric('total_cost', {precision: 14, scale: 2}),
     status: activeStatus('status').notNull().default('ACTIVE'),
     shiftId: bigint('shift_id', {mode: 'number'})
       .notNull()
@@ -101,7 +108,12 @@ export const stockReceipts = pgTable(
   },
   (table) => [
     check('stock_receipts_quantity_positive', sql`${table.quantity} > 0`),
+    check(
+      'stock_receipts_cost_fields_consistent',
+      sql`(${table.supplierId} is null and ${table.unitCost} is null and ${table.totalCost} is null) or (${table.supplierId} is not null and ${table.unitCost} > 0 and ${table.totalCost} = ${table.unitCost} * ${table.quantity})`
+    ),
     index('stock_receipts_medicine_id_idx').on(table.medicineId),
+    index('stock_receipts_supplier_id_idx').on(table.supplierId),
     index('stock_receipts_shift_id_idx').on(table.shiftId),
     index('stock_receipts_operator_id_idx').on(table.operatorId),
     index('stock_receipts_created_by_idx').on(table.createdBy),
@@ -162,11 +174,15 @@ export const saleItems = pgTable(
       .references(() => medicines.id, {onDelete: 'restrict'}),
     quantity: integer('quantity').notNull(),
     unitPrice: numeric('unit_price', {precision: 14, scale: 2}).notNull(),
+    unitCost: numeric('unit_cost', {precision: 14, scale: 2})
+      .notNull()
+      .default('0.00'),
     lineTotal: numeric('line_total', {precision: 14, scale: 2}).notNull()
   },
   (table) => [
     check('sale_items_quantity_positive', sql`${table.quantity} > 0`),
     check('sale_items_unit_price_positive', sql`${table.unitPrice} > 0`),
+    check('sale_items_unit_cost_non_negative', sql`${table.unitCost} >= 0`),
     check('sale_items_line_total_positive', sql`${table.lineTotal} > 0`),
     index('sale_items_sale_id_idx').on(table.saleId),
     index('sale_items_medicine_id_idx').on(table.medicineId)

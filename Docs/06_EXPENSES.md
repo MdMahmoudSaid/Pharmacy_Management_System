@@ -60,3 +60,13 @@ Expenses should be filterable by:
 - Shift
 
 Dashboard/report totals must exclude cancelled expenses unless explicitly viewing history.
+
+## Profit relationship
+
+Active expenses reduce net profit but do not alter gross profit:
+
+- Gross profit = sales revenue − cost of goods sold
+- Net profit = gross profit − active general expenses
+
+Cost of goods sold comes from the purchase cost captured on each sale item.
+Cancelled sales and cancelled expenses are excluded from these calculations.

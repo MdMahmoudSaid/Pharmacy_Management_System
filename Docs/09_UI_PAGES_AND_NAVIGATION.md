@@ -64,6 +64,9 @@ Show:
 - Archive
 - View history
 
+Selecting a medicine opens its ledger with stock, selling price, average cost,
+inventory value, recent movements, and authorized positive/negative adjustment.
+
 ## 6. Stock Page
 Show:
 - Receive stock
@@ -145,6 +148,29 @@ Can include:
 - Other basic configuration if needed
 
 Do not turn Settings into a large unrelated module.
+
+## 13. Suppliers
+
+Show:
+- Searchable supplier directory
+- Supplier contact information and status
+- Total debt or advance
+- Create and edit supplier
+- Archive/restore controls
+
+Selecting a supplier opens its ledger with recent receipts and payments, a
+chronological running balance, and a payment form. Suppliers with a non-zero
+balance cannot be archived.
+
+## 14. Accounts
+
+Show:
+- Capital and profit summary
+- Revenue, cost of goods, expenses, inventory value, and supplier balances
+- Capital addition/withdrawal form
+- Recent capital movement ledger
+
+Keep the visual hierarchy compact and legible on both desktop and mobile.
 
 ## Empty states
 Every list page should show a useful empty state such as:

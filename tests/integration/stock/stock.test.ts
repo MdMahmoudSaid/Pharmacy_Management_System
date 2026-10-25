@@ -5,6 +5,7 @@ import {db} from '@/db/client';
 import {migrateDatabase} from '@/db/migrate';
 import {auditLogs, medicines, saleItems, sales, stockMovements, stockReceipts} from '@/db/schema';
 import type {PermissionActor} from '@/modules/permissions/service';
+import {createSupplier} from '@/modules/suppliers/service';
 import {
   archiveMedicine,
   createMedicine,
@@ -22,6 +23,7 @@ import {createShift, createUser, resetDatabase} from '../../factories/database';
 describe('medicine catalog and immutable stock ledger', () => {
   let admin: PermissionActor;
   let shiftId: number;
+  let supplierId: number;
 
   beforeAll(migrateDatabase);
   beforeEach(async () => {
@@ -29,6 +31,7 @@ describe('medicine catalog and immutable stock ledger', () => {
     const user = await createUser({role: 'ADMIN'});
     admin = {id: user.id, role: 'ADMIN', isActive: true, permissions: []};
     shiftId = (await createShift({userId: user.id})).id;
+    supplierId = (await createSupplier(admin, {name: 'Fournisseur stock'})).id;
   });
 
   it('creates a medicine and receives 20 units with linked before/after movement', async () => {
@@ -39,7 +42,10 @@ describe('medicine catalog and immutable stock ledger', () => {
     });
     const receipt = await receiveStock(admin, {
       medicineId: medicine.id,
+      supplierId,
       quantity: 20,
+      unitCost: '10.00',
+      sellingPrice: '25.50',
       note: 'Livraison initiale'
     });
 
@@ -66,12 +72,12 @@ describe('medicine catalog and immutable stock ledger', () => {
       name: 'Invalid Quantity',
       sellingPrice: '10.00'
     });
-    await expect(receiveStock(admin, {medicineId: medicine.id, quantity})).rejects.toBeDefined();
+    await expect(receiveStock(admin, {medicineId: medicine.id, supplierId, quantity, unitCost: '10.00', sellingPrice: '12.00'})).rejects.toBeDefined();
   });
 
   it('corrects a wrong quantity by the difference without rewriting movements', async () => {
     const medicine = await createMedicine(admin, {name: 'Amoxicilline', sellingPrice: '40.00'});
-    const receipt = await receiveStock(admin, {medicineId: medicine.id, quantity: 20});
+    const receipt = await receiveStock(admin, {medicineId: medicine.id, supplierId, quantity: 20, unitCost: '10.00', sellingPrice: '40.00'});
 
     await correctStockReceipt(admin, {
       receiptId: receipt.id,
@@ -92,7 +98,7 @@ describe('medicine catalog and immutable stock ledger', () => {
   it('corrects a wrong medicine across two locked stocks', async () => {
     const first = await createMedicine(admin, {name: 'Premier', sellingPrice: '10.00'});
     const second = await createMedicine(admin, {name: 'Deuxième', sellingPrice: '20.00'});
-    const receipt = await receiveStock(admin, {medicineId: first.id, quantity: 8});
+    const receipt = await receiveStock(admin, {medicineId: first.id, supplierId, quantity: 8, unitCost: '10.00', sellingPrice: '12.00'});
 
     await correctStockReceipt(admin, {
       receiptId: receipt.id,
@@ -112,12 +118,12 @@ describe('medicine catalog and immutable stock ledger', () => {
 
   it('archives from new operations while retaining history, then restores', async () => {
     const medicine = await createMedicine(admin, {name: 'Historique', sellingPrice: '15.00'});
-    await receiveStock(admin, {medicineId: medicine.id, quantity: 4});
+    await receiveStock(admin, {medicineId: medicine.id, supplierId, quantity: 4, unitCost: '10.00', sellingPrice: '15.00'});
 
     await archiveMedicine(admin, medicine.id, 'Produit retiré');
 
     await expect(searchMedicines('Historique')).resolves.toEqual([]);
-    await expect(receiveStock(admin, {medicineId: medicine.id, quantity: 1})).rejects.toMatchObject({
+    await expect(receiveStock(admin, {medicineId: medicine.id, supplierId, quantity: 1, unitCost: '10.00', sellingPrice: '15.00'})).rejects.toMatchObject({
       code: 'CONFLICT'
     });
     await expect(getMedicineMovements({medicineId: medicine.id})).resolves.toHaveLength(1);
@@ -167,7 +173,7 @@ describe('medicine catalog and immutable stock ledger', () => {
     'does not require a reason for %s',
     async (operation) => {
       const medicine = await createMedicine(admin, {name: 'Motif', sellingPrice: '10.00'});
-      const receipt = await receiveStock(admin, {medicineId: medicine.id, quantity: 2});
+      const receipt = await receiveStock(admin, {medicineId: medicine.id, supplierId, quantity: 2, unitCost: '10.00', sellingPrice: '12.00'});
       const call = {
         archive: () => archiveMedicine(admin, medicine.id, ''),
         restore: () => restoreMedicine(admin, medicine.id, '  '),
@@ -194,7 +200,7 @@ describe('medicine catalog and immutable stock ledger', () => {
       createMedicine(admin, {name: 'Négatif', sellingPrice: '1.00', minStock: -1})
     ).rejects.toThrow();
 
-    await receiveStock(admin, {medicineId: medicine.id, quantity: 10});
+    await receiveStock(admin, {medicineId: medicine.id, supplierId, quantity: 10, unitCost: '10.00', sellingPrice: '12.00'});
     const received = await getMedicineMovements({types: ['STOCK_RECEIVED']});
     expect(received).toHaveLength(1);
     expect(received[0]).toMatchObject({medicineName: 'Ibuprofène', movement: {quantityChange: 10}});

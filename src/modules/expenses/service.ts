@@ -1,9 +1,11 @@
 import {and, desc, eq, gte, lt} from 'drizzle-orm';
+import Decimal from 'decimal.js';
 
 import {db} from '@/db/client';
 import {expenseCategories, expenses, users} from '@/db/schema';
 import {AppError} from '@/lib/errors';
 import {appendAudit} from '@/modules/audit/service';
+import {getCashSnapshot, lockCashLedger} from '@/modules/accounts/cash';
 import type {PermissionActor} from '@/modules/permissions/service';
 import {requireActiveShift} from '@/modules/shifts/service';
 import {requireActiveCategory} from './categories';
@@ -27,9 +29,14 @@ export async function createExpense(
   authorizeExpenseCreation(actor);
   const input = expenseInputSchema.parse(rawInput);
   return db.transaction(async (tx) => {
+    await lockCashLedger(tx);
     const shift = await requireActiveShift(actor.id, tx);
     if (shift.id !== input.shiftId) throw new AppError('SHIFT_REQUIRED');
     if (input.categoryId) await requireActiveCategory(tx, input.categoryId);
+    const cash = await getCashSnapshot(tx);
+    if (new Decimal(input.amount).greaterThan(cash.cash)) {
+      throw new AppError('INSUFFICIENT_CASH');
+    }
     const [expense] = await tx
       .insert(expenses)
       .values({
@@ -61,6 +68,7 @@ export async function correctExpense(
   const id = expenseIdSchema.parse(rawId);
   const input = expenseCorrectionSchema.parse(rawInput);
   return db.transaction(async (tx) => {
+    await lockCashLedger(tx);
     const [current] = await tx
       .select()
       .from(expenses)
@@ -71,6 +79,11 @@ export async function correctExpense(
     if (current.status !== 'ACTIVE') throw new AppError('CONFLICT');
     if (input.categoryId && input.categoryId !== current.categoryId) {
       await requireActiveCategory(tx, input.categoryId);
+    }
+    const additionalCash = new Decimal(input.amount).minus(current.amount);
+    if (additionalCash.isPositive()) {
+      const cash = await getCashSnapshot(tx);
+      if (additionalCash.greaterThan(cash.cash)) throw new AppError('INSUFFICIENT_CASH');
     }
     const [expense] = await tx
       .update(expenses)
@@ -107,6 +120,7 @@ export async function cancelExpense(
   const id = expenseIdSchema.parse(rawId);
   const reason = expenseReasonSchema.parse(rawReason);
   return db.transaction(async (tx) => {
+    await lockCashLedger(tx);
     const [current] = await tx
       .select()
       .from(expenses)

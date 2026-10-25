@@ -4,6 +4,7 @@ import {db} from '@/db/client';
 import {medicines, saleItems, shifts, users} from '@/db/schema';
 import {can, type PermissionActor} from '@/modules/permissions/service';
 import {getReportData} from '@/modules/reports/queries';
+import {listSuppliers} from '@/modules/suppliers/queries';
 
 export type RecentOperation =
   | {kind: 'sale'; id: number; at: Date; amount: string; cancelled: boolean; medicines: string[]}
@@ -72,7 +73,23 @@ export async function getDashboardSummary(actor: PermissionActor, range: {from: 
     }
   }
 
-  return {summary: report.summary, catalog: await getCatalogHealth(actor), openShifts, recentOperations};
+  const supplierOverview = can(actor, 'suppliers.view.all') ? await listSuppliers(actor) : null;
+  return {
+    summary: report.summary,
+    catalog: await getCatalogHealth(actor),
+    suppliers: supplierOverview ? {
+      ...supplierOverview.totals,
+      activeCount: supplierOverview.items.length,
+      debtCount: supplierOverview.items.filter(({balance}) => Number(balance) > 0).length,
+      largestDebts: supplierOverview.items
+        .filter(({balance}) => Number(balance) > 0)
+        .sort((left, right) => Number(right.balance) - Number(left.balance))
+        .slice(0, 3)
+        .map(({id, name, balance}) => ({id, name, balance}))
+    } : null,
+    openShifts,
+    recentOperations
+  };
 }
 
 // Counts only: what the dashboard card needs to say how many medicines exist and how many need restocking.

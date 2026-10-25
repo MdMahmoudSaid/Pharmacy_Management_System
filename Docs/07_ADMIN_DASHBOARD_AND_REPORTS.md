@@ -14,6 +14,24 @@ At minimum show:
 
 Avoid overloading the dashboard with unnecessary charts.
 
+## Accounts workspace
+
+The separate Accounts page is the financial control surface for permitted
+owners/admins. It shows:
+- Current capital balance
+- Sales revenue
+- Cost of goods sold
+- Gross profit
+- Active general expenses
+- Net profit
+- Inventory value at weighted-average cost
+- Supplier debt and supplier advances
+
+Capital additions and withdrawals are recorded as an auditable ledger. Capital
+is kept separate from profit: adding owner money is not revenue, and withdrawing
+capital is not an operating expense. A withdrawal cannot exceed the current
+capital balance.
+
 ## Recent activity
 
 Recent activity can include:

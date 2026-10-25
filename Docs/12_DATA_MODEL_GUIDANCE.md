@@ -35,6 +35,7 @@ Can be combined with User if architecture allows.
 - name
 - code optional
 - sellingPrice
+- averageCost
 - active
 - createdAt
 - updatedAt
@@ -71,7 +72,54 @@ Do not rely on a single mutable stock number without stock movement history.
 - medicineId
 - quantity
 - unitPrice
+- unitCost (historical cost snapshot)
 - lineTotal
+
+### Supplier
+- id
+- name (case-insensitive unique among active suppliers)
+- phone optional
+- address optional
+- notes optional
+- active
+- createdAt
+- updatedAt
+
+### StockReceipt
+- id
+- medicineId
+- supplierId
+- quantity
+- unitCost
+- totalCost
+- status
+- receivedAt
+- userId
+- shiftId optional
+
+### SupplierPayment
+- id
+- supplierId
+- amount
+- status
+- paidAt
+- userId
+- note optional
+
+Supplier balance is ledger-derived: active receipt totals minus active payment
+totals. A negative balance is an advance/credit held with the supplier.
+
+### CapitalMovement
+- id
+- type (addition or withdrawal)
+- amount
+- occurredAt
+- userId
+- note optional
+- status
+
+Capital balance is additions minus withdrawals. Capital movements remain
+separate from revenue, cost of goods sold, and expenses.
 
 ### Expense
 - id

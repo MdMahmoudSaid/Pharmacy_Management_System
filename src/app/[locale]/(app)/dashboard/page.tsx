@@ -11,6 +11,7 @@ import {DashboardView} from '@/modules/dashboard/components/dashboard-view';
 import {parseDashboardPeriod} from '@/modules/dashboard/period';
 import {getDashboardSummary, getUserName} from '@/modules/dashboard/queries';
 import {can} from '@/modules/permissions/service';
+import {getAccountsOverview} from '@/modules/accounts/queries';
 
 const text = (value: string | string[] | undefined) => typeof value === 'string' ? value : undefined;
 
@@ -30,9 +31,10 @@ export default async function DashboardPage({
     searchParams
   ]);
   const period = parseDashboardPeriod({period: text(query.period), from: text(query.from), to: text(query.to)});
-  const [dashboard, userName] = await Promise.all([
+  const [dashboard, userName, accounts] = await Promise.all([
     can(actor, 'reports.view.own', actor.id) ? getDashboardSummary(actor, period.range) : null,
-    getUserName(actor.id)
+    getUserName(actor.id),
+    can(actor, 'accounts.view.all') ? getAccountsOverview(actor, period.range) : null
   ]);
   const shortcuts = [
     {key: 'newSale', href: `/${locale}/sales`, icon: ShoppingCart, allowed: can(actor, 'sales.create.own', actor.id)},
@@ -64,7 +66,7 @@ export default async function DashboardPage({
           <button className="secondary-action"><LogOut size={18} aria-hidden="true" />{t('logout')}</button>
         </form>
       </div>
-      {dashboard ? <DashboardView data={dashboard} period={period} locale={locale}>{shortcutNav}</DashboardView> : shortcutNav}
+      {dashboard ? <DashboardView data={dashboard} finance={accounts?.summary} period={period} locale={locale}>{shortcutNav}</DashboardView> : shortcutNav}
     </main>
   );
 }

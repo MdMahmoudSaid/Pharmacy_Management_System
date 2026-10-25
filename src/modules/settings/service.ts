@@ -4,11 +4,11 @@ import {db} from '@/db/client';
 import {settings} from '@/db/schema';
 import {appendAudit} from '@/modules/audit/service';
 import {authorize, type PermissionActor} from '@/modules/permissions/service';
-import {settingsSchema} from './schemas';
+import {settingsSchema, type SettingsInput} from './schemas';
 
 export async function updateSettings(
   actor: PermissionActor,
-  rawInput: {pharmacyName: string; defaultLocale: 'ar' | 'fr'}
+  rawInput: SettingsInput
 ) {
   authorize(actor, 'settings.manage.all');
   const input = settingsSchema.parse(rawInput);

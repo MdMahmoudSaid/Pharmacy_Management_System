@@ -20,7 +20,8 @@ export function SearchSelect({
   emptyText,
   noMatchText,
   invalidText,
-  create
+  create,
+  onValueChange
 }: {
   options: SearchSelectOption[];
   name: string;
@@ -30,6 +31,7 @@ export function SearchSelect({
   emptyText: string;
   noMatchText: string;
   invalidText: string;
+  onValueChange?: (value: number | null) => void;
   create?: {
     label: (text: string) => string;
     run: (text: string) => Promise<{option: SearchSelectOption} | {error: string}>;
@@ -69,6 +71,7 @@ export function SearchSelect({
     setOpen(false);
     setError(null);
     validate(option, option.label);
+    onValueChange?.(option.id);
   };
 
   const add = (text: string) => {
@@ -128,6 +131,7 @@ export function SearchSelect({
             setActive(0);
             const match = options.find((option) => option.label === text) ?? null;
             setSelected(match);
+            onValueChange?.(match?.id ?? null);
             validate(match, text);
           }}
           onKeyDown={onKeyDown}

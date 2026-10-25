@@ -13,9 +13,17 @@ export async function updateSettingsAction(_state: SettingsActionState, data: Fo
     const locale = String(data.get('locale')) === 'fr' ? 'fr' : 'ar';
     await updateSettings(await requireSession(), {
       pharmacyName: String(data.get('pharmacyName') ?? ''),
-      defaultLocale: String(data.get('defaultLocale')) === 'fr' ? 'fr' : 'ar'
+      defaultLocale: String(data.get('defaultLocale')) === 'fr' ? 'fr' : 'ar',
+      profile: {
+        address: String(data.get('address') ?? ''),
+        email: String(data.get('email') ?? ''),
+        taxId: String(data.get('taxId') ?? ''),
+        registration: String(data.get('registration') ?? ''),
+        phones: [0, 1, 2].map((i) => ({code: String(data.get(`phoneCode${i}`) ?? '222'), number: String(data.get(`phone${i}`) ?? '')}))
+      }
     });
     revalidatePath(`/${locale}/settings`);
+    revalidatePath(`/${locale}/reports`, 'layout');
     return {ok: true, data: {ok: true}};
   } catch (error) {
     if (error instanceof AppError) return {ok: false, code: error.code};

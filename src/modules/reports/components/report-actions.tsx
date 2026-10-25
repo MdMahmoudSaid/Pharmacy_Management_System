@@ -5,7 +5,6 @@ import {useState} from 'react';
 
 const SCALE = 2;
 const MARGIN_MM = 8;
-const FOOTER_MM = 6;
 
 // Captures the hidden report sheet and lays it out on A4 pages, never cutting a table row in half
 // and repeating the table header at the top of every following page.
@@ -13,25 +12,35 @@ async function buildPdf(sheet: HTMLElement, fileName: string) {
   const [{toCanvas}, {jsPDF}] = await Promise.all([import('html-to-image'), import('jspdf')]);
   await document.fonts.ready;
   const landscape = sheet.classList.contains('is-landscape');
-  const canvas = await toCanvas(sheet, {
-    pixelRatio: SCALE,
-    backgroundColor: '#ffffff',
-    style: {transform: 'none', position: 'static', margin: '0'}
-  });
+  const options = {pixelRatio: SCALE, backgroundColor: '#ffffff', style: {transform: 'none', position: 'static', margin: '0'}};
+  // The company footer is repeated on every page, so it is captured on its own and left out of the body.
+  const footer = sheet.querySelector<HTMLElement>('.rpt-foot');
+  const footerCanvas = footer ? await toCanvas(footer, {...options, style: {}}) : null;
+  const footerRect = footer?.getBoundingClientRect();
+  const slot = footer?.querySelector('.rpt-foot-page')?.getBoundingClientRect();
+  const pageLabel = footer?.dataset.pageLabel ?? '';
+  if (footer) footer.style.display = 'none';
+  let canvas: HTMLCanvasElement;
+  try {
+    canvas = await toCanvas(sheet, options);
+  } finally {
+    if (footer) footer.style.display = '';
+  }
 
   const pdf = new jsPDF({orientation: landscape ? 'landscape' : 'portrait', unit: 'mm', format: 'a4'});
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
   const contentWidth = pageWidth - MARGIN_MM * 2;
   const pxPerMm = canvas.width / contentWidth;
-  const pageCapacity = Math.floor((pageHeight - MARGIN_MM * 2 - FOOTER_MM) * pxPerMm);
+  const footerMm = footerCanvas ? footerCanvas.height / pxPerMm : 6;
+  const pageCapacity = Math.floor((pageHeight - MARGIN_MM * 2 - footerMm - 2) * pxPerMm);
 
   const origin = sheet.getBoundingClientRect().top;
   const toCanvasY = (value: number) => Math.round((value - origin) * SCALE);
   const head = sheet.querySelector('thead')?.getBoundingClientRect();
   const headTop = head ? toCanvasY(head.top) : 0;
   const headHeight = head ? toCanvasY(head.bottom) - headTop : 0;
-  const breaks = [...sheet.querySelectorAll('tr, .rpt-summary, .rpt-print-heading, .rpt-print-footer')]
+  const breaks = [...sheet.querySelectorAll('tr, .rpt-summary, .rpt-print-heading')]
     .map((element) => toCanvasY(element.getBoundingClientRect().bottom))
     .sort((left, right) => left - right);
 
@@ -58,9 +67,17 @@ async function buildPdf(sheet: HTMLElement, fileName: string) {
     context.drawImage(canvas, 0, from, canvas.width, end - from, 0, offset, canvas.width, end - from);
     if (index > 0) pdf.addPage();
     pdf.addImage(page.toDataURL('image/jpeg', 0.92), 'JPEG', MARGIN_MM, MARGIN_MM, contentWidth, page.height / pxPerMm);
-    pdf.setFontSize(8);
-    pdf.setTextColor(94, 111, 112);
-    pdf.text(`${index + 1} / ${slices.length}`, pageWidth / 2, pageHeight - MARGIN_MM / 2, {align: 'center'});
+    if (footerCanvas) {
+      const footerTop = pageHeight - MARGIN_MM - footerMm;
+      pdf.addImage(footerCanvas.toDataURL('image/jpeg', 0.92), 'JPEG', MARGIN_MM, footerTop, contentWidth, footerMm);
+      if (slot && footerRect) {
+        pdf.setFontSize(8);
+        pdf.setTextColor(94, 111, 112);
+        const x = MARGIN_MM + ((slot.right - footerRect.left) * SCALE) / pxPerMm;
+        const y = footerTop + ((slot.top - footerRect.top) * SCALE) / pxPerMm + 3.5;
+        pdf.text(`${pageLabel} ${index + 1} / ${slices.length}`.trim(), x, y, {align: 'right'});
+      }
+    }
   });
   pdf.save(`${fileName}.pdf`);
 }

@@ -9,9 +9,11 @@ export async function resetDatabase() {
   await db.execute(sql`
     truncate table
       audit_logs,
+      capital_movements,
       sale_items,
       stock_movements,
       stock_receipts,
+      supplier_payments,
       expenses,
       expense_categories,
       sales,
@@ -20,6 +22,7 @@ export async function resetDatabase() {
       sessions,
       login_attempts,
       medicines,
+      suppliers,
       permissions,
       settings,
       users

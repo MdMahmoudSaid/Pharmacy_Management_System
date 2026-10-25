@@ -2,16 +2,9 @@
 
 import Decimal from 'decimal.js';
 import {Archive, Search} from 'lucide-react';
+import Link from 'next/link';
 import {useTranslations} from 'next-intl';
-import {useActionState, useDeferredValue, useState} from 'react';
-
-import {ConfirmForm} from '@/components/confirm-form';
-import {
-  archiveMedicineAction,
-  restoreMedicineAction,
-  updateMedicineAction,
-  type MedicineActionState
-} from '../actions';
+import {useDeferredValue, useState} from 'react';
 import {MEDICINE_FILTERS as FILTERS, type MedicineFilter as Filter} from '../filters';
 
 type Medicine = {
@@ -42,66 +35,29 @@ export function stockStatus(medicine: Pick<Medicine, 'isActive' | 'currentStock'
   return 'available';
 }
 
-function MedicineRow({medicine, locale, canEdit, canArchive}: {
+function MedicineRow({medicine, locale}: {
   medicine: Medicine;
   locale: 'ar' | 'fr';
-  canEdit: boolean;
-  canArchive: boolean;
 }) {
   const t = useTranslations('Stock');
-  const [editState, editAction, saving] = useActionState<MedicineActionState, FormData>(updateMedicineAction, undefined);
-  const activeAction = medicine.isActive ? archiveMedicineAction : restoreMedicineAction;
-  const [activeState, stateAction, switching] = useActionState<MedicineActionState, FormData>(activeAction, undefined);
   const status = stockStatus(medicine);
   return (
     <article className={`medicine-row is-${status}`}>
-      <div className="medicine-row-main">
-        <strong>{medicine.name}</strong>
-        {medicine.code ? <small><bdi>{medicine.code}</bdi></small> : null}
-      </div>
-      <span className={`stock-badge is-${status}`}>
-        {status === 'archived' ? t('filterArchived') : t('stockCount', {count: medicine.currentStock})}
-      </span>
-      <b dir="ltr">{amountFormat.format(Number(medicine.sellingPrice))} <small>MRU</small></b>
-      {canEdit || canArchive ? (
-        <details className="medicine-row-panel">
-          <summary>{t('edit')}</summary>
-          {canEdit && medicine.isActive ? (
-            <form action={editAction} className="entry-form">
-              <input type="hidden" name="id" value={medicine.id} />
-              <input type="hidden" name="locale" value={locale} />
-              <label><span>{t('name')}</span><input name="name" defaultValue={medicine.name} minLength={2} required /></label>
-              <label><span>{t('codeLabel')}</span><input name="code" defaultValue={medicine.code ?? ''} dir="ltr" /></label>
-              <label><span>{t('priceMru')}</span><input name="sellingPrice" defaultValue={medicine.sellingPrice} inputMode="decimal" dir="ltr" required /></label>
-              <label><span>{t('minStock')}</span><input name="minStock" type="number" min="0" step="1" defaultValue={medicine.minStock} dir="ltr" required /></label>
-              <div className="entry-footer">
-                <button className="primary-action" disabled={saving}>{t('save')}</button>
-                {editState && !editState.ok ? <small className="form-error" role="alert">{t(`errors.${editState.code}`)}</small> : null}
-                {editState?.ok ? <small className="form-success" role="status">{t('saved')}</small> : null}
-              </div>
-            </form>
-          ) : null}
-          {canArchive ? (
-            <ConfirmForm
-              action={stateAction}
-              className="medicine-archive-form"
-              message={t(medicine.isActive ? 'archiveConfirm' : 'restoreConfirm', {name: medicine.name})}
-            >
-              <input type="hidden" name="id" value={medicine.id} />
-              <input type="hidden" name="locale" value={locale} />
-              <button className={medicine.isActive ? 'danger-action' : 'secondary-action'} disabled={switching}>
-                {medicine.isActive ? t('archive') : t('restore')}
-              </button>
-              {activeState && !activeState.ok ? <small className="form-error" role="alert">{t(`errors.${activeState.code}`)}</small> : null}
-            </ConfirmForm>
-          ) : null}
-        </details>
-      ) : null}
+      <Link className="medicine-detail-link" href={`/${locale}/medicines/${medicine.id}`}>
+        <div className="medicine-row-main">
+          <strong>{medicine.name}</strong>
+          {medicine.code ? <small><bdi>{medicine.code}</bdi></small> : null}
+        </div>
+        <span className={`stock-badge is-${status}`}>
+          {status === 'archived' ? t('filterArchived') : t('stockCount', {count: medicine.currentStock})}
+        </span>
+        <b dir="ltr">{amountFormat.format(Number(medicine.sellingPrice))} <small>MRU</small></b>
+      </Link>
     </article>
   );
 }
 
-export function MedicineList({medicines, locale, canEdit, canArchive, initialFilter = 'all'}: {
+export function MedicineList({medicines, locale, initialFilter = 'all'}: {
   medicines: Medicine[];
   locale: 'ar' | 'fr';
   canEdit: boolean;
@@ -154,7 +110,7 @@ export function MedicineList({medicines, locale, canEdit, canArchive, initialFil
       {visible.length ? (
         <div className="medicine-rows">
           {visible.map((medicine) => (
-            <MedicineRow key={medicine.id} medicine={medicine} locale={locale} canEdit={canEdit} canArchive={canArchive} />
+            <MedicineRow key={medicine.id} medicine={medicine} locale={locale} />
           ))}
         </div>
       ) : (

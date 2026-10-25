@@ -61,7 +61,7 @@ test('filters navigation and rejects a forged employee-management action', async
   await expect(employeeCard.getByText('تم حفظ الصلاحيات.')).toBeVisible();
   await expect(employeeCard.getByText('صلاحية واحدة')).toBeVisible();
 
-  await page.goto('/ar/dashboard');
+  await page.goto('/ar/more');
   await page.getByRole('button', {name: 'تسجيل الخروج'}).click();
   await login(page, '31234567', '5678');
 

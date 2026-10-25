@@ -32,6 +32,6 @@ export function parseDashboardPeriod(
       range: {from: start, to: new Date(end.getTime() + DAY_MS)}
     };
   }
-  const preset = DASHBOARD_PRESETS.find((value) => value === query.period) ?? 'today';
+  const preset = DASHBOARD_PRESETS.find((value) => value === query.period) ?? 'this_month';
   return {preset, range: nouakchottRange(preset, now)};
 }

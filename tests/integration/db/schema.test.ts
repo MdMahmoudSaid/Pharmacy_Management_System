@@ -134,4 +134,54 @@ describe('database schema constraints', () => {
       {column_name: 'total', data_type: 'numeric'}
     ]);
   });
+
+  it('provides supplier, costing, and capital ledger storage', async () => {
+    const tables = await db.execute<{table_name: string}>(sql`
+      select table_name
+      from information_schema.tables
+      where table_schema = 'public'
+        and table_name in ('suppliers', 'supplier_payments', 'capital_movements')
+      order by table_name
+    `);
+    expect(tables.rows).toEqual([
+      {table_name: 'capital_movements'},
+      {table_name: 'supplier_payments'},
+      {table_name: 'suppliers'}
+    ]);
+
+    const columns = await db.execute<{table_name: string; column_name: string}>(sql`
+      select table_name, column_name
+      from information_schema.columns
+      where table_schema = 'public'
+        and (
+          (table_name = 'medicines' and column_name = 'average_cost')
+          or (table_name = 'sale_items' and column_name = 'unit_cost')
+          or (table_name = 'stock_receipts' and column_name in ('supplier_id', 'unit_cost', 'total_cost'))
+        )
+      order by table_name, column_name
+    `);
+    expect(columns.rows).toEqual([
+      {table_name: 'medicines', column_name: 'average_cost'},
+      {table_name: 'sale_items', column_name: 'unit_cost'},
+      {table_name: 'stock_receipts', column_name: 'supplier_id'},
+      {table_name: 'stock_receipts', column_name: 'total_cost'},
+      {table_name: 'stock_receipts', column_name: 'unit_cost'}
+    ]);
+  });
+
+  it('stores owner withdrawal allocation as exact profit and capital portions', async () => {
+    const columns = await db.execute<{column_name: string; data_type: string}>(sql`
+      select column_name, data_type
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'capital_movements'
+        and column_name in ('profit_portion', 'capital_portion')
+      order by column_name
+    `);
+
+    expect(columns.rows).toEqual([
+      {column_name: 'capital_portion', data_type: 'numeric'},
+      {column_name: 'profit_portion', data_type: 'numeric'}
+    ]);
+  });
 });

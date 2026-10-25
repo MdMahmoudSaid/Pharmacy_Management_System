@@ -7,6 +7,7 @@ Each medicine should support at minimum:
 - Name
 - Optional internal code
 - Selling price
+- Weighted-average purchase cost
 - Current stock quantity
 - Active / Archived status
 - Created at
@@ -36,6 +37,8 @@ When new stock arrives:
 2. If found:
    - Select medicine
    - Enter quantity received
+   - Select the supplier
+   - Enter the unit purchase cost
    - Confirm
 3. If not found:
    - Create medicine
@@ -50,6 +53,20 @@ A stock-receiving entry must store:
 - User who registered it
 - Shift if registered during an employee shift
 - Optional note
+- Supplier
+- Unit purchase cost
+- Total purchase cost
+
+Confirming a receipt is one atomic operation: it increases stock, updates the
+medicine's weighted-average cost, records the movement, and adds the same total
+as debt in the selected supplier ledger. If any part fails, nothing is saved.
+
+The weighted-average cost after a receipt is:
+
+`(old quantity × old average cost + received quantity × unit cost) ÷ new quantity`
+
+Each sale item stores the weighted-average cost that was current at the moment
+of sale. Later receipts therefore do not rewrite historical profit.
 
 ## Stock movement history
 
@@ -87,6 +104,23 @@ Examples:
 Stock corrections must never silently overwrite history.
 
 The system must preserve the original action and log the correction.
+
+Authorized users can also make an explicit positive or negative inventory
+adjustment from the medicine ledger when the physical count differs from the
+application. A reason is required, the before/after quantities are recorded,
+and an adjustment may never produce negative stock. This operational correction
+does not create supplier debt.
+
+## Medicine ledger
+
+Every medicine row opens a dedicated ledger showing:
+- Current quantity
+- Selling price
+- Weighted-average purchase cost
+- Current inventory value
+- Recent receipts and movements
+- Supplier and receipt cost where applicable
+- Authorized controls to add or subtract stock
 
 ## Negative stock
 

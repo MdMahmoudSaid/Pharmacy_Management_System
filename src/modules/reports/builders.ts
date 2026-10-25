@@ -5,6 +5,7 @@ import {getTranslations} from 'next-intl/server';
 import {db} from '@/db/client';
 import {
   auditLogs,
+  capitalMovements,
   expenseCategories,
   expenses,
   medicines,
@@ -13,6 +14,8 @@ import {
   shifts,
   stockMovements,
   stockReceipts,
+  supplierPayments,
+  suppliers,
   users
 } from '@/db/schema';
 import {AppError} from '@/lib/errors';
@@ -810,12 +813,94 @@ async function cancellations({filters, t, locale, employeeId}: Context): Promise
   };
 }
 
+async function cashFlow({filters, t}: Context): Promise<ReportResult> {
+  const [saleRows, expenseRows, paymentRows, capitalRows] = await Promise.all([
+    db.select({id: sales.id, at: sales.createdAt, amount: sales.total}).from(sales)
+      .where(and(lt(sales.createdAt, filters.range.to), eq(sales.status, 'COMPLETED'))),
+    db.select({id: expenses.id, at: expenses.occurredAt, amount: expenses.amount}).from(expenses)
+      .where(and(lt(expenses.occurredAt, filters.range.to), eq(expenses.status, 'ACTIVE'))),
+    db.select({id: supplierPayments.id, at: supplierPayments.occurredAt, amount: supplierPayments.amount}).from(supplierPayments)
+      .where(and(lt(supplierPayments.occurredAt, filters.range.to), eq(supplierPayments.status, 'ACTIVE'))),
+    db.select({id: capitalMovements.id, at: capitalMovements.occurredAt, amount: capitalMovements.amount, type: capitalMovements.type}).from(capitalMovements)
+      .where(and(lt(capitalMovements.occurredAt, filters.range.to), eq(capitalMovements.status, 'ACTIVE')))
+  ]);
+  const events = [
+    ...saleRows.map((row) => ({...row, kind: 'sale' as const, incoming: true})),
+    ...expenseRows.map((row) => ({...row, kind: 'expense' as const, incoming: false})),
+    ...paymentRows.map((row) => ({...row, kind: 'supplierPayment' as const, incoming: false})),
+    ...capitalRows.map((row) => ({...row, kind: row.type === 'ADDITION' ? 'capitalAddition' as const : 'ownerWithdrawal' as const, incoming: row.type === 'ADDITION'}))
+  ].sort((left, right) => left.at.getTime() - right.at.getTime() || left.id - right.id);
+  let running = events.filter(({at}) => at < filters.range.from).reduce(
+    (sum, event) => event.incoming ? sum.plus(event.amount) : sum.minus(event.amount),
+    zero
+  );
+  let incoming = zero;
+  let outgoing = zero;
+  const body = events.filter(({at}) => at >= filters.range.from).map((event) => {
+    const amount = new Decimal(event.amount);
+    running = event.incoming ? running.plus(amount) : running.minus(amount);
+    if (event.incoming) incoming = incoming.plus(amount); else outgoing = outgoing.plus(amount);
+    return [
+      cell(event.at),
+      cell(t(`cashTypes.${event.kind}` as 'cashTypes.sale')),
+      cell(`#${event.id}`),
+      cell(event.incoming ? money(amount) : null),
+      cell(event.incoming ? null : money(amount)),
+      cell(money(running), running.isNegative() ? {tone: 'out'} : {})
+    ];
+  }).reverse();
+  return {
+    columns: [col(t, 'dateTime', 'datetime'), col(t, 'operation', 'text'), col(t, 'reference', 'text'), col(t, 'cashIn', 'money'), col(t, 'cashOut', 'money'), col(t, 'cashBalance', 'money')],
+    rows: body,
+    totals: [null, null, null, cell(money(incoming)), cell(money(outgoing)), cell(money(running))],
+    totalsLabel: t('totals'),
+    primary: metric(t, 'cashBalance', money(running), 'money'),
+    metrics: [metric(t, 'cashIn', money(incoming), 'money'), metric(t, 'cashOut', money(outgoing), 'money'), metric(t, 'cashNet', money(incoming.minus(outgoing)), 'money')],
+    truncated: false,
+    dated: true
+  };
+}
+
+async function supplierBalances({t}: Context): Promise<ReportResult> {
+  const rows = await db.select({
+    id: suppliers.id,
+    name: suppliers.name,
+    phone: suppliers.phone,
+    purchases: sql<string>`coalesce((select sum(${stockReceipts.totalCost}) from ${stockReceipts} where ${stockReceipts.supplierId} = ${suppliers.id} and ${stockReceipts.status} = 'ACTIVE'), 0)::numeric(14,2)::text`,
+    payments: sql<string>`coalesce((select sum(${supplierPayments.amount}) from ${supplierPayments} where ${supplierPayments.supplierId} = ${suppliers.id} and ${supplierPayments.status} = 'ACTIVE'), 0)::numeric(14,2)::text`
+  }).from(suppliers).where(eq(suppliers.isActive, true)).orderBy(asc(suppliers.name));
+  let purchases = zero;
+  let payments = zero;
+  let debt = zero;
+  let advances = zero;
+  const body = rows.map((row) => {
+    const balance = new Decimal(row.purchases).minus(row.payments);
+    purchases = purchases.plus(row.purchases);
+    payments = payments.plus(row.payments);
+    debt = debt.plus(Decimal.max(balance, 0));
+    advances = advances.plus(Decimal.max(balance.negated(), 0));
+    return [cell(row.name, {href: `/suppliers/${row.id}`}), cell(row.phone), cell(row.purchases), cell(row.payments), cell(money(balance), balance.isPositive() ? {tone: 'out'} : balance.isNegative() ? {tone: 'ok'} : {})];
+  });
+  return {
+    columns: [col(t, 'supplier', 'text'), col(t, 'phone', 'text'), col(t, 'purchases', 'money'), col(t, 'payments', 'money'), col(t, 'balance', 'money')],
+    rows: body,
+    totals: [null, null, cell(money(purchases)), cell(money(payments)), cell(money(purchases.minus(payments)))],
+    totalsLabel: t('totals'),
+    primary: metric(t, 'supplierDebt', money(debt), 'money'),
+    metrics: [metric(t, 'supplierAdvances', money(advances), 'money'), metric(t, 'suppliers', rows.length, 'number'), metric(t, 'purchases', money(purchases), 'money')],
+    truncated: false,
+    dated: false
+  };
+}
+
 const BUILDERS: Record<ReportSlug, (context: Context) => Promise<ReportResult>> = {
   'financial-summary': financialSummary,
   'sales-journal': salesJournal,
   'sales-by-medicine': salesByMedicine,
   'sales-by-employee': salesByEmployee,
   'expenses-journal': expensesJournal,
+  'cash-flow': cashFlow,
+  'supplier-balances': supplierBalances,
   'stock-valuation': stockValuation,
   'stock-alerts': stockAlerts,
   'stock-receipts': stockReceiptsReport,

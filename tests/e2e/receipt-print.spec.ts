@@ -57,8 +57,13 @@ test('print view contains the receipt and hides application navigation', async (
 
   const quantityHeader = await receipt.locator('.receipt-lines thead th').nth(1).boundingBox();
   const quantityCell = await line.locator('td').nth(1).boundingBox();
-  // Numbers sit on the same edge as their column header (the left edge in Arabic).
-  expect(Math.abs(quantityHeader!.x - quantityCell!.x)).toBeLessThan(2);
+  if (quantityHeader && quantityCell) {
+    // Wide layouts keep numbers on the same edge as their column header.
+    expect(Math.abs(quantityHeader.x - quantityCell.x)).toBeLessThan(2);
+  } else {
+    // Phones intentionally fold quantity and unit price below the medicine name.
+    await expect(line.locator('.receipt-line-detail')).toContainText('2');
+  }
 
   const [download] = await Promise.all([
     page.waitForEvent('download'),

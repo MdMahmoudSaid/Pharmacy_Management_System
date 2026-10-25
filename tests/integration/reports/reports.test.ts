@@ -1,14 +1,22 @@
 import {eq} from 'drizzle-orm';
-import {beforeAll, beforeEach, describe, expect, it} from 'vitest';
+import {beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
+
+vi.mock('next-intl/server', () => ({
+  getTranslations: async () => (key: string) => key
+}));
 
 import {db} from '@/db/client';
 import {migrateDatabase} from '@/db/migrate';
 import {expenses, sales} from '@/db/schema';
+import {recordCapitalMovement} from '@/modules/accounts/service';
 import {createExpense} from '@/modules/expenses/service';
 import type {PermissionActor} from '@/modules/permissions/service';
 import {getReportData} from '@/modules/reports/queries';
+import {buildReport} from '@/modules/reports/builders';
 import {getDashboardSummary} from '@/modules/dashboard/queries';
 import {createSale} from '@/modules/sales/service';
+import {receiveStock} from '@/modules/stock/service';
+import {createSupplier, recordSupplierPayment} from '@/modules/suppliers/service';
 import {
   createMedicine,
   createShift,
@@ -100,5 +108,29 @@ describe('source-of-truth reports', () => {
     expect(report.employees).toEqual([{id: employee.id, name: employeeUser.name, isActive: true}]);
     expect(dashboard.openShifts).toEqual([]);
     expect(dashboard.recentOperations).toEqual([]);
+  });
+
+  it('builds cash-flow and supplier balance reports from the connected ledgers', async () => {
+    const shift = await createShift({userId: admin.id});
+    await recordCapitalMovement(admin, {type: 'ADDITION', amount: '100.00'});
+    const supplier = await createSupplier(admin, {name: 'Rapport fournisseur'});
+    const medicine = await createMedicine({sellingPrice: '20.00'});
+    await receiveStock(admin, {medicineId: medicine.id, supplierId: supplier.id, quantity: 2, unitCost: '10.00', sellingPrice: '20.00'});
+    await createSale(admin, {shiftId: shift.id, idempotencyKey: 'cash-report', items: [{medicineId: medicine.id, quantity: 1}]});
+    await createExpense(admin, {shiftId: shift.id, amount: '5.00', description: 'Transport'});
+    await recordSupplierPayment(admin, {supplierId: supplier.id, amount: '15.00'});
+    const filters = {
+      preset: 'custom' as const,
+      from: '2020-01-01',
+      to: '2029-12-31',
+      range: {from: new Date('2020-01-01T00:00:00Z'), to: new Date('2030-01-01T00:00:00Z')}
+    };
+
+    const cash = await buildReport(admin, 'cash-flow', filters, 'fr');
+    expect(cash.rows).toHaveLength(4);
+    expect(cash.primary.value).toBe('100.00');
+    const balances = await buildReport(admin, 'supplier-balances', filters, 'fr');
+    expect(balances.rows).toHaveLength(1);
+    expect(balances.rows[0]?.[4]?.value).toBe('5.00');
   });
 });

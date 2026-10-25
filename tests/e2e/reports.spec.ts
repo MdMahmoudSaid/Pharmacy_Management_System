@@ -2,12 +2,13 @@ import {expect, test, type Page} from '@playwright/test';
 
 test.beforeEach(async () => {
   if (!process.env.DATABASE_URL) process.loadEnvFile('.env.test');
-  const [argon, factories, salesService, expensesService, stockService, client, schema, permissionsService] = await Promise.all([
+  const [argon, factories, salesService, expensesService, stockService, suppliersService, client, schema, permissionsService] = await Promise.all([
     import('@node-rs/argon2'),
     import('../factories/database'),
     import('../../src/modules/sales/service'),
     import('../../src/modules/expenses/service'),
     import('../../src/modules/stock/service'),
+    import('../../src/modules/suppliers/service'),
     import('../../src/db/client'),
     import('../../src/db/schema'),
     import('../../src/modules/permissions/service')
@@ -29,6 +30,7 @@ test.beforeEach(async () => {
     ['reports.view.own', 'reports.print.own'].map((permissionKey) => ({userId: employee.id, permissionKey, grantedBy: admin.id}))
   );
   const actor = {id: admin.id, role: 'ADMIN' as const, isActive: true, permissions: []};
+  const supplier = await suppliersService.createSupplier(actor, {name: 'Fournisseur Rapports'});
   const shift = await factories.createShift({userId: admin.id});
   const medicine = await factories.createMedicine({name: 'Stock Rapport', currentStock: 10, sellingPrice: '10.00', minStock: 3});
   await factories.createMedicine({name: 'Sirop Rupture', currentStock: 0, sellingPrice: '7.50', minStock: 2});
@@ -38,7 +40,7 @@ test.beforeEach(async () => {
   const cancelled = await salesService.createSale(actor, {shiftId: shift.id, idempotencyKey: 'report-cancel', items: [{medicineId: medicine.id, quantity: 1}]});
   await salesService.cancelSale(actor, cancelled.id, 'Erreur de saisie');
   await expensesService.createExpense(actor, {shiftId: shift.id, amount: '5.00', description: 'Frais rapport'});
-  await stockService.receiveStock(actor, {medicineId: medicine.id, quantity: 4});
+  await stockService.receiveStock(actor, {medicineId: medicine.id, supplierId: supplier.id, quantity: 4, unitCost: '6.00', sellingPrice: '12.00'});
 });
 
 async function login(page: Page, phone: string, pin: string) {
@@ -52,7 +54,9 @@ async function login(page: Page, phone: string, pin: string) {
 test('lists every report and reconciles the financial summary', async ({page}) => {
   await login(page, '21234567', '1234');
   await page.goto('/fr/reports');
-  await expect(page.locator('.report-card')).toHaveCount(12);
+  await expect(page.locator('.report-card')).toHaveCount(14);
+  await expect(page.getByRole('link', {name: /Mouvements de caisse/})).toBeVisible();
+  await expect(page.getByRole('link', {name: /Soldes fournisseurs/})).toBeVisible();
   await page.getByRole('link', {name: /Synthèse financière/}).click();
   await expect(page).toHaveURL(/\/fr\/reports\/financial-summary$/);
   const summary = page.locator('.rpt-summary');
@@ -79,7 +83,7 @@ test('sales journal filters, prints and downloads a PDF directly', async ({page}
   await expect(page.getByRole('link', {name: /CSV/})).toHaveCount(0);
 
   const sheet = page.locator('#report-sheet');
-  await expect(sheet.locator('.rpt-band')).toContainText('Pharmacie Haramen Aminen');
+  await expect(sheet.locator('.rpt-head')).toContainText('Pharmacy');
   await expect(sheet.locator('.rpt-print-heading')).toContainText('Statut : Annulée');
   await expect(sheet).not.toBeInViewport();
 

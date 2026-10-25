@@ -104,9 +104,10 @@ async function createSaleTransaction(actor: PermissionActor, input: SaleInput) {
       id: number;
       selling_price: string;
       current_stock: number;
+      average_cost: string;
       is_active: boolean;
     }>(sql`
-      select id, selling_price, current_stock, is_active
+      select id, selling_price, current_stock, average_cost, is_active
       from medicines
       where id in (${sql.join(medicineIds.map((id) => sql`${id}`), sql`, `)})
       order by id
@@ -135,6 +136,7 @@ async function createSaleTransaction(actor: PermissionActor, input: SaleInput) {
       return {
         ...item,
         unitPrice: selectedPrice,
+        unitCost: medicine.average_cost,
         lineTotal: new Decimal(selectedPrice).times(item.quantity).toFixed(2),
         before: medicine.current_stock,
         after: medicine.current_stock - item.quantity
@@ -161,6 +163,7 @@ async function createSaleTransaction(actor: PermissionActor, input: SaleInput) {
         medicineId: item.medicineId,
         quantity: item.quantity,
         unitPrice: item.unitPrice,
+        unitCost: item.unitCost,
         lineTotal: item.lineTotal
       }))
     );
@@ -249,9 +252,10 @@ async function lockedMedicines(tx: DbTransaction, medicineIds: number[]) {
     id: number;
     selling_price: string;
     current_stock: number;
+    average_cost: string;
     is_active: boolean;
   }>(sql`
-    select id, selling_price, current_stock, is_active
+    select id, selling_price, current_stock, average_cost, is_active
     from medicines
     where id in (${sql.join(medicineIds.map((id) => sql`${id}`), sql`, `)})
     order by id
@@ -294,6 +298,9 @@ export async function correctSale(
         .select()
         .from(saleItems)
         .where(eq(saleItems.saleId, saleId));
+      const originalCostByMedicine = new Map(
+        oldItems.map((item) => [item.medicineId, item.unitCost])
+      );
       const medicineIds = [
         ...new Set([
           ...oldItems.map(({medicineId}) => medicineId),
@@ -359,6 +366,7 @@ export async function correctSale(
             medicineId: item.medicineId,
             quantity: item.quantity,
             unitPrice,
+            unitCost: originalCostByMedicine.get(item.medicineId) ?? medicine.average_cost,
             lineTotal: new Decimal(unitPrice).times(item.quantity).toFixed(2)
           };
         });

@@ -3,7 +3,8 @@ import {beforeAll, beforeEach, describe, expect, it} from 'vitest';
 
 import {db} from '@/db/client';
 import {migrateDatabase} from '@/db/migrate';
-import {auditLogs, expenses, shifts} from '@/db/schema';
+import {auditLogs, capitalMovements, expenses, shifts} from '@/db/schema';
+import {getCashSnapshot} from '@/modules/accounts/cash';
 import {
   cancelExpense,
   correctExpense,
@@ -35,7 +36,16 @@ describe('expense lifecycle', () => {
     shiftId = (await createShift({userId: user.id})).id;
   });
 
+  const fundCash = async (amount: string) => {
+    await db.insert(capitalMovements).values({
+      type: 'ADDITION',
+      amount,
+      operatorId: employee.id
+    });
+  };
+
   it('creates, corrects, and cancels while preserving audited history', async () => {
+    await fundCash('1000.00');
     const created = await createExpense(employee, {
       shiftId,
       amount: '500.00',
@@ -101,6 +111,7 @@ describe('expense lifecycle', () => {
   });
 
   it('corrects without a reason, requires one to cancel, and enforces own/all scope', async () => {
+    await fundCash('100.00');
     const expense = await createExpense(employee, {
       shiftId,
       amount: '100.00',
@@ -146,5 +157,34 @@ describe('expense lifecycle', () => {
         reason: 'Autorisé'
       })
     ).resolves.toMatchObject({amount: '80.00'});
+  });
+
+  it('checks available cash for creation and only the extra amount on correction', async () => {
+    await expect(createExpense(employee, {
+      shiftId,
+      amount: '1.00',
+      description: 'No cash'
+    })).rejects.toMatchObject({code: 'INSUFFICIENT_CASH'});
+
+    await fundCash('100.00');
+    const expense = await createExpense(employee, {
+      shiftId,
+      amount: '60.00',
+      description: 'Funded expense'
+    });
+    await expect(correctExpense(employee, expense.id, {
+      amount: '110.00',
+      description: 'Too high',
+      reason: ''
+    })).rejects.toMatchObject({code: 'INSUFFICIENT_CASH'});
+    await expect(correctExpense(employee, expense.id, {
+      amount: '90.00',
+      description: 'Allowed delta',
+      reason: ''
+    })).resolves.toMatchObject({amount: '90.00'});
+    await expect(getCashSnapshot(db)).resolves.toMatchObject({cash: '10.00'});
+
+    await cancelExpense(employee, expense.id, 'Cancelled and restored');
+    await expect(getCashSnapshot(db)).resolves.toMatchObject({cash: '100.00'});
   });
 });

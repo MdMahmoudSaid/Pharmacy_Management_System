@@ -45,7 +45,7 @@ async function login(page: import('@playwright/test').Page, phone: string, pin: 
 }
 
 async function logout(page: import('@playwright/test').Page) {
-  await page.goto('/ar/dashboard');
+  await page.goto('/ar/more');
   await page.getByRole('button', {name: 'تسجيل الخروج'}).click();
 }
 

@@ -1,21 +1,34 @@
 import {and, desc, eq, gte, inArray, lt, sql} from 'drizzle-orm';
+import Decimal from 'decimal.js';
 
 import {db, type DbTransaction} from '@/db/client';
-import {medicines, stockMovements, stockReceipts, users} from '@/db/schema';
+import {
+  medicines,
+  stockMovements,
+  stockReceipts,
+  suppliers,
+  users
+} from '@/db/schema';
 import {AppError} from '@/lib/errors';
 import {appendAudit} from '@/modules/audit/service';
 import {authorize, type PermissionActor} from '@/modules/permissions/service';
 import {requireActiveShift} from '@/modules/shifts/service';
-import {correctStockReceiptSchema, receiveStockSchema} from './schemas';
+import {projectReceiptPricing} from './pricing';
+import {
+  adjustStockSchema,
+  correctStockReceiptSchema,
+  receiveStockSchema
+} from './schemas';
 
 async function lockMedicines(tx: DbTransaction, ids: number[]) {
   const ordered = [...new Set(ids)].sort((left, right) => left - right);
   const result = await tx.execute<{
     id: number;
     current_stock: number;
+    average_cost: string;
     is_active: boolean;
   }>(sql`
-    select id, current_stock, is_active
+    select id, current_stock, average_cost, is_active
     from medicines
     where id in (${sql.join(ordered.map((id) => sql`${id}`), sql`, `)})
     order by id
@@ -27,7 +40,14 @@ async function lockMedicines(tx: DbTransaction, ids: number[]) {
 
 export async function receiveStock(
   actor: PermissionActor,
-  input: {medicineId: number; quantity: number; note?: string},
+  input: {
+    medicineId: number;
+    supplierId: number;
+    quantity: number;
+    unitCost: string;
+    sellingPrice: string;
+    note?: string;
+  },
   existingTx?: DbTransaction
 ) {
   authorize(actor, 'stock.receive.own', actor.id);
@@ -37,16 +57,41 @@ export async function receiveStock(
     const locked = await lockMedicines(tx, [value.medicineId]);
     const medicine = locked.get(value.medicineId)!;
     if (!medicine.is_active) throw new AppError('CONFLICT');
+    const [supplier] = await tx
+      .select({id: suppliers.id, isActive: suppliers.isActive})
+      .from(suppliers)
+      .where(eq(suppliers.id, value.supplierId))
+      .for('update');
+    if (!supplier) throw new AppError('NOT_FOUND');
+    if (!supplier.isActive) throw new AppError('CONFLICT');
     const after = medicine.current_stock + value.quantity;
+    const projection = projectReceiptPricing({
+      currentStock: medicine.current_stock,
+      averageCost: medicine.average_cost,
+      quantity: value.quantity,
+      unitCost: value.unitCost
+    });
+    if (new Decimal(value.sellingPrice).lessThanOrEqualTo(projection.projectedAverageCost)) {
+      throw new AppError('VALIDATION_ERROR');
+    }
     await tx
       .update(medicines)
-      .set({currentStock: after, updatedBy: actor.id, updatedAt: new Date()})
+      .set({
+        currentStock: after,
+        averageCost: projection.projectedAverageCost,
+        sellingPrice: value.sellingPrice,
+        updatedBy: actor.id,
+        updatedAt: new Date()
+      })
       .where(eq(medicines.id, value.medicineId));
     const [receipt] = await tx
       .insert(stockReceipts)
       .values({
         medicineId: value.medicineId,
+        supplierId: value.supplierId,
         quantity: value.quantity,
+        unitCost: value.unitCost,
+        totalCost: projection.totalCost,
         shiftId: shift.id,
         operatorId: actor.id,
         note: value.note,
@@ -73,7 +118,12 @@ export async function receiveStock(
       action: 'CREATE',
       newValues: {
         medicineId: value.medicineId,
-        quantity: value.quantity
+        supplierId: value.supplierId,
+        quantity: value.quantity,
+        unitCost: value.unitCost,
+        totalCost: projection.totalCost,
+        projectedAverageCost: projection.projectedAverageCost,
+        sellingPrice: value.sellingPrice
       },
       relatedShiftId: shift.id,
       relatedTransactionType: 'STOCK_RECEIPT',
@@ -114,9 +164,14 @@ export async function correctStockReceipt(
       const difference = value.quantity - receipt.quantity;
       const after = oldMedicine.current_stock + difference;
       if (after < 0) throw new AppError('INSUFFICIENT_STOCK');
+      const adjustedValue = new Decimal(oldMedicine.average_cost)
+        .times(oldMedicine.current_stock)
+        .plus(new Decimal(receipt.unitCost ?? 0).times(difference));
+      if (adjustedValue.isNegative()) throw new AppError('CONFLICT');
+      const averageCost = after === 0 ? '0.00' : adjustedValue.dividedBy(after).toFixed(2);
       await tx
         .update(medicines)
-        .set({currentStock: after, updatedBy: actor.id, updatedAt: new Date()})
+        .set({currentStock: after, averageCost, updatedBy: actor.id, updatedAt: new Date()})
         .where(eq(medicines.id, receipt.medicineId));
       await tx.insert(stockMovements).values({
         medicineId: receipt.medicineId,
@@ -134,13 +189,24 @@ export async function correctStockReceipt(
       const oldAfter = oldMedicine.current_stock - receipt.quantity;
       if (oldAfter < 0) throw new AppError('INSUFFICIENT_STOCK');
       const newAfter = newMedicine.current_stock + value.quantity;
+      const receiptCost = new Decimal(receipt.unitCost ?? 0);
+      const oldValue = new Decimal(oldMedicine.average_cost)
+        .times(oldMedicine.current_stock)
+        .minus(receiptCost.times(receipt.quantity));
+      if (oldValue.isNegative()) throw new AppError('CONFLICT');
+      const oldAverageCost = oldAfter === 0 ? '0.00' : oldValue.dividedBy(oldAfter).toFixed(2);
+      const newAverageCost = new Decimal(newMedicine.average_cost)
+        .times(newMedicine.current_stock)
+        .plus(receiptCost.times(value.quantity))
+        .dividedBy(newAfter)
+        .toFixed(2);
       await tx
         .update(medicines)
-        .set({currentStock: oldAfter, updatedBy: actor.id, updatedAt: new Date()})
+        .set({currentStock: oldAfter, averageCost: oldAverageCost, updatedBy: actor.id, updatedAt: new Date()})
         .where(eq(medicines.id, receipt.medicineId));
       await tx
         .update(medicines)
-        .set({currentStock: newAfter, updatedBy: actor.id, updatedAt: new Date()})
+        .set({currentStock: newAfter, averageCost: newAverageCost, updatedBy: actor.id, updatedAt: new Date()})
         .where(eq(medicines.id, value.medicineId));
       await tx.insert(stockMovements).values([
         {
@@ -175,6 +241,9 @@ export async function correctStockReceipt(
       .set({
         medicineId: value.medicineId,
         quantity: value.quantity,
+        totalCost: receipt.unitCost
+          ? new Decimal(receipt.unitCost).times(value.quantity).toFixed(2)
+          : null,
         updatedBy: actor.id,
         updatedAt: new Date()
       })
@@ -196,16 +265,77 @@ export async function correctStockReceipt(
   });
 }
 
+export async function adjustStock(
+  actor: PermissionActor,
+  input: {medicineId: number; quantityChange: number; reason: string}
+) {
+  authorize(actor, 'stock.adjust.all');
+  const value = adjustStockSchema.parse(input);
+  return db.transaction(async (tx) => {
+    const locked = await lockMedicines(tx, [value.medicineId]);
+    const medicine = locked.get(value.medicineId)!;
+    if (!medicine.is_active) throw new AppError('CONFLICT');
+    const after = medicine.current_stock + value.quantityChange;
+    if (after < 0) throw new AppError('INSUFFICIENT_STOCK');
+    const [updated] = await tx
+      .update(medicines)
+      .set({currentStock: after, updatedBy: actor.id, updatedAt: new Date()})
+      .where(eq(medicines.id, value.medicineId))
+      .returning();
+    const [movement] = await tx
+      .insert(stockMovements)
+      .values({
+        medicineId: value.medicineId,
+        type: 'MANUAL_CORRECTION',
+        quantityBefore: medicine.current_stock,
+        quantityChange: value.quantityChange,
+        quantityAfter: after,
+        relatedEntityType: 'MEDICINE',
+        relatedEntityId: value.medicineId,
+        actorId: actor.id,
+        reason: value.reason
+      })
+      .returning();
+    await appendAudit(tx, {
+      actorId: actor.id,
+      entityType: 'medicines',
+      entityId: value.medicineId,
+      action: 'CORRECT',
+      oldValues: {currentStock: medicine.current_stock},
+      newValues: {currentStock: after, quantityChange: value.quantityChange},
+      reason: value.reason,
+      relatedTransactionType: 'STOCK_MOVEMENT',
+      relatedTransactionId: movement.id
+    });
+    return updated;
+  });
+}
+
 export type MovementType = (typeof stockMovements.type.enumValues)[number];
 
 export async function getMedicineMovements(
   filters: {medicineId?: number; types?: MovementType[]; from?: Date; to?: Date; limit?: number} = {}
 ) {
   return db
-    .select({movement: stockMovements, medicineName: medicines.name, actorName: users.name})
+    .select({
+      movement: stockMovements,
+      medicineName: medicines.name,
+      actorName: users.name,
+      supplierName: suppliers.name,
+      unitCost: stockReceipts.unitCost,
+      totalCost: stockReceipts.totalCost
+    })
     .from(stockMovements)
     .innerJoin(medicines, eq(medicines.id, stockMovements.medicineId))
     .innerJoin(users, eq(users.id, stockMovements.actorId))
+    .leftJoin(
+      stockReceipts,
+      and(
+        eq(stockMovements.relatedEntityType, 'STOCK_RECEIPT'),
+        eq(stockMovements.relatedEntityId, stockReceipts.id)
+      )
+    )
+    .leftJoin(suppliers, eq(suppliers.id, stockReceipts.supplierId))
     .where(
       and(
         filters.medicineId ? eq(stockMovements.medicineId, filters.medicineId) : undefined,

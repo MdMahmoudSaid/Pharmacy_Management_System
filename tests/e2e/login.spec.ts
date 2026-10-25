@@ -37,6 +37,7 @@ test('logs in in Arabic, switches to French, and preserves it on logout', async 
 
   await expect(page).toHaveURL(/\/fr\/dashboard$/);
   await expect(page.locator('html')).toHaveAttribute('dir', 'ltr');
+  await page.goto('/fr/more');
   await page.getByRole('button', {name: 'Déconnexion'}).click();
 
   await expect(page).toHaveURL(/\/fr\/login$/);
