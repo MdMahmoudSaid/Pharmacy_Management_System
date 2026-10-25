@@ -31,12 +31,14 @@ export function ConfirmForm({message, enabled = true, onSubmit, children, ...pro
   const accept = () => {
     dialogRef.current?.close();
     confirmedRef.current = true;
+    // Tells a surrounding ActionDialog that this second submit is the real one.
+    formRef.current?.setAttribute('data-confirmed', '');
     formRef.current?.requestSubmit(submitterRef.current ?? undefined);
   };
 
   return (
     <>
-      <form ref={formRef} onSubmit={handleSubmit} {...props}>{children}</form>
+      <form ref={formRef} data-confirm-form onSubmit={handleSubmit} {...props}>{children}</form>
       <dialog ref={dialogRef} className="confirm-dialog" aria-labelledby="confirm-dialog-title">
         <h2 id="confirm-dialog-title">{t('confirmTitle')}</h2>
         <p>{message}</p>

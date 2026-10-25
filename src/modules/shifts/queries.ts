@@ -97,7 +97,7 @@ export async function getShiftDetail(actor: PermissionActor, shiftId: number) {
 
   const itemRows = saleRows.length
     ? await db
-        .select({saleId: saleItems.saleId, name: medicines.name, quantity: saleItems.quantity})
+        .select({saleId: saleItems.saleId, name: medicines.name, quantity: saleItems.quantity, unitCost: saleItems.unitCost})
         .from(saleItems)
         .innerJoin(medicines, eq(saleItems.medicineId, medicines.id))
         .where(inArray(saleItems.saleId, saleRows.map(({id}) => id)))
@@ -107,6 +107,10 @@ export async function getShiftDetail(actor: PermissionActor, shiftId: number) {
   const salesTotal = saleRows
     .filter(({status}) => status === 'COMPLETED')
     .reduce((sum, {total}) => sum.plus(total), new Decimal(0));
+  const completedIds = new Set(saleRows.filter(({status}) => status === 'COMPLETED').map(({id}) => id));
+  const costOfGoods = itemRows
+    .filter(({saleId}) => completedIds.has(saleId))
+    .reduce((sum, {unitCost, quantity}) => sum.plus(new Decimal(unitCost).times(quantity)), new Decimal(0));
   const expensesTotal = expenseRows
     .filter(({status}) => status === 'ACTIVE')
     .reduce((sum, {amount}) => sum.plus(amount), new Decimal(0));
@@ -123,7 +127,9 @@ export async function getShiftDetail(actor: PermissionActor, shiftId: number) {
     totals: {
       sales: salesTotal.toFixed(2),
       expenses: expensesTotal.toFixed(2),
-      net: salesTotal.minus(expensesTotal).toFixed(2),
+      costOfGoods: costOfGoods.toFixed(2),
+      // Sales minus the cost of the medicines sold, minus expenses.
+      net: salesTotal.minus(costOfGoods).minus(expensesTotal).toFixed(2),
       salesCount: saleRows.filter(({status}) => status === 'COMPLETED').length,
       unitsReceived: receiptRows
         .filter(({status}) => status === 'ACTIVE')

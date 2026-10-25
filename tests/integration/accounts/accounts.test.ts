@@ -88,7 +88,8 @@ describe('owner accounts', () => {
       grossProfit: '18.00',
       expenses: '5.00',
       netProfit: '13.00',
-      withdrawableProfit: '13.00',
+      // Cash (790) is below the capital (800): the profit is tied up in stock, none of it is in the cash box.
+      withdrawableProfit: '0.00',
       inventoryValue: '40.00',
       supplierDebt: '80.00',
       supplierAdvances: '15.00'

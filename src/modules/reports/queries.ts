@@ -29,11 +29,16 @@ export async function getReportData(
     saleRange.push(eq(sales.operatorId, actor.id));
     expenseRange.push(eq(expenses.operatorId, actor.id));
   }
-  const [saleTotalRow, expenseTotalRow, saleRows, expenseRows, stock, movements, employeeRows, shiftRows] =
+  const [saleTotalRow, costRow, expenseTotalRow, saleRows, expenseRows, stock, movements, employeeRows, shiftRows] =
     await Promise.all([
       db
         .select({total: sql<string>`coalesce(sum(${sales.total}), 0)`})
         .from(sales)
+        .where(and(...saleRange, eq(sales.status, 'COMPLETED'))),
+      db
+        .select({total: sql<string>`coalesce(sum(${saleItems.unitCost} * ${saleItems.quantity}), 0)`})
+        .from(saleItems)
+        .innerJoin(sales, eq(saleItems.saleId, sales.id))
         .where(and(...saleRange, eq(sales.status, 'COMPLETED'))),
       db
         .select({total: sql<string>`coalesce(sum(${expenses.amount}), 0)`})
@@ -97,13 +102,16 @@ export async function getReportData(
         .where(inArray(saleItems.saleId, saleIds))
     : [];
   const salesTotal = new Decimal(saleTotalRow[0]?.total ?? 0).toFixed(2);
+  const costOfGoods = new Decimal(costRow[0]?.total ?? 0).toFixed(2);
   const expensesTotal = new Decimal(expenseTotalRow[0]?.total ?? 0).toFixed(2);
   return {
     range,
     summary: {
       salesTotal,
+      costOfGoods,
       expensesTotal,
-      netTotal: new Decimal(salesTotal).minus(expensesTotal).toFixed(2)
+      // Sales minus the cost of the medicines sold, minus expenses: the same rule as the period net profit.
+      netTotal: new Decimal(salesTotal).minus(costOfGoods).minus(expensesTotal).toFixed(2)
     },
     sales: saleRows.map((sale) => ({
       ...sale,

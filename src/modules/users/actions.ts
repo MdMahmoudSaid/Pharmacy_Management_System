@@ -59,7 +59,8 @@ export async function createEmployeeAction(
     const employee = await createEmployee(actor, {
       name: text(formData, 'name'),
       phone: text(formData, 'phone'),
-      pin: text(formData, 'pin')
+      pin: text(formData, 'pin'),
+      preset: text(formData, 'preset') || undefined
     });
     refresh(formData);
     return {ok: true, data: {id: employee.id}};

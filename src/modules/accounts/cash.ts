@@ -50,13 +50,16 @@ export async function getCashSnapshot(executor: Executor) {
   const supplierPayments = new Decimal(row.supplier_payments);
   const grossProfit = revenue.minus(costOfGoods);
   const netProfit = grossProfit.minus(expenses);
-  const withdrawableProfit = Decimal.max(netProfit.minus(profitWithdrawals), 0);
   const capital = capitalAdditions.minus(capitalWithdrawals);
   const cash = capitalAdditions
     .plus(revenue)
     .minus(expenses)
     .minus(supplierPayments)
     .minus(ownerWithdrawals);
+  // Profit is only withdrawable as far as real cash sits above the capital: the part of the profit
+  // already spent on stock or paid to suppliers is not in the cash box, so it cannot be taken out of it.
+  const unwithdrawnProfit = Decimal.max(netProfit.minus(profitWithdrawals), 0);
+  const withdrawableProfit = Decimal.min(unwithdrawnProfit, Decimal.max(cash.minus(capital), 0));
 
   return {
     cash: fixed(cash),

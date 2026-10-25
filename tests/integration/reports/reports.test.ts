@@ -126,6 +126,10 @@ describe('source-of-truth reports', () => {
       range: {from: new Date('2020-01-01T00:00:00Z'), to: new Date('2030-01-01T00:00:00Z')}
     };
 
+    // 20 sold, 10 of it is the cost of the medicine, 5 of expenses: 5 is left.
+    const period = await getReportData(admin, filters.range);
+    expect(period.summary).toMatchObject({salesTotal: '20.00', costOfGoods: '10.00', expensesTotal: '5.00', netTotal: '5.00'});
+
     const cash = await buildReport(admin, 'cash-flow', filters, 'fr');
     expect(cash.rows).toHaveLength(4);
     expect(cash.primary.value).toBe('100.00');

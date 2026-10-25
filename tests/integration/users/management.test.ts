@@ -44,6 +44,25 @@ describe('employee management', () => {
     ).rejects.toBeDefined();
   });
 
+  it('gives a new employee the ready-made shift role in one step', async () => {
+    const employee = await createEmployee(admin, {name: 'Sidi', phone: '41234567', pin: '1234', preset: 'shift_employee'});
+    const rows = await db.select().from(userPermissions).where(eq(userPermissions.userId, employee.id));
+    const keys = rows.map(({permissionKey}) => permissionKey);
+    expect(keys).toEqual(expect.arrayContaining(['shifts.open.own', 'shifts.close.own', 'sales.create.own', 'expenses.create.own']));
+    expect(keys).not.toContain('accounts.view.all');
+    expect(keys).not.toContain('sales.view.all');
+
+    const bare = await createEmployee(admin, {name: 'Vide', phone: '41234568', pin: '1234'});
+    await expect(db.select().from(userPermissions).where(eq(userPermissions.userId, bare.id))).resolves.toHaveLength(0);
+  });
+
+  it('refuses a ready-made role from someone who may not manage permissions', async () => {
+    const manager: PermissionActor = {id: admin.id, role: 'EMPLOYEE', isActive: true, permissions: ['employees.create.all']};
+    await expect(
+      createEmployee(manager, {name: 'Refus', phone: '41234569', pin: '1234', preset: 'shift_employee'})
+    ).rejects.toBeDefined();
+  });
+
   it('grants and revokes fixed permissions with a reasoned audit entry', async () => {
     const employee = await createEmployee(admin, {
       name: 'Mariam',

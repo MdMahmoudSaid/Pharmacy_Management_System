@@ -1,6 +1,6 @@
 import {z} from 'zod';
 
-import {PERMISSION_KEYS} from '@/modules/permissions/catalog';
+import {PERMISSION_KEYS, ROLE_PRESET_KEYS} from '@/modules/permissions/catalog';
 import {
   localPhoneSchema,
   optionalReasonSchema,
@@ -10,7 +10,8 @@ import {
 export const createEmployeeSchema = z.object({
   name: z.string().trim().min(2).max(120),
   phone: localPhoneSchema,
-  pin: pinSchema
+  pin: pinSchema,
+  preset: z.enum(ROLE_PRESET_KEYS as [string, ...string[]]).optional()
 });
 
 export const updateEmployeeSchema = z.object({

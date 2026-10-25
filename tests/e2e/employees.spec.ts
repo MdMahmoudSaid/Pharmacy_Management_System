@@ -46,6 +46,7 @@ test('filters navigation and rejects a forged employee-management action', async
   await createForm.locator('[name="name"]').fill('Employé Limité');
   await createForm.locator('[name="phone"]').fill('31234567');
   await createForm.locator('[name="pin"]').fill('5678');
+  await createForm.locator('input[name="preset"][value=""]').check();
   await createForm.getByRole('button', {name: 'إنشاء الحساب'}).click();
   const employeeCard = page.locator('.employee-row').filter({hasText: 'Employé Limité'});
   await expect(employeeCard).toBeVisible();
@@ -94,4 +95,20 @@ test('filters navigation and rejects a forged employee-management action', async
     .where(eq(users.phoneE164, '+22241234567'));
   expect(forged.body).toContain('FORBIDDEN');
   expect(forbiddenUser).toEqual([]);
+});
+
+test('creates an employee with the ready-made shift role in one step', async ({page}) => {
+  await login(page, '21234567', '1234');
+  await page.goto('/ar/employees');
+  await page.locator('.form-collapse > summary').click();
+  const createForm = page.getByTestId('create-employee-form');
+  await expect(createForm.locator('input[name="preset"][value="shift_employee"]')).toBeChecked();
+  await expect(createForm.getByText('فتح مناوبته', {exact: true})).toBeVisible();
+  await createForm.locator('[name="name"]').fill('Employé Garde');
+  await createForm.locator('[name="phone"]').fill('31234568');
+  await createForm.locator('[name="pin"]').fill('5678');
+  await createForm.getByRole('button', {name: 'إنشاء الحساب'}).click();
+  const employeeCard = page.locator('.employee-row').filter({hasText: 'Employé Garde'});
+  await expect(employeeCard).toBeVisible();
+  await expect(employeeCard.getByText('بدون صلاحيات')).toHaveCount(0);
 });

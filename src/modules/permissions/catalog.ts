@@ -58,3 +58,22 @@ const permissionKeySet = new Set<string>(PERMISSION_KEYS);
 export function isPermissionKey(value: string): value is PermissionKey {
   return permissionKeySet.has(value);
 }
+
+// Ready-made sets of permissions offered when an employee account is created.
+export const ROLE_PRESETS = {
+  shift_employee: [
+    'shifts.view.own',
+    'shifts.open.own',
+    'shifts.close.own',
+    'sales.view.own',
+    'sales.create.own',
+    'sales.print.own',
+    'expenses.view.own',
+    'expenses.create.own',
+    'medicines.view.all',
+    'reports.view.own'
+  ]
+} as const satisfies Record<string, readonly PermissionKey[]>;
+
+export type RolePresetKey = keyof typeof ROLE_PRESETS;
+export const ROLE_PRESET_KEYS = Object.keys(ROLE_PRESETS) as RolePresetKey[];

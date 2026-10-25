@@ -79,7 +79,7 @@ async function financialSummary({filters, t, employeeId}: Context): Promise<Repo
   const byMonth = filters.range.to.getTime() - filters.range.from.getTime() > 62 * 86_400_000;
   const saleDay = dayKey(sales.createdAt, byMonth);
   const expenseDay = dayKey(expenses.occurredAt, byMonth);
-  const [saleRows, expenseRows] = await Promise.all([
+  const [saleRows, expenseRows, costRows] = await Promise.all([
     db
       .select({
         day: saleDay,
@@ -101,11 +101,18 @@ async function financialSummary({filters, t, employeeId}: Context): Promise<Repo
           employeeId ? eq(expenses.operatorId, employeeId) : undefined
         )
       )
-      .groupBy(expenseDay)
+      .groupBy(expenseDay),
+    db
+      .select({day: saleDay, total: sql<string>`coalesce(sum(${saleItems.unitCost} * ${saleItems.quantity}), 0)`})
+      .from(saleItems)
+      .innerJoin(sales, eq(saleItems.saleId, sales.id))
+      .where(and(...inRange(sales.createdAt, filters), eq(sales.status, 'COMPLETED'), employeeId ? eq(sales.operatorId, employeeId) : undefined))
+      .groupBy(saleDay)
   ]);
   const days = [...new Set([...saleRows.map(({day}) => day), ...expenseRows.map(({day}) => day)])].sort().reverse();
   let revenue = zero;
   let spent = zero;
+  let cost = zero;
   let count = 0;
   let cancelled = 0;
   const rows = days.map((day) => {
@@ -113,36 +120,41 @@ async function financialSummary({filters, t, employeeId}: Context): Promise<Repo
     const expense = expenseRows.find((row) => row.day === day);
     const dayRevenue = new Decimal(sale?.total ?? 0);
     const daySpent = new Decimal(expense?.total ?? 0);
+    const dayCost = new Decimal(costRows.find((row) => row.day === day)?.total ?? 0);
     revenue = revenue.plus(dayRevenue);
     spent = spent.plus(daySpent);
+    cost = cost.plus(dayCost);
     count += sale?.count ?? 0;
     cancelled += sale?.cancelled ?? 0;
-    const net = dayRevenue.minus(daySpent);
+    const net = dayRevenue.minus(dayCost).minus(daySpent);
     return [
       cell(day),
       cell(sale?.count ?? 0),
       cell(sale?.cancelled ?? 0, sale?.cancelled ? {tone: 'cancelled'} : {}),
       cell(money(dayRevenue)),
+      cell(money(dayCost)),
       cell(money(daySpent)),
       cell(money(net), net.isNegative() ? {tone: 'out'} : {})
     ];
   });
-  const net = revenue.minus(spent);
+  const net = revenue.minus(cost).minus(spent);
   return {
     columns: [
       {...col(t, byMonth ? 'month' : 'day', 'text')},
       col(t, 'salesCount', 'number'),
       col(t, 'cancelledCount', 'number'),
       col(t, 'revenue', 'money'),
+      col(t, 'costOfGoods', 'money'),
       col(t, 'expenses', 'money'),
       col(t, 'net', 'money')
     ],
     rows,
-    totals: [null, cell(count), cell(cancelled), cell(money(revenue)), cell(money(spent)), cell(money(net), net.isNegative() ? {tone: 'out'} : {})],
+    totals: [null, cell(count), cell(cancelled), cell(money(revenue)), cell(money(cost)), cell(money(spent)), cell(money(net), net.isNegative() ? {tone: 'out'} : {})],
     totalsLabel: t('totals'),
     primary: metric(t, 'net', money(net), 'money'),
     metrics: [
       metric(t, 'revenue', money(revenue), 'money'),
+      metric(t, 'costOfGoods', money(cost), 'money'),
       metric(t, 'expenses', money(spent), 'money'),
       metric(t, 'salesCount', count, 'number'),
       metric(t, 'averageBasket', money(count ? revenue.div(count) : 0), 'money')

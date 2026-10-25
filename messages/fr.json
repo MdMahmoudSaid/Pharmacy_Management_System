@@ -230,7 +230,19 @@
     "resetPinConfirm": "Modifier le PIN de {name} ?",
     "archiveHint": "Un employé archivé ne peut plus se connecter ; toutes ses opérations restent conservées.",
     "restoreHint": "L’employé pourra se reconnecter avec ses permissions précédentes.",
-    "resetPinHint": "L’employé utilisera le nouveau PIN à sa prochaine connexion."
+    "resetPinHint": "L’employé utilisera le nouveau PIN à sa prochaine connexion.",
+    "presetTitle": "Rôle prêt à l’emploi",
+    "presetIncludes": "Ce qu’il peut faire",
+    "presets": {
+      "shift_employee": {
+        "name": "Employé de garde",
+        "hint": "Ouvre et ferme sa garde, enregistre ventes et dépenses, et ne voit que ses propres chiffres."
+      },
+      "none": {
+        "name": "Aucune permission",
+        "hint": "Je choisis les permissions à la main après la création du compte."
+      }
+    }
   },
   "Shifts": {
     "kicker": "Temps de travail",
@@ -274,7 +286,7 @@
     "salesCount": "{count, plural, =0 {Aucune vente} one {# vente} other {# ventes}}",
     "expensesCount": "{count, plural, =0 {Aucune dépense} one {# dépense} other {# dépenses}}",
     "receiptsCount": "{count, plural, =0 {Aucune réception} one {# réception} other {# réceptions}}",
-    "netCaption": "Caisse attendue (ventes − dépenses)",
+    "netCaption": "Bénéfice net (ventes − coût des médicaments − dépenses)",
     "units": "{count, plural, one {# unité} other {# unités}}",
     "salesSection": "Ventes du shift",
     "expensesSection": "Dépenses du shift",
@@ -774,7 +786,8 @@
       "phone": "Téléphone",
       "purchases": "Achats",
       "payments": "Paiements",
-      "balance": "Solde"
+      "balance": "Solde",
+      "costOfGoods": "Coût des médicaments"
     },
     "metrics": {
       "net": "Résultat net",
@@ -815,7 +828,8 @@
       "supplierDebt": "Dettes fournisseurs",
       "supplierAdvances": "Avances fournisseurs",
       "suppliers": "Fournisseurs",
-      "purchases": "Total des achats"
+      "purchases": "Total des achats",
+      "costOfGoods": "Coût des médicaments vendus"
     },
     "cashTypes": {
       "sale": "Vente terminée",
@@ -1004,7 +1018,7 @@
     "cashHint": "Liquidités réellement disponibles après ventes, dépenses, paiements fournisseurs et retraits.",
     "capitalHint": "Apports moins retraits du propriétaire ; distinct du bénéfice.",
     "availableProfit": "Bénéfice disponible au retrait",
-    "profitHint": "Bénéfice net moins les retraits déjà imputés au bénéfice.",
+    "profitHint": "Bénéfice net moins les retraits déjà imputés, limité à l’argent réellement en caisse au-dessus du capital. Le reste du bénéfice est investi en stock et chez les fournisseurs.",
     "revenue": "Chiffre d’affaires",
     "costOfGoods": "Coût des médicaments vendus",
     "grossProfit": "Marge brute",

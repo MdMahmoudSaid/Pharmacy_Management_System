@@ -129,8 +129,9 @@ test('centres the capital dialog and keeps withdrawal choices and errors readabl
 
   await dialog.getByLabel('المبلغ').fill('1');
   await dialog.getByRole('button', {name: 'تسجيل حركة رأس المال'}).click();
-  const error = dialog.locator('.form-error');
+  // The dialog closes at once; the refusal comes back as a message on the page.
+  await expect(dialog).toBeHidden();
+  const error = page.locator('.action-toast.is-error');
   await expect(error).toBeVisible();
-  await expect(error).toHaveCSS('color', 'rgb(143, 29, 20)');
-  await expect(error).toHaveCSS('background-color', 'rgb(255, 240, 238)');
+  await expect(error).toHaveCSS('background-color', 'rgb(155, 44, 31)');
 });

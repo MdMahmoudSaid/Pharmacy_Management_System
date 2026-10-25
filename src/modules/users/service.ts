@@ -6,7 +6,7 @@ import {AppError} from '@/lib/errors';
 import {appendAudit} from '@/modules/audit/service';
 import {hashPin} from '@/modules/auth/service';
 import {normalizeMauritanianPhone, pinSchema} from '@/modules/auth/schemas';
-import type {PermissionKey} from '@/modules/permissions/catalog';
+import {ROLE_PRESETS, type PermissionKey, type RolePresetKey} from '@/modules/permissions/catalog';
 import {
   authorize,
   type PermissionActor,
@@ -59,10 +59,15 @@ async function requireEmployee(userId: number) {
 
 export async function createEmployee(
   actor: PermissionActor,
-  input: {name: string; phone: string; pin: string}
+  input: {name: string; phone: string; pin: string; preset?: string}
 ): Promise<EmployeeView> {
   authorize(actor, 'employees.create.all');
   const value = createEmployeeSchema.parse(input);
+  const presetPermissions: readonly PermissionKey[] = value.preset ? ROLE_PRESETS[value.preset as RolePresetKey] : [];
+  if (presetPermissions.length) {
+    authorize(actor, 'permissions.manage.all');
+    await syncPermissionCatalog();
+  }
   const pinHash = await hashPin(value.pin);
 
   return db.transaction(async (tx) => {
@@ -89,6 +94,19 @@ export async function createEmployee(
         role: employee.role
       }
     });
+    if (presetPermissions.length) {
+      await tx.insert(userPermissions).values(
+        presetPermissions.map((permissionKey) => ({userId: employee.id, permissionKey, grantedBy: actor.id}))
+      );
+      await appendAudit(tx, {
+        actorId: actor.id,
+        entityType: 'users',
+        entityId: employee.id,
+        action: 'PERMISSION_CHANGE',
+        oldValues: {permissions: []},
+        newValues: {permissions: [...presetPermissions].sort(), preset: value.preset}
+      });
+    }
     return employee;
   });
 }

@@ -4,6 +4,7 @@ import {ChevronDown, Eye, EyeOff} from 'lucide-react';
 import {useTranslations} from 'next-intl';
 import {useActionState, useState} from 'react';
 
+import {ROLE_PRESETS, type RolePresetKey} from '@/modules/permissions/catalog';
 import {
   createEmployeeAction,
   type EmployeeActionState
@@ -12,6 +13,7 @@ import {
 export function EmployeeForm({locale}: {locale: 'ar' | 'fr'}) {
   const t = useTranslations('Employees');
   const [showPin, setShowPin] = useState(false);
+  const [preset, setPreset] = useState<RolePresetKey | ''>('shift_employee');
   const [state, action, pending] = useActionState<EmployeeActionState, FormData>(
     createEmployeeAction,
     undefined
@@ -70,6 +72,24 @@ export function EmployeeForm({locale}: {locale: 'ar' | 'fr'}) {
             </button>
           </span>
         </label>
+        <fieldset className="role-presets">
+          <legend>{t('presetTitle')}</legend>
+          <label className={preset === 'shift_employee' ? 'is-selected' : ''}>
+            <input type="radio" name="preset" value="shift_employee" checked={preset === 'shift_employee'} onChange={() => setPreset('shift_employee')} />
+            <span><b>{t('presets.shift_employee.name')}</b><small>{t('presets.shift_employee.hint')}</small></span>
+          </label>
+          <label className={preset === '' ? 'is-selected' : ''}>
+            <input type="radio" name="preset" value="" checked={preset === ''} onChange={() => setPreset('')} />
+            <span><b>{t('presets.none.name')}</b><small>{t('presets.none.hint')}</small></span>
+          </label>
+          {preset ? (
+            <ul className="role-preset-list" aria-label={t('presetIncludes')}>
+              {ROLE_PRESETS[preset].map((permission) => (
+                <li key={permission}>{t(`permissionLabels.${permission.replaceAll('.', '_')}`)}</li>
+              ))}
+            </ul>
+          ) : null}
+        </fieldset>
         <div className="entry-footer">
           <button className="primary-action" disabled={pending}>
             {pending ? t('saving') : t('create')}
