@@ -8,6 +8,7 @@ import {AppError} from '@/lib/errors';
 import {requireSession} from '@/modules/auth/session';
 import {
   createSupplier,
+  recordSupplierDebt,
   recordSupplierPayment,
   setSupplierActive,
   updateSupplier
@@ -78,6 +79,22 @@ export async function recordSupplierPaymentAction(_state: SupplierActionState, d
     });
     refresh(data, supplierId);
     return {ok: true as const, data: {id: payment.id}};
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+export async function recordSupplierDebtAction(_state: SupplierActionState, data: FormData) {
+  try {
+    const supplierId = Number(text(data, 'supplierId'));
+    const debt = await recordSupplierDebt(await requireSession(), {
+      supplierId,
+      amount: text(data, 'amount'),
+      occurredAt: optional(data, 'occurredAt') ? new Date(`${text(data, 'occurredAt')}T12:00:00Z`) : undefined,
+      note: optional(data, 'note')
+    });
+    refresh(data, supplierId);
+    return {ok: true as const, data: {id: debt.id}};
   } catch (error) {
     return failure(error);
   }

@@ -14,6 +14,7 @@ import {
   shifts,
   stockMovements,
   stockReceipts,
+  supplierDebts,
   supplierPayments,
   suppliers,
   users
@@ -879,24 +880,27 @@ async function supplierBalances({t}: Context): Promise<ReportResult> {
     name: suppliers.name,
     phone: suppliers.phone,
     purchases: sql<string>`coalesce((select sum(${stockReceipts.totalCost}) from ${stockReceipts} where ${stockReceipts.supplierId} = ${suppliers.id} and ${stockReceipts.status} = 'ACTIVE'), 0)::numeric(14,2)::text`,
+    openingDebts: sql<string>`coalesce((select sum(${supplierDebts.amount}) from ${supplierDebts} where ${supplierDebts.supplierId} = ${suppliers.id} and ${supplierDebts.status} = 'ACTIVE'), 0)::numeric(14,2)::text`,
     payments: sql<string>`coalesce((select sum(${supplierPayments.amount}) from ${supplierPayments} where ${supplierPayments.supplierId} = ${suppliers.id} and ${supplierPayments.status} = 'ACTIVE'), 0)::numeric(14,2)::text`
   }).from(suppliers).where(eq(suppliers.isActive, true)).orderBy(asc(suppliers.name));
   let purchases = zero;
+  let openingDebts = zero;
   let payments = zero;
   let debt = zero;
   let advances = zero;
   const body = rows.map((row) => {
-    const balance = new Decimal(row.purchases).minus(row.payments);
+    const balance = new Decimal(row.purchases).plus(row.openingDebts).minus(row.payments);
     purchases = purchases.plus(row.purchases);
+    openingDebts = openingDebts.plus(row.openingDebts);
     payments = payments.plus(row.payments);
     debt = debt.plus(Decimal.max(balance, 0));
     advances = advances.plus(Decimal.max(balance.negated(), 0));
-    return [cell(row.name, {href: `/suppliers/${row.id}`}), cell(row.phone), cell(row.purchases), cell(row.payments), cell(money(balance), balance.isPositive() ? {tone: 'out'} : balance.isNegative() ? {tone: 'ok'} : {})];
+    return [cell(row.name, {href: `/suppliers/${row.id}`}), cell(row.phone), cell(row.purchases), cell(row.openingDebts), cell(row.payments), cell(money(balance), balance.isPositive() ? {tone: 'out'} : balance.isNegative() ? {tone: 'ok'} : {})];
   });
   return {
-    columns: [col(t, 'supplier', 'text'), col(t, 'phone', 'text'), col(t, 'purchases', 'money'), col(t, 'payments', 'money'), col(t, 'balance', 'money')],
+    columns: [col(t, 'supplier', 'text'), col(t, 'phone', 'text'), col(t, 'purchases', 'money'), col(t, 'openingDebt', 'money'), col(t, 'payments', 'money'), col(t, 'balance', 'money')],
     rows: body,
-    totals: [null, null, cell(money(purchases)), cell(money(payments)), cell(money(purchases.minus(payments)))],
+    totals: [null, null, cell(money(purchases)), cell(money(openingDebts)), cell(money(payments)), cell(money(purchases.plus(openingDebts).minus(payments)))],
     totalsLabel: t('totals'),
     primary: metric(t, 'supplierDebt', money(debt), 'money'),
     metrics: [metric(t, 'supplierAdvances', money(advances), 'money'), metric(t, 'suppliers', rows.length, 'number'), metric(t, 'purchases', money(purchases), 'money')],

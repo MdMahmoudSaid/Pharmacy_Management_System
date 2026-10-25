@@ -135,6 +135,6 @@ describe('source-of-truth reports', () => {
     expect(cash.primary.value).toBe('100.00');
     const balances = await buildReport(admin, 'supplier-balances', filters, 'fr');
     expect(balances.rows).toHaveLength(1);
-    expect(balances.rows[0]?.[4]?.value).toBe('5.00');
+    expect(balances.rows[0]?.[5]?.value).toBe('5.00');
   });
 });

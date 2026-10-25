@@ -2,12 +2,13 @@ import {eq, sql} from 'drizzle-orm';
 import Decimal from 'decimal.js';
 
 import {db, type DbTransaction} from '@/db/client';
-import {supplierPayments, suppliers} from '@/db/schema';
+import {supplierDebts, supplierPayments, suppliers} from '@/db/schema';
 import {AppError} from '@/lib/errors';
 import {appendAudit} from '@/modules/audit/service';
 import {getCashSnapshot, lockCashLedger} from '@/modules/accounts/cash';
 import {authorize, type PermissionActor} from '@/modules/permissions/service';
 import {
+  supplierDebtSchema,
   supplierIdSchema,
   supplierInputSchema,
   supplierPaymentSchema,
@@ -182,5 +183,38 @@ export async function recordSupplierPayment(
       relatedTransactionId: payment.id
     });
     return payment;
+  });
+}
+
+// Records a debt that existed before the supplier's purchases were entered here (opening balance).
+// It raises what is owed to the supplier but does not touch cash, stock or profit.
+export async function recordSupplierDebt(
+  actor: PermissionActor,
+  rawInput: {supplierId: number; amount: string; occurredAt?: Date; note?: string}
+) {
+  authorize(actor, 'suppliers.manage.all');
+  const input = supplierDebtSchema.parse(rawInput);
+  return db.transaction(async (tx) => {
+    const [supplier] = await tx
+      .select({id: suppliers.id, isActive: suppliers.isActive})
+      .from(suppliers)
+      .where(eq(suppliers.id, input.supplierId))
+      .for('update');
+    if (!supplier) throw new AppError('NOT_FOUND');
+    if (!supplier.isActive) throw new AppError('CONFLICT');
+    const [debt] = await tx
+      .insert(supplierDebts)
+      .values({...input, occurredAt: input.occurredAt ?? new Date(), operatorId: actor.id})
+      .returning();
+    await appendAudit(tx, {
+      actorId: actor.id,
+      entityType: 'supplier_debts',
+      entityId: debt.id,
+      action: 'CREATE',
+      newValues: {supplierId: debt.supplierId, amount: debt.amount},
+      relatedTransactionType: 'SUPPLIER_DEBT',
+      relatedTransactionId: debt.id
+    });
+    return debt;
   });
 }

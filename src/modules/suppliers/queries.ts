@@ -5,6 +5,7 @@ import {db} from '@/db/client';
 import {
   medicines,
   stockReceipts,
+  supplierDebts,
   supplierPayments,
   suppliers
 } from '@/db/schema';
@@ -29,7 +30,7 @@ export async function listSuppliers(
     )
     .orderBy(asc(suppliers.name));
   const ids = suppliersRows.map(({id}) => id);
-  const [purchaseRows, paymentRows] = ids.length
+  const [purchaseRows, paymentRows, debtRows] = ids.length
     ? await Promise.all([
         db
           .select({
@@ -46,19 +47,31 @@ export async function listSuppliers(
           })
           .from(supplierPayments)
           .where(and(inArray(supplierPayments.supplierId, ids), eq(supplierPayments.status, 'ACTIVE')))
-          .groupBy(supplierPayments.supplierId)
+          .groupBy(supplierPayments.supplierId),
+        db
+          .select({
+            supplierId: supplierDebts.supplierId,
+            amount: sql<string>`coalesce(sum(${supplierDebts.amount}), 0)::numeric(14,2)::text`
+          })
+          .from(supplierDebts)
+          .where(and(inArray(supplierDebts.supplierId, ids), eq(supplierDebts.status, 'ACTIVE')))
+          .groupBy(supplierDebts.supplierId)
       ])
-    : [[], []];
+    : [[], [], []];
   const purchaseBySupplier = new Map(purchaseRows.map((row) => [row.supplierId, row.amount]));
   const paymentBySupplier = new Map(paymentRows.map((row) => [row.supplierId, row.amount]));
+  const debtBySupplier = new Map(debtRows.map((row) => [row.supplierId, row.amount]));
   const items = suppliersRows.map((supplier) => {
     const purchases = purchaseBySupplier.get(supplier.id) ?? '0.00';
     const payments = paymentBySupplier.get(supplier.id) ?? '0.00';
+    const debts = debtBySupplier.get(supplier.id) ?? '0.00';
     return {
       ...supplier,
       purchases,
+      debts,
+      charges: new Decimal(purchases).plus(debts).toFixed(2),
       payments,
-      balance: new Decimal(purchases).minus(payments).toFixed(2)
+      balance: new Decimal(purchases).plus(debts).minus(payments).toFixed(2)
     };
   });
   const totals = items.reduce(
@@ -96,7 +109,7 @@ export async function getSupplierDetail(actor: PermissionActor, rawId: number) {
   const [supplier] = await db.select().from(suppliers).where(eq(suppliers.id, id)).limit(1);
   if (!supplier) throw new AppError('NOT_FOUND');
 
-  const [receipts, payments] = await Promise.all([
+  const [receipts, payments, debts] = await Promise.all([
     db
       .select({
         id: stockReceipts.id,
@@ -116,7 +129,12 @@ export async function getSupplierDetail(actor: PermissionActor, rawId: number) {
       .select()
       .from(supplierPayments)
       .where(and(eq(supplierPayments.supplierId, id), eq(supplierPayments.status, 'ACTIVE')))
-      .orderBy(asc(supplierPayments.occurredAt), asc(supplierPayments.id))
+      .orderBy(asc(supplierPayments.occurredAt), asc(supplierPayments.id)),
+    db
+      .select()
+      .from(supplierDebts)
+      .where(and(eq(supplierDebts.supplierId, id), eq(supplierDebts.status, 'ACTIVE')))
+      .orderBy(asc(supplierDebts.occurredAt), asc(supplierDebts.id))
   ]);
 
   const entries = [
@@ -131,6 +149,18 @@ export async function getSupplierDetail(actor: PermissionActor, rawId: number) {
       unitCost: receipt.unitCost,
       reference: null,
       note: receipt.note
+    })),
+    ...debts.map((debt) => ({
+      kind: 'DEBT' as const,
+      id: debt.id,
+      occurredAt: debt.occurredAt,
+      amount: debt.amount,
+      medicineId: null,
+      medicineName: null,
+      quantity: null,
+      unitCost: null,
+      reference: null,
+      note: debt.note
     })),
     ...payments.map((payment) => ({
       kind: 'PAYMENT' as const,
@@ -152,17 +182,19 @@ export async function getSupplierDetail(actor: PermissionActor, rawId: number) {
   );
   let running = new Decimal(0);
   const ledger = entries.map((entry) => {
-    running = entry.kind === 'RECEIPT' ? running.plus(entry.amount) : running.minus(entry.amount);
+    running = entry.kind === 'PAYMENT' ? running.minus(entry.amount) : running.plus(entry.amount);
     return {...entry, runningBalance: running.toFixed(2)};
   });
   const purchases = receipts.reduce((sum, row) => sum.plus(row.amount ?? 0), new Decimal(0));
   const paid = payments.reduce((sum, row) => sum.plus(row.amount), new Decimal(0));
+  const carried = debts.reduce((sum, row) => sum.plus(row.amount), new Decimal(0));
   return {
     supplier,
     summary: {
       purchases: purchases.toFixed(2),
+      debts: carried.toFixed(2),
       payments: paid.toFixed(2),
-      balance: purchases.minus(paid).toFixed(2)
+      balance: purchases.plus(carried).minus(paid).toFixed(2)
     },
     ledger
   };

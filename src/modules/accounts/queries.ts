@@ -6,6 +6,7 @@ import {
   capitalMovements,
   medicines,
   stockReceipts,
+  supplierDebts,
   supplierPayments,
   suppliers,
   users
@@ -39,7 +40,7 @@ export async function getAccountsOverview(actor: PermissionActor, range?: Financ
     ]);
 
   const supplierIds = supplierRows.map(({id}) => id);
-  const [purchaseRows, paymentRows] = supplierIds.length
+  const [purchaseRows, paymentRows, debtRows] = supplierIds.length
     ? await Promise.all([
         db
           .select({
@@ -56,14 +57,23 @@ export async function getAccountsOverview(actor: PermissionActor, range?: Financ
           })
           .from(supplierPayments)
           .where(and(inArray(supplierPayments.supplierId, supplierIds), eq(supplierPayments.status, 'ACTIVE')))
-          .groupBy(supplierPayments.supplierId)
+          .groupBy(supplierPayments.supplierId),
+        db
+          .select({
+            supplierId: supplierDebts.supplierId,
+            amount: sql<string>`coalesce(sum(${supplierDebts.amount}), 0)::text`
+          })
+          .from(supplierDebts)
+          .where(and(inArray(supplierDebts.supplierId, supplierIds), eq(supplierDebts.status, 'ACTIVE')))
+          .groupBy(supplierDebts.supplierId)
       ])
-    : [[], []];
+    : [[], [], []];
   const purchases = new Map(purchaseRows.map((row) => [row.supplierId, row.amount]));
   const payments = new Map(paymentRows.map((row) => [row.supplierId, row.amount]));
+  const carriedDebts = new Map(debtRows.map((row) => [row.supplierId, row.amount]));
   const supplierTotals = supplierIds.reduce(
     (totals, id) => {
-      const balance = new Decimal(purchases.get(id) ?? 0).minus(payments.get(id) ?? 0);
+      const balance = new Decimal(purchases.get(id) ?? 0).plus(carriedDebts.get(id) ?? 0).minus(payments.get(id) ?? 0);
       return {
         debt: totals.debt.plus(Decimal.max(balance, 0)),
         advances: totals.advances.plus(Decimal.max(balance.negated(), 0))

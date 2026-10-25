@@ -344,7 +344,7 @@
     "suggestedSellingPrice": "سعر البيع المقترح (+20٪)",
     "newSellingPrice": "سعر البيع الجديد",
     "sellingPriceHelp": "يجب أن يكون أعلى من متوسط التكلفة الجديد: {cost} MRU",
-    "receiveConfirm": "هل تؤكد إضافة هذه الكمية إلى المخزون؟",
+    "receiveConfirm": "تأكيد استلام {count} صنف وإضافتها إلى المخزون ودين المورد؟",
     "confirmReceive": "تأكيد الاستلام",
     "received": "تم تسجيل الاستلام.",
     "movements": "سجل الحركات",
@@ -423,7 +423,21 @@
     "recordAdjustment": "تسجيل التعديل",
     "adjusted": "تم تحديث المخزون.",
     "medicineLedger": "دفتر حركة الدواء",
-    "receiptSource": "من {supplier} · الوحدة {cost} · الإجمالي {total}"
+    "receiptSource": "من {supplier} · الوحدة {cost} · الإجمالي {total}",
+    "amountPaid": "المبلغ المدفوع",
+    "unitCostComputed": "تكلفة الوحدة",
+    "currentPrice": "السعر الحالي",
+    "suggestedPrice": "المقترح",
+    "profitPerUnit": "ربح الوحدة",
+    "lossPerUnit": "خسارة",
+    "priceBelowCost": "السعر لا يغطي التكلفة ({cost}). ارفعه لتسجيل الاستلام.",
+    "averageAfter": "متوسط التكلفة بعد الاستلام: {cost}",
+    "addLine": "إضافة دواء آخر",
+    "removeLine": "حذف هذا السطر",
+    "duplicateMedicine": "هذا الدواء مضاف في سطر آخر.",
+    "invoiceTotal": "إجمالي الفاتورة",
+    "invoiceTotalHint": "يُضاف إلى دين المورد",
+    "invoiceNotePlaceholder": "رقم الفاتورة أو ملاحظة (اختياري)"
   },
   "Sales": {
     "kicker": "نقطة البيع",
@@ -787,7 +801,8 @@
       "purchases": "المشتريات",
       "payments": "الدفعات",
       "balance": "الرصيد",
-      "costOfGoods": "تكلفة الأدوية"
+      "costOfGoods": "تكلفة الأدوية",
+      "openingDebt": "ديون سابقة"
     },
     "metrics": {
       "net": "الصافي",
@@ -994,7 +1009,16 @@
       "INSUFFICIENT_STOCK": "المخزون غير كافٍ.",
       "INSUFFICIENT_CASH": "رصيد الصندوق غير كافٍ لتسجيل هذه الدفعة.",
       "INTERNAL_ERROR": "تعذر إكمال العملية."
-    }
+    },
+    "charges": "المشتريات والديون",
+    "previousDebt": "دين سابق",
+    "previousDebts": "ديون سابقة",
+    "recordDebt": "تسجيل دين",
+    "debtHint": "سجّل دينًا قديمًا قبل استخدام التطبيق. يُضاف إلى رصيد المورد فقط، ولا يؤثر على الصندوق أو المخزون أو الأرباح.",
+    "debtAmount": "مبلغ الدين",
+    "debtDate": "تاريخ الدين",
+    "debtNotePlaceholder": "مثال: رصيد سابق من الدفتر الورقي",
+    "debtSaved": "تم تسجيل الدين."
   },
   "Accounts": {
     "kicker": "الملكية والنتيجة المالية",

@@ -57,6 +57,13 @@
       "when": 1792911446114,
       "tag": "0007_cash_control",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792940226582,
+      "tag": "0008_supplier_debts_receipt_totals",
+      "breakpoints": true
     }
   ]
 }

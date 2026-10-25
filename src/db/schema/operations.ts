@@ -110,7 +110,7 @@ export const stockReceipts = pgTable(
     check('stock_receipts_quantity_positive', sql`${table.quantity} > 0`),
     check(
       'stock_receipts_cost_fields_consistent',
-      sql`(${table.supplierId} is null and ${table.unitCost} is null and ${table.totalCost} is null) or (${table.supplierId} is not null and ${table.unitCost} > 0 and ${table.totalCost} = ${table.unitCost} * ${table.quantity})`
+      sql`(${table.supplierId} is null and ${table.unitCost} is null and ${table.totalCost} is null) or (${table.supplierId} is not null and ${table.unitCost} > 0 and ${table.totalCost} > 0 and abs(${table.totalCost} - ${table.unitCost} * ${table.quantity}) <= ${table.quantity} * 0.005)`
     ),
     index('stock_receipts_medicine_id_idx').on(table.medicineId),
     index('stock_receipts_supplier_id_idx').on(table.supplierId),

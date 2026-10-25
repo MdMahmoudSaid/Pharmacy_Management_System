@@ -11,7 +11,7 @@ type SupplierRow = {
   phone: string | null;
   contactPerson: string | null;
   isActive: boolean;
-  purchases: string;
+  charges: string;
   payments: string;
   balance: string;
 };
@@ -31,11 +31,11 @@ export function SupplierList({rows, locale}: {rows: SupplierRow[]; locale: 'ar' 
         <button className="archived-toggle" type="button" aria-pressed={archived} onClick={() => setArchived((value) => !value)}><Archive size={16} />{t('archived')}</button>
       </div>
       <div className="supplier-rows">
-        {visible.length ? <div className="supplier-row supplier-row-head" aria-hidden="true"><span>{t('supplier')}</span><span>{t('purchases')}</span><span>{t('payments')}</span><span>{t('balance')}</span></div> : null}
+        {visible.length ? <div className="supplier-row supplier-row-head" aria-hidden="true"><span>{t('supplier')}</span><span>{t('charges')}</span><span>{t('payments')}</span><span>{t('balance')}</span></div> : null}
         {visible.map((supplier) => (
           <Link className="supplier-row" href={`/${locale}/suppliers/${supplier.id}`} key={supplier.id}>
             <div className="supplier-identity"><span className="supplier-avatar">{supplier.name.charAt(0)}</span><span><strong>{supplier.name}</strong><small>{supplier.phone || supplier.contactPerson || t('noContact')}</small></span></div>
-            <span className="supplier-cell"><small>{t('purchases')}</small><b dir="ltr">{money(supplier.purchases)}</b></span>
+            <span className="supplier-cell"><small>{t('charges')}</small><b dir="ltr">{money(supplier.charges)}</b></span>
             <span className="supplier-cell"><small>{t('payments')}</small><b dir="ltr">{money(supplier.payments)}</b></span>
             <span className={`supplier-cell ${Number(supplier.balance) > 0 ? 'balance-debt' : Number(supplier.balance) < 0 ? 'balance-advance' : ''}`}><small>{t('balance')}</small><b dir="ltr">{money(supplier.balance)}</b></span>
           </Link>

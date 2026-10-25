@@ -50,7 +50,7 @@ test('connects medicine, supplier, stock receipt, adjustment, and accounts works
   await page.locator('.form-collapse > summary').click();
   const receipt = page.getByTestId('receive-stock-form');
   await expect(receipt.getByRole('combobox', {name: 'المورد'})).toBeVisible();
-  await expect(receipt.getByLabel('تكلفة الوحدة')).toBeVisible();
+  await expect(receipt.getByLabel('المبلغ المدفوع')).toBeVisible();
   const medicinePicker = receipt.getByRole('combobox', {name: 'الدواء'});
   await medicinePicker.click();
   await receipt.getByRole('option', {name: /Amoxicilline Test/}).click();
@@ -58,7 +58,7 @@ test('connects medicine, supplier, stock receipt, adjustment, and accounts works
   await supplierPicker.click();
   await receipt.getByRole('option', {name: 'Mauripharm Test'}).click();
   await receipt.locator('[name="quantity"]').fill('4');
-  await receipt.locator('[name="unitCost"]').fill('15');
+  await receipt.locator('[name="totalCost"]').fill('60');
   await receipt.getByRole('button', {name: 'تأكيد الاستلام'}).click();
   await page.getByRole('dialog').getByRole('button', {name: 'تأكيد', exact: true}).click();
   await expect(receipt.getByText('تم تسجيل الاستلام.')).toBeVisible();
@@ -134,4 +134,21 @@ test('centres the capital dialog and keeps withdrawal choices and errors readabl
   const error = page.locator('.action-toast.is-error');
   await expect(error).toBeVisible();
   await expect(error).toHaveCSS('background-color', 'rgb(155, 44, 31)');
+});
+
+test('records a debt from before the app on the supplier ledger', async ({page}) => {
+  await login(page);
+  await page.goto('/ar/suppliers');
+  await page.getByRole('link', {name: /Mauripharm Test/}).click();
+  await page.getByRole('button', {name: 'تسجيل دين'}).click();
+  const dialog = page.locator('.action-dialog[open]');
+  await dialog.getByLabel('مبلغ الدين').fill('750');
+  await dialog.getByLabel('ملاحظة').fill('رصيد الدفتر الورقي');
+  await dialog.getByRole('button', {name: 'تسجيل دين'}).click();
+  // The dialog closes at once and the outcome comes back as a message.
+  await expect(dialog).toBeHidden();
+  await expect(page.locator('.action-toast.is-success')).toBeVisible();
+  await expect(page.locator('.entity-hero > strong')).toContainText('750.00 MRU');
+  await expect(page.locator('.financial-ledger')).toContainText('دين سابق');
+  await expect(page.locator('.supplier-detail-stats')).toContainText('ديون سابقة');
 });

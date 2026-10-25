@@ -26,3 +26,9 @@ export const supplierPaymentSchema = z.object({
   reference: nullableText(200),
   note: nullableText(2000)
 });
+export const supplierDebtSchema = z.object({
+  supplierId: supplierIdSchema,
+  amount: positiveMoneySchema,
+  occurredAt: z.date().optional(),
+  note: nullableText(2000)
+});

@@ -2,9 +2,10 @@ import {expect, test} from '@playwright/test';
 
 test.beforeEach(async () => {
   if (!process.env.DATABASE_URL) process.loadEnvFile('.env.test');
-  const [{hash}, factories] = await Promise.all([
+  const [{hash}, factories, accounts] = await Promise.all([
     import('@node-rs/argon2'),
-    import('../factories/database')
+    import('../factories/database'),
+    import('../../src/modules/accounts/service')
   ]);
   await factories.resetDatabase();
   const admin = await factories.createUser({
@@ -14,6 +15,8 @@ test.beforeEach(async () => {
     role: 'ADMIN'
   });
   await factories.createShift({userId: admin.id});
+  // Expenses are paid from the cash box, so it must hold something.
+  await accounts.recordCapitalMovement({id: admin.id, role: 'ADMIN', isActive: true, permissions: []}, {type: 'ADDITION', amount: '10000.00'});
 });
 
 test('creates a category inline, then corrects and cancels an expense', async ({page}) => {

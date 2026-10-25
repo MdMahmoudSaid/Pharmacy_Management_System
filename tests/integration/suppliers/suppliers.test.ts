@@ -9,6 +9,7 @@ import {getSupplierDetail, listSuppliers} from '@/modules/suppliers/queries';
 import {recordCapitalMovement} from '@/modules/accounts/service';
 import {
   createSupplier,
+  recordSupplierDebt,
   recordSupplierPayment,
   setSupplierActive,
   updateSupplier
@@ -67,6 +68,35 @@ describe('supplier account ledger', () => {
     await expect(listSuppliers(employee)).rejects.toMatchObject({code: 'FORBIDDEN'});
   });
 
+  it('records a debt from before the app: it raises the balance without moving cash', async () => {
+    const supplier = await createSupplier(admin, {name: 'Old Debt Supplier'});
+    await recordSupplierDebt(admin, {supplierId: supplier.id, amount: '500.00', occurredAt: new Date('2026-09-01T10:00:00Z'), note: 'Cahier papier'});
+
+    const detail = await getSupplierDetail(admin, supplier.id);
+    expect(detail.summary).toEqual({purchases: '0.00', debts: '500.00', payments: '0.00', balance: '500.00'});
+    expect(detail.ledger.map(({kind, amount, runningBalance}) => ({kind, amount, runningBalance}))).toEqual([
+      {kind: 'DEBT', amount: '500.00', runningBalance: '500.00'}
+    ]);
+    const list = await listSuppliers(admin);
+    expect(list.items.find(({id}) => id === supplier.id)).toMatchObject({charges: '500.00', balance: '500.00'});
+    expect(list.totals.debt).toBe('500.00');
+    // The cash box is untouched.
+    const {getCashSnapshot} = await import('@/modules/accounts/cash');
+    await expect(getCashSnapshot(db)).resolves.toMatchObject({cash: '0.00'});
+    // Paying part of it needs cash and lowers the balance like any payment.
+    await recordCapitalMovement(admin, {type: 'ADDITION', amount: '300.00'});
+    await recordSupplierPayment(admin, {supplierId: supplier.id, amount: '200.00'});
+    await expect(getSupplierDetail(admin, supplier.id)).resolves.toMatchObject({summary: {balance: '300.00'}});
+  });
+
+  it('refuses to record a debt without the manage permission or for an archived supplier', async () => {
+    const supplier = await createSupplier(admin, {name: 'Guarded Supplier'});
+    await expect(recordSupplierDebt(employee, {supplierId: supplier.id, amount: '10.00'})).rejects.toBeDefined();
+    await expect(recordSupplierDebt(admin, {supplierId: supplier.id, amount: '0'})).rejects.toBeDefined();
+    await setSupplierActive(admin, supplier.id, false);
+    await expect(recordSupplierDebt(admin, {supplierId: supplier.id, amount: '10.00'})).rejects.toBeDefined();
+  });
+
   it('shows receipt debits and payment credits with a chronological running balance', async () => {
     await recordCapitalMovement(admin, {type: 'ADDITION', amount: '100.00'});
     const supplier = await createSupplier(admin, {name: 'Ledger Supplier'});
@@ -102,7 +132,7 @@ describe('supplier account ledger', () => {
     });
 
     const detail = await getSupplierDetail(admin, supplier.id);
-    expect(detail.summary).toEqual({purchases: '150.00', payments: '40.00', balance: '110.00'});
+    expect(detail.summary).toEqual({purchases: '150.00', debts: '0.00', payments: '40.00', balance: '110.00'});
     expect(detail.ledger.map(({kind, amount, runningBalance}) => ({kind, amount, runningBalance}))).toEqual([
       {kind: 'RECEIPT', amount: '100.00', runningBalance: '100.00'},
       {kind: 'PAYMENT', amount: '40.00', runningBalance: '60.00'},

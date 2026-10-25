@@ -16,6 +16,23 @@ export const receiveStockSchema = z
     note: z.string().trim().max(500).optional()
   });
 
+export const receiveStockBatchSchema = z.object({
+  supplierId: z.number().int().positive(),
+  note: z.string().trim().max(500).optional(),
+  lines: z
+    .array(
+      z.object({
+        medicineId: z.number().int().positive(),
+        quantity: positiveQuantitySchema,
+        totalCost: positiveMoneySchema,
+        sellingPrice: positiveMoneySchema
+      })
+    )
+    .min(1)
+    .max(40)
+    .refine((lines) => new Set(lines.map(({medicineId}) => medicineId)).size === lines.length, 'DUPLICATE_MEDICINE')
+});
+
 export const correctStockReceiptSchema = z.object({
   receiptId: z.number().int().positive(),
   medicineId: z.number().int().positive(),

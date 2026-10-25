@@ -344,7 +344,7 @@
     "suggestedSellingPrice": "Prix conseillé (+20 %)",
     "newSellingPrice": "Nouveau prix de vente",
     "sellingPriceHelp": "Doit être supérieur au nouveau coût moyen : {cost} MRU",
-    "receiveConfirm": "Confirmez-vous l’ajout de cette quantité au stock ?",
+    "receiveConfirm": "Confirmer la réception de {count} article(s) ? Ils seront ajoutés au stock et à la dette du fournisseur.",
     "confirmReceive": "Confirmer la réception",
     "received": "Réception enregistrée.",
     "movements": "Registre des mouvements",
@@ -423,7 +423,21 @@
     "recordAdjustment": "Enregistrer l’ajustement",
     "adjusted": "Stock mis à jour.",
     "medicineLedger": "Registre du médicament",
-    "receiptSource": "De {supplier} · unité {cost} · total {total}"
+    "receiptSource": "De {supplier} · unité {cost} · total {total}",
+    "amountPaid": "Montant payé",
+    "unitCostComputed": "Coût unitaire",
+    "currentPrice": "Prix actuel",
+    "suggestedPrice": "Suggéré",
+    "profitPerUnit": "Bénéfice unitaire",
+    "lossPerUnit": "Perte",
+    "priceBelowCost": "Le prix ne couvre pas le coût ({cost}). Augmentez-le pour enregistrer.",
+    "averageAfter": "Coût moyen après réception : {cost}",
+    "addLine": "Ajouter un autre médicament",
+    "removeLine": "Supprimer cette ligne",
+    "duplicateMedicine": "Ce médicament est déjà sur une autre ligne.",
+    "invoiceTotal": "Total de la facture",
+    "invoiceTotalHint": "Ajouté à la dette du fournisseur",
+    "invoiceNotePlaceholder": "N° de facture ou note (facultatif)"
   },
   "Sales": {
     "kicker": "Caisse",
@@ -787,7 +801,8 @@
       "purchases": "Achats",
       "payments": "Paiements",
       "balance": "Solde",
-      "costOfGoods": "Coût des médicaments"
+      "costOfGoods": "Coût des médicaments",
+      "openingDebt": "Dette reprise"
     },
     "metrics": {
       "net": "Résultat net",
@@ -994,7 +1009,16 @@
       "INSUFFICIENT_STOCK": "Stock insuffisant.",
       "INSUFFICIENT_CASH": "Le solde de caisse est insuffisant pour ce paiement.",
       "INTERNAL_ERROR": "Impossible de terminer l’opération."
-    }
+    },
+    "charges": "Achats et dettes",
+    "previousDebt": "Dette reprise",
+    "previousDebts": "Dettes reprises",
+    "recordDebt": "Enregistrer une dette",
+    "debtHint": "Saisissez une dette antérieure à l’utilisation de l’application. Elle s’ajoute au solde du fournisseur sans toucher à la caisse, au stock ni au bénéfice.",
+    "debtAmount": "Montant de la dette",
+    "debtDate": "Date de la dette",
+    "debtNotePlaceholder": "Ex. : solde du cahier papier",
+    "debtSaved": "Dette enregistrée."
   },
   "Accounts": {
     "kicker": "Propriété et résultat",

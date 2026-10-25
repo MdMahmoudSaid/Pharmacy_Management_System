@@ -5,7 +5,7 @@ import {ZodError} from 'zod';
 import type {ActionResult} from '@/lib/action-result';
 import {AppError} from '@/lib/errors';
 import {requireSession} from '@/modules/auth/session';
-import {adjustStock, correctStockReceipt, receiveStock} from './service';
+import {adjustStock, correctStockReceipt, receiveStock, receiveStockBatch} from './service';
 
 export type StockActionState = ActionResult<{id: number}> | undefined;
 const text = (data: FormData, key: string) => String(data.get(key) ?? '');
@@ -32,6 +32,30 @@ export async function receiveStockAction(
     });
     refresh(data);
     return {ok: true, data: {id: receipt.id}};
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+// The receive form sends every line as one JSON field, so a variable number of rows stays one submission.
+export async function receiveStockBatchAction(
+  _state: StockActionState,
+  data: FormData
+): Promise<StockActionState> {
+  try {
+    let payload: {supplierId?: unknown; note?: unknown; lines?: unknown};
+    try {
+      payload = JSON.parse(text(data, 'payload'));
+    } catch {
+      return {ok: false, code: 'VALIDATION_ERROR'};
+    }
+    const receipts = await receiveStockBatch(await requireSession(), {
+      supplierId: Number(payload.supplierId),
+      note: typeof payload.note === 'string' && payload.note ? payload.note : undefined,
+      lines: Array.isArray(payload.lines) ? payload.lines : []
+    });
+    refresh(data);
+    return {ok: true, data: {id: receipts[0].id}};
   } catch (error) {
     return failure(error);
   }

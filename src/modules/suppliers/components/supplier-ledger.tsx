@@ -4,10 +4,10 @@ import Link from 'next/link';
 import {useTranslations} from 'next-intl';
 import {useActionState} from 'react';
 
-import {recordSupplierPaymentAction, type SupplierActionState} from '../actions';
+import {recordSupplierDebtAction, recordSupplierPaymentAction, type SupplierActionState} from '../actions';
 
 type LedgerRow = {
-  kind: 'RECEIPT' | 'PAYMENT';
+  kind: 'RECEIPT' | 'PAYMENT' | 'DEBT';
   id: number;
   occurredAt: Date;
   amount: string;
@@ -34,8 +34,8 @@ export function SupplierLedger({rows, locale}: {supplierId: number; rows: Ledger
             <thead><tr><th>{t('date')}</th><th>{t('operation')}</th><th>{t('debit')}</th><th>{t('credit')}</th><th>{t('runningBalance')}</th></tr></thead>
             <tbody>{rows.map((row) => <tr key={`${row.kind}-${row.id}`}>
               <td data-label={t('date')}>{date.format(new Date(row.occurredAt))}</td>
-              <td data-label={t('operation')}>{row.kind === 'RECEIPT' ? <Link href={`/${locale}/medicines/${row.medicineId}`}>{row.medicineName} · {row.quantity} × {row.unitCost}</Link> : row.reference || t('payment')} {row.note ? <small>{row.note}</small> : null}</td>
-              <td data-label={t('debit')} dir="ltr">{row.kind === 'RECEIPT' ? amount(row.amount) : '—'}</td>
+              <td data-label={t('operation')}>{row.kind === 'RECEIPT' ? <Link href={`/${locale}/medicines/${row.medicineId}`}>{row.medicineName} · {row.quantity} × {row.unitCost}</Link> : row.kind === 'DEBT' ? t('previousDebt') : row.reference || t('payment')} {row.note ? <small>{row.note}</small> : null}</td>
+              <td data-label={t('debit')} dir="ltr">{row.kind !== 'PAYMENT' ? amount(row.amount) : '—'}</td>
               <td data-label={t('credit')} dir="ltr">{row.kind === 'PAYMENT' ? amount(row.amount) : '—'}</td>
               <td data-label={t('runningBalance')} dir="ltr"><b>{amount(row.runningBalance)}</b></td>
             </tr>)}</tbody>
@@ -57,5 +57,18 @@ export function SupplierPaymentForm({supplierId, locale}: {supplierId: number; l
     <label><span>{t('reference')}</span><input name="reference" /></label>
     <label><span>{t('note')}</span><input name="note" /></label>
     <div className="entry-footer"><button className="primary-action" disabled={pending}>{t('recordPayment')}</button>{state && !state.ok ? <p className="form-error">{t(`errors.${state.code}`)}</p> : null}{state?.ok ? <p className="form-success">{t('paymentSaved')}</p> : null}</div>
+  </form>;
+}
+
+export function SupplierDebtForm({supplierId, locale}: {supplierId: number; locale: 'ar' | 'fr'}) {
+  const t = useTranslations('Suppliers');
+  const [state, action, pending] = useActionState<SupplierActionState, FormData>(recordSupplierDebtAction, undefined);
+  return <form action={action} className="entry-form payment-form-body">
+    <input type="hidden" name="locale" value={locale} /><input type="hidden" name="supplierId" value={supplierId} />
+    <p className="dialog-hint">{t('debtHint')}</p>
+    <label><span>{t('debtAmount')}</span><input aria-label={t('debtAmount')} name="amount" inputMode="decimal" dir="ltr" required /></label>
+    <label><span>{t('debtDate')}</span><input name="occurredAt" type="date" defaultValue={new Date().toISOString().slice(0, 10)} required /></label>
+    <label><span>{t('note')}</span><input name="note" placeholder={t('debtNotePlaceholder')} /></label>
+    <div className="entry-footer"><button className="primary-action" disabled={pending}>{t('recordDebt')}</button>{state && !state.ok ? <p className="form-error">{t(`errors.${state.code}`)}</p> : null}{state?.ok ? <p className="form-success">{t('debtSaved')}</p> : null}</div>
   </form>;
 }

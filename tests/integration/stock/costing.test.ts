@@ -6,7 +6,7 @@ import {migrateDatabase} from '@/db/migrate';
 import {medicines, saleItems, stockMovements, stockReceipts} from '@/db/schema';
 import type {PermissionActor} from '@/modules/permissions/service';
 import {correctSale, createSale} from '@/modules/sales/service';
-import {adjustStock, getMedicineMovements, receiveStock} from '@/modules/stock/service';
+import {adjustStock, getMedicineMovements, receiveStock, receiveStockBatch} from '@/modules/stock/service';
 import {createSupplier, setSupplierActive} from '@/modules/suppliers/service';
 import {getSupplierDetail} from '@/modules/suppliers/queries';
 import {
@@ -45,6 +45,63 @@ describe('cost-aware stock ledger', () => {
       unitCost: '15.00',
       totalCost: '150.00'
     });
+  });
+
+  it('receives several medicines in one go from the total paid for each line', async () => {
+    const supplier = await createSupplier(admin, {name: 'Multi'});
+    const first = await createMedicine({sellingPrice: '10.00'});
+    const second = await createMedicine({sellingPrice: '10.00'});
+    const receipts = await receiveStockBatch(admin, {
+      supplierId: supplier.id,
+      note: 'Facture 12',
+      lines: [
+        // 1000 for 3 units: 333.33 a unit, but the supplier is still owed exactly 1000.
+        {medicineId: first.id, quantity: 3, totalCost: '1000.00', sellingPrice: '450.00'},
+        {medicineId: second.id, quantity: 4, totalCost: '80.00', sellingPrice: '30.00'}
+      ]
+    });
+    expect(receipts).toHaveLength(2);
+    expect(receipts[0]).toMatchObject({unitCost: '333.33', totalCost: '1000.00'});
+    const [one] = await db.select().from(medicines).where(eq(medicines.id, first.id));
+    expect(one).toMatchObject({currentStock: 3, averageCost: '333.33', sellingPrice: '450.00'});
+    const [two] = await db.select().from(medicines).where(eq(medicines.id, second.id));
+    expect(two).toMatchObject({currentStock: 4, averageCost: '20.00', sellingPrice: '30.00'});
+    await expect(getSupplierDetail(admin, supplier.id)).resolves.toMatchObject({
+      summary: {purchases: '1080.00', balance: '1080.00'}
+    });
+  });
+
+  it('records nothing when one line of the receipt is refused', async () => {
+    const supplier = await createSupplier(admin, {name: 'Atomic'});
+    const good = await createMedicine();
+    const bad = await createMedicine();
+    await expect(
+      receiveStockBatch(admin, {
+        supplierId: supplier.id,
+        lines: [
+          {medicineId: good.id, quantity: 2, totalCost: '10.00', sellingPrice: '9.00'},
+          // Sold at less than it costs: refused.
+          {medicineId: bad.id, quantity: 2, totalCost: '100.00', sellingPrice: '20.00'}
+        ]
+      })
+    ).rejects.toMatchObject({code: 'VALIDATION_ERROR'});
+    const [stored] = await db.select().from(medicines).where(eq(medicines.id, good.id));
+    expect(stored).toMatchObject({currentStock: 0, averageCost: '0.00'});
+    await expect(db.select().from(stockReceipts)).resolves.toEqual([]);
+  });
+
+  it('refuses the same medicine twice in one receipt', async () => {
+    const supplier = await createSupplier(admin, {name: 'Twice'});
+    const medicine = await createMedicine();
+    await expect(
+      receiveStockBatch(admin, {
+        supplierId: supplier.id,
+        lines: [
+          {medicineId: medicine.id, quantity: 1, totalCost: '5.00', sellingPrice: '9.00'},
+          {medicineId: medicine.id, quantity: 1, totalCost: '5.00', sellingPrice: '9.00'}
+        ]
+      })
+    ).rejects.toBeDefined();
   });
 
   it('rolls back every receipt effect when the supplier is archived', async () => {

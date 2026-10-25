@@ -17,6 +17,7 @@ import {projectReceiptPricing} from './pricing';
 import {
   adjustStockSchema,
   correctStockReceiptSchema,
+  receiveStockBatchSchema,
   receiveStockSchema
 } from './schemas';
 
@@ -38,6 +39,104 @@ async function lockMedicines(tx: DbTransaction, ids: number[]) {
   return new Map(result.rows.map((row) => [Number(row.id), row]));
 }
 
+type ReceiptLine = {medicineId: number; quantity: number; totalCost: string; sellingPrice: string};
+
+// Receives one or several medicines from one supplier in a single transaction: either every line is recorded or none.
+export async function receiveStockBatch(
+  actor: PermissionActor,
+  input: {supplierId: number; note?: string; lines: ReceiptLine[]},
+  existingTx?: DbTransaction
+) {
+  authorize(actor, 'stock.receive.own', actor.id);
+  const value = receiveStockBatchSchema.parse(input);
+  const operation = async (tx: DbTransaction) => {
+    const shift = await requireActiveShift(actor.id, tx);
+    const locked = await lockMedicines(tx, value.lines.map(({medicineId}) => medicineId));
+    const [supplier] = await tx
+      .select({id: suppliers.id, isActive: suppliers.isActive})
+      .from(suppliers)
+      .where(eq(suppliers.id, value.supplierId))
+      .for('update');
+    if (!supplier) throw new AppError('NOT_FOUND');
+    if (!supplier.isActive) throw new AppError('CONFLICT');
+    const receipts = [];
+    for (const line of value.lines) {
+      const medicine = locked.get(line.medicineId)!;
+      if (!medicine.is_active) throw new AppError('CONFLICT');
+      const after = medicine.current_stock + line.quantity;
+      const projection = projectReceiptPricing({
+        currentStock: medicine.current_stock,
+        averageCost: medicine.average_cost,
+        quantity: line.quantity,
+        totalCost: line.totalCost
+      });
+      // A unit cost that rounds to nothing cannot be recorded.
+      if (new Decimal(projection.unitCost).lessThanOrEqualTo(0)) throw new AppError('VALIDATION_ERROR');
+      if (new Decimal(line.sellingPrice).lessThanOrEqualTo(projection.projectedAverageCost)) {
+        throw new AppError('VALIDATION_ERROR');
+      }
+      await tx
+        .update(medicines)
+        .set({
+          currentStock: after,
+          averageCost: projection.projectedAverageCost,
+          sellingPrice: line.sellingPrice,
+          updatedBy: actor.id,
+          updatedAt: new Date()
+        })
+        .where(eq(medicines.id, line.medicineId));
+      const [receipt] = await tx
+        .insert(stockReceipts)
+        .values({
+          medicineId: line.medicineId,
+          supplierId: value.supplierId,
+          quantity: line.quantity,
+          unitCost: projection.unitCost,
+          totalCost: projection.totalCost,
+          shiftId: shift.id,
+          operatorId: actor.id,
+          note: value.note,
+          createdBy: actor.id,
+          updatedBy: actor.id
+        })
+        .returning();
+      await tx.insert(stockMovements).values({
+        medicineId: line.medicineId,
+        type: 'STOCK_RECEIVED',
+        quantityBefore: medicine.current_stock,
+        quantityChange: line.quantity,
+        quantityAfter: after,
+        relatedEntityType: 'STOCK_RECEIPT',
+        relatedEntityId: receipt.id,
+        shiftId: shift.id,
+        actorId: actor.id,
+        note: value.note
+      });
+      await appendAudit(tx, {
+        actorId: actor.id,
+        entityType: 'stock_receipts',
+        entityId: receipt.id,
+        action: 'CREATE',
+        newValues: {
+          medicineId: line.medicineId,
+          supplierId: value.supplierId,
+          quantity: line.quantity,
+          unitCost: projection.unitCost,
+          totalCost: projection.totalCost,
+          projectedAverageCost: projection.projectedAverageCost,
+          sellingPrice: line.sellingPrice
+        },
+        relatedShiftId: shift.id,
+        relatedTransactionType: 'STOCK_RECEIPT',
+        relatedTransactionId: receipt.id
+      });
+      receipts.push(receipt);
+    }
+    return receipts;
+  };
+  return existingTx ? operation(existingTx) : db.transaction(operation);
+}
+
 export async function receiveStock(
   actor: PermissionActor,
   input: {
@@ -50,88 +149,22 @@ export async function receiveStock(
   },
   existingTx?: DbTransaction
 ) {
-  authorize(actor, 'stock.receive.own', actor.id);
   const value = receiveStockSchema.parse(input);
-  const operation = async (tx: DbTransaction) => {
-    const shift = await requireActiveShift(actor.id, tx);
-    const locked = await lockMedicines(tx, [value.medicineId]);
-    const medicine = locked.get(value.medicineId)!;
-    if (!medicine.is_active) throw new AppError('CONFLICT');
-    const [supplier] = await tx
-      .select({id: suppliers.id, isActive: suppliers.isActive})
-      .from(suppliers)
-      .where(eq(suppliers.id, value.supplierId))
-      .for('update');
-    if (!supplier) throw new AppError('NOT_FOUND');
-    if (!supplier.isActive) throw new AppError('CONFLICT');
-    const after = medicine.current_stock + value.quantity;
-    const projection = projectReceiptPricing({
-      currentStock: medicine.current_stock,
-      averageCost: medicine.average_cost,
-      quantity: value.quantity,
-      unitCost: value.unitCost
-    });
-    if (new Decimal(value.sellingPrice).lessThanOrEqualTo(projection.projectedAverageCost)) {
-      throw new AppError('VALIDATION_ERROR');
-    }
-    await tx
-      .update(medicines)
-      .set({
-        currentStock: after,
-        averageCost: projection.projectedAverageCost,
-        sellingPrice: value.sellingPrice,
-        updatedBy: actor.id,
-        updatedAt: new Date()
-      })
-      .where(eq(medicines.id, value.medicineId));
-    const [receipt] = await tx
-      .insert(stockReceipts)
-      .values({
+  const [receipt] = await receiveStockBatch(
+    actor,
+    {
+      supplierId: value.supplierId,
+      note: value.note,
+      lines: [{
         medicineId: value.medicineId,
-        supplierId: value.supplierId,
         quantity: value.quantity,
-        unitCost: value.unitCost,
-        totalCost: projection.totalCost,
-        shiftId: shift.id,
-        operatorId: actor.id,
-        note: value.note,
-        createdBy: actor.id,
-        updatedBy: actor.id
-      })
-      .returning();
-    await tx.insert(stockMovements).values({
-      medicineId: value.medicineId,
-      type: 'STOCK_RECEIVED',
-      quantityBefore: medicine.current_stock,
-      quantityChange: value.quantity,
-      quantityAfter: after,
-      relatedEntityType: 'STOCK_RECEIPT',
-      relatedEntityId: receipt.id,
-      shiftId: shift.id,
-      actorId: actor.id,
-      note: value.note
-    });
-    await appendAudit(tx, {
-      actorId: actor.id,
-      entityType: 'stock_receipts',
-      entityId: receipt.id,
-      action: 'CREATE',
-      newValues: {
-        medicineId: value.medicineId,
-        supplierId: value.supplierId,
-        quantity: value.quantity,
-        unitCost: value.unitCost,
-        totalCost: projection.totalCost,
-        projectedAverageCost: projection.projectedAverageCost,
+        totalCost: new Decimal(value.unitCost).times(value.quantity).toFixed(2),
         sellingPrice: value.sellingPrice
-      },
-      relatedShiftId: shift.id,
-      relatedTransactionType: 'STOCK_RECEIPT',
-      relatedTransactionId: receipt.id
-    });
-    return receipt;
-  };
-  return existingTx ? operation(existingTx) : db.transaction(operation);
+      }]
+    },
+    existingTx
+  );
+  return receipt;
 }
 
 export async function correctStockReceipt(
